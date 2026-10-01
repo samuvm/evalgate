@@ -1,0 +1,21 @@
+# Estado local de trabajo: no va al repositorio (CONSTITUCION §7.8).
+.claude/state/
+.snapshots/
+.run/
+.venv/
+mutants/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+__pycache__/
+.hypothesis/
+htmlcov/
+.DS_Store
+
+# No se publican: instrucciones del agente, buzón de decisiones y estado local de trabajo.
+CLAUDE.md
+.claude/
+docs/PARA-SAMUEL.md
+# La reserva de QA (holdout) no sale del equipo: publicarla la convertiría en tests visibles.
+tests/holdout/

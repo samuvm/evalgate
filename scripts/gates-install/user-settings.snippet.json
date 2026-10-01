@@ -1,0 +1,53 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(//Users/samuelviciana/Documents/day-300/*/docs/PROJECT.md)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/docs/GOALS.yaml)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/docs/PLAN.md)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/docs/RULES.md)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/docs/CONSTITUCION.md)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/docs/STACK.md)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/docs/CONTRACTS/**)",
+      "Write(//Users/samuelviciana/Documents/day-300/*/docs/CONTRACTS/**)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/thresholds.lock)",
+      "Write(//Users/samuelviciana/Documents/day-300/*/thresholds.lock)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/*.lock)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/.claude/state/*.json)",
+      "Write(//Users/samuelviciana/Documents/day-300/*/.claude/state/*.json)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/.snapshots/**)",
+      "Write(//Users/samuelviciana/Documents/day-300/*/.snapshots/**)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/evals/golden/**)",
+      "Edit(//Users/samuelviciana/Documents/day-300/_comun/**)",
+      "Write(//Users/samuelviciana/Documents/day-300/_comun/**)",
+      "Edit(//Users/samuelviciana/.claude/settings.json)",
+      "Edit(//Users/samuelviciana/.claude/gates/**)",
+      "Write(//Users/samuelviciana/.claude/gates/**)",
+      "Read(**/.env)",
+      "Bash(pytest * --no-cov *)",
+      "Bash(pytest * -k *)",
+      "Bash(pytest * -x *)",
+      "Bash(pytest * --deselect *)",
+      "Bash(rm -rf *)"
+    ],
+    "ask": [
+      "Bash(uv add *)",
+      "Bash(uv remove *)",
+      "Bash(pip install *)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "args": [],
+            "timeout": 600,
+            "statusMessage": "Gate de cierre de turno",
+            "command": "\"$HOME\"/.claude/gates/c-turn.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

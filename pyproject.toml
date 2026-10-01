@@ -1,0 +1,149 @@
+[project]
+name = "evalgate"
+version = "0.0.0"
+description = "Quality gate for LLM applications: tracing proxy with cost accounting, eval engine and paired statistical comparison."
+requires-python = "==3.12.*"
+dependencies = [
+    "clickhouse-connect==1.8.0",
+    "fastapi==0.141.1",
+    "httpx==0.28.1",
+    "opentelemetry-exporter-otlp==1.44.0",
+    "opentelemetry-sdk==1.44.0",
+    "pydantic==2.13.4",
+    "pyyaml==6.0.3",
+    "typer==0.27.2",
+    "uvicorn==0.52.4",
+]
+
+[project.scripts]
+evalgate = "evalgate.cli.main:app"
+
+[build-system]
+requires = ["uv_build==0.9.27"]
+build-backend = "uv_build"
+
+# Literal de docs/RULES.md §4.1. R19: cobertura_linea_min y mutantes_muertos_min deben coincidir con
+# G-LINE-COV y G-MUTATION de docs/GOALS.yaml, en porcentaje. Manda GOALS.yaml.
+[tool.gate]
+testable = [
+  "src/evalgate/pricing",
+  "src/evalgate/accounting",
+  "src/evalgate/proxy/streaming.py",
+  "src/evalgate/proxy/translate.py",
+  "src/evalgate/telemetry/semconv",
+  # Fuera del literal de RULES §4.1, y MÁS estricto que él: modelo, traductor y cola acotada son deterministas
+  # y el traductor es el único que conoce los nombres externos (contrato otel-genai §2). Sin estas líneas no
+  # pasarían por mypy --strict ni por G-FUNC-COV. PARA-SAMUEL P-008 pide alinear RULES.
+  "src/evalgate/telemetry/model.py",
+  "src/evalgate/telemetry/translate.py",
+  "src/evalgate/telemetry/processor.py",
+  "src/evalgate/telemetry/rows.py",
+  "src/evalgate/telemetry/migrations.py",
+  "src/evalgate/telemetry/pipeline.py",
+  "src/evalgate/evals/metrics",
+  "src/evalgate/evals/cache",
+  "src/evalgate/gate",
+  "src/evalgate/stats",
+  "src/evalgate/drift/detectors",
+]
+tdd_obligatorio = [
+  "src/evalgate/gate",
+  "src/evalgate/stats",
+  "src/evalgate/pricing",
+  "src/evalgate/accounting",
+  "src/evalgate/proxy/streaming.py",
+]
+excluido = [
+  "src/evalgate/proxy/app.py",
+  "src/evalgate/providers",
+  "src/evalgate/evals/judges/client.py",
+  "src/evalgate/cli",
+  "prompts",
+  "dashboards",
+  "examples",
+]
+cobertura_linea_min = 90
+mutantes_muertos_min = 75
+property_obligatorio = ["src/evalgate/pricing", "src/evalgate/stats"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib", "--strict-markers", "--strict-config"]
+xfail_strict = true
+
+[tool.coverage.run]
+source = ["src/evalgate"]
+branch = false
+# Solo lo que [tool.gate].excluido declara fuera de unitarios. Nada más: omitir es la forma más barata de
+# falsear G-LINE-COV, y cualquier ruta nueva aquí exige su motivo en RULES.md §4.1.
+omit = [
+  "src/evalgate/proxy/app.py",
+  "src/evalgate/providers/*",
+  "src/evalgate/evals/judges/client.py",
+  "src/evalgate/cli/*",
+]
+
+[tool.coverage.json]
+show_contexts = true
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+src = ["src", "tests", "scripts"]
+extend-exclude = ["docs", "evals", "pricing", ".snapshots", "mutants"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "S", "ARG", "PT", "C4", "PL", "DTZ"]
+ignore = ["PLR2004"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR0913"]
+# e2e drives real processes and local HTTP by design.
+"tests/e2e/**" = ["S101", "S603", "S310"]
+# Synthetic corpus: reproducible pseudo-randomness is the point, not a security primitive.
+"examples/rag-app/generate_corpus.py" = ["S311"]
+"scripts/**" = ["S603", "S607", "PLR0911", "PLR0912", "PLR0915"]
+# Generado por scripts/gen_semconv.py desde el modelo pineado; los nombres los pone OpenTelemetry,
+# no nosotros. S105 confunde constantes cuyo nombre lleva TOKEN (`gen_ai.client.token.usage`) con
+# credenciales. Ignorar aqui es lo unico narrow: el fichero no se edita a mano y no puede llevar noqa.
+"src/evalgate/telemetry/semconv/**" = ["S105"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+explicit_package_bases = true
+
+# Solo por `make mutation` (scripts/mutation.py), nunca en la raíz: mutmut copia tests/ entero, reserva incluida.
+# Las cinco rutas de P-003 van en `only_mutate`: mutmut 3.x copia a mutants/ solo `source_paths`, y copiar
+# medio paquete deja `evalgate` sin __init__.py y los tests importan el original, no el mutado.
+[tool.mutmut]
+source_paths = ["src/"]
+only_mutate = [
+  "src/evalgate/gate/*",
+  "src/evalgate/stats/*",
+  "src/evalgate/pricing/*",
+  "src/evalgate/accounting/*",
+  "src/evalgate/proxy/streaming.py",
+]
+pytest_add_cli_args_test_selection = ["tests/unit", "tests/property", "tests/contract"]
+# Lo que leen los tests de contrato: docs/spec, docs/CONTRACTS, GOALS.yaml, evals/ y el pin OTel.
+also_copy = ["docs/", "evals/", "otel-semconv.lock"]
+pytest_add_cli_args = ["-p", "no:cacheprovider"]
+
+[dependency-groups]
+dev = [
+    "bandit==1.9.4",
+    "detect-secrets==1.5.0",
+    "hypothesis==6.168.0",
+    "jsonschema==4.26.0",
+    "mutmut==3.7.0",
+    "mypy==2.3.1",
+    "pip-audit==2.10.1",
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "pytest-socket==0.8.1",
+    "pytest-xdist==3.8.0",
+    "ruff==0.16.6",
+    "testcontainers==4.15.0",
+]

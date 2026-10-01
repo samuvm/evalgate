@@ -1,0 +1,29 @@
+{
+  "milestone": 2,
+  "at": "2026-09-20T18:02:11+00:00",
+  "numbers": {
+    "G-FUNC-COV": 0,
+    "G-LINE-COV": 98.7,
+    "G-OPENAI-CONTRACT": {
+      "ratio": 1.0,
+      "n": 7
+    },
+    "G-ADOPTION": {
+      "lineas_de_diff": 0,
+      "n_lineas": 8
+    },
+    "G-TOKENS-EXACT": {
+      "ratio": 1,
+      "n": 5
+    },
+    "G-TOKENS-STREAM": {
+      "delta_con_usage": 0
+    },
+    "G-DISCONNECT": {
+      "ratio": 1,
+      "n": 222
+    }
+  },
+  "snapshot": ".snapshots/2026-09-20-fase2-2",
+  "source": ".claude/state/gate-status.json"
+}

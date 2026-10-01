@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(//Users/samuelviciana/Documents/day-300/*/tests/holdout/**)",
+      "Edit(//Users/samuelviciana/Documents/day-300/*/tests/holdout/**)",
+      "Write(//Users/samuelviciana/Documents/day-300/*/tests/holdout/**)",
+      "Bash(git *)"
+    ]
+  }
+}

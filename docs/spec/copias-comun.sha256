@@ -1,0 +1,10 @@
+# sha256 de cada copia literal de _comun/ (R20). Se regenera SOLO cuando Samuel propaga un cambio de _comun/.
+# Formato: <sha256>  <ruta relativa al proyecto>. Lo comprueba tests/contract/test_contracts_are_verbatim_copies.py
+28d6149f5eaa447cf91093c3b2133bdf933d8218888975cc5b3736a851f5ea32  docs/CONTRACTS/eval-report.schema.json
+82b76324282804520f7092891a733f1412f97ae107a2133bea9d8c27070e592f  docs/CONTRACTS/goals.schema.json
+141ce7b400b48ed0828f4eed5c34ab2b011ce00e55fbdaae25a4f3b92e57d0cf  docs/CONTRACTS/otel-genai.md
+cd0b46691e36774b1ad7fdf00f8fbb067d542e4bbf3d62c43657e4e3550381c7  docs/CONTRACTS/pricing-table.md
+2cf8e25aac449a903ab3effa9c6c5eed343faec0fb4c9235cd0851b6098f18ea  docs/CONTRACTS/README.md
+de3401d14b727b35c8348583be0883cdf945dc01044890221ffcac45be86429c  docs/CONTRACTS/retrieval-metrics.md
+05037963067a8c7514fc7d445e1b7f9ad3164740bb188d72f2d65e91939923ec  docs/CONSTITUCION.md
+5540bb6c6f3428faa31e867cdef9f9bef7a2a8f211acb69b921625e7df5746ca  docs/STACK.md

@@ -1,0 +1,337 @@
+# Evalgate · metas ejecutables
+#
+# SOLO LECTURA PARA EL AGENTE. Está en `permissions.deny`.
+# Ningún cambio de este fichero lo hace el agente: se propone en `docs/PARA-SAMUEL.md` con el
+# formato de CONSTITUCION §3 (tipo `bajar-umbral`, con >= 2 intentos medidos en JOURNAL.md) y lo
+# aplica Samuel. Aprobar es: Samuel edita este fichero, pone `Estado: APROBADA` y REGENERA
+# `thresholds.lock` (sha256 de este fichero). `make done` compara ambos: si difieren, rojo.
+#
+# El agente puede cambiar CÓMO llega al número. Nunca puede cambiar el número.
+#
+# FORMA: la fija `docs/CONTRACTS/goals.schema.json` (contrato transversal v1). Se valida con
+#   uv run --with pyyaml --with jsonschema python -c "import yaml,json,jsonschema;\
+#   jsonschema.validate(yaml.safe_load(open('docs/GOALS.yaml')),\
+#   json.load(open('docs/CONTRACTS/goals.schema.json')))"
+#
+# Semántica de los campos, y las tres convenciones que impone el esquema:
+#   umbral                 objeto {operador, valor, unidad}. NUNCA prosa: lo lee un script.
+#                          `adicionales` = umbrales secundarios de la MISMA meta, con su etiqueta.
+#   unidad                 `ratio` (0.90) y `porcentaje` (90) son el mismo objetivo escrito de dos
+#                          formas: mezclarlos rompe el check cruzado contra `[tool.gate]` (R19).
+#                          Aquí: cobertura y mutación en `porcentaje`, para que el número de
+#                          `pyproject.toml` y el de este fichero sean literalmente comparables.
+#   comando                el comando EXACTO que produce el número. Si no se puede escribir, la meta
+#                          está mal definida y hay que redefinirla, no aproximarla.
+#   artefacto              dónde queda el número, auditable después. Si vive en un campo concreto
+#                          del artefacto se escribe `ruta#<JSONPath>`: el esquema común no admite
+#                          un campo aparte, y el JSONPath no puede perderse.
+#   bloqueante_desde_fase  `make done MILESTONE=N` exige esta meta si N >= este valor.
+#                          `null` = nunca bloquea. INVARIANTE del esquema: toda meta
+#                          `tipo: ampliacion` lo tiene a `null` o apunta a una fase de ampliación.
+#                          Aquí las tres de ampliación son `null` (fases F8 y F10 de PLAN.md).
+#   tipo                   nucleo | ampliacion (CONSTITUCION §7.8).
+#   requiere               recurso externo sin el cual la meta no se puede medir. Se omite cuando
+#                          vale el defecto `[ninguno]`. Todo valor distinto tiene su entrada en
+#                          `docs/PARA-SAMUEL.md` (decisión transversal D-NN o pregunta Q-NNN).
+#   propuesta_admisible    se omite cuando vale el defecto `true`. `false` = ni siquiera se admite
+#                          una propuesta de bajar el umbral: cero es cero.
+#
+# Lo que se publica junto a cada punto (p50, p99, n, intervalo) va en la `nota` de su meta y en el
+# README; no bloquea, pero un punto sin intervalo no es una medida.
+#
+# Los ids de `metrics[].id` del informe de evaluación (docs/CONTRACTS/eval-report.schema.json)
+# DEBEN coincidir exactamente con los ids de este fichero.
+#
+# Fases: F0..F10 en docs/PLAN.md. Equivalen a los hitos H0..H9 de la hoja de reglas.
+
+version: 1
+proyecto: evalgate-02
+
+hardware_referencia: >-
+  MacBook Pro M4 Max, 36 GB de memoria unificada, 14 núcleos, macOS 26.5 (STACK.md §0).
+  Obligatorio porque G-LAT-PROXY, G-LAT-TTFT y G-TRACE-0 son metas de latencia y caudal: un p95
+  sin hardware declarado no es comparable con nada. La ventana de exclusividad de la máquina
+  durante los benchmarks se pide en PARA-SAMUEL Q-005 (matiz de D-03).
+
+comparacion:
+  metodo: bootstrap
+  pareado: true
+  n_resamples: 10000
+  semilla: 42
+  correccion_multiple: holm
+  # `holm` es el valor por defecto documentado del contrato (retrieval-metrics.md §4 y
+  # eval-report.schema.json). Motivo, que hay que saber decir: Holm controla la tasa de error POR
+  # FAMILIA -la probabilidad de bloquear al menos una vez sin causa-, que es exactamente el riesgo
+  # número uno de este proyecto: una puerta que bloquea sin motivo se acaba desactivando. Es además
+  # uniformemente más potente que Bonferroni y no exige supuestos adicionales.
+  # Benjamini-Hochberg controla la tasa de falsos descubrimientos y vale para el panel de
+  # diagnóstico, NO para la puerta. Todo informe emitido escribe literalmente "holm" en
+  # `comparison.multiple_comparison_correction` (R8, verificado por test de contrato).
+
+metas:
+
+  # ---------------------------------------------------------------- F1 · proxy tonto
+  - id: G-OPENAI-CONTRACT
+    nombre: "Compatibilidad con el esquema publicado de OpenAI"
+    umbral: { operador: ">=", valor: 1.0, unidad: ratio }
+    comando: "pytest tests/contract/test_openai_schema.py -q"
+    artefacto: ".claude/state/gate-status.json"
+    bloqueante_desde_fase: 1
+    tipo: nucleo
+    propuesta_admisible: false
+    nota: "Proporción de respuestas (cuerpo JSON y tramas SSE) que validan contra el snapshot pineado en docs/spec/openai-openapi-<ver>.json. Se valida contra la OpenAPI publicada por OpenAI, nunca contra una interpretación propia: por eso no se negocia."
+
+  - id: G-ADOPTION
+    nombre: "Adopción por variable de entorno, sin tocar código"
+    umbral: { operador: "==", valor: 0, unidad: count }
+    comando: "make test-e2e -k adoption"
+    artefacto: ".claude/state/gate-status.json"
+    bloqueante_desde_fase: 1
+    tipo: nucleo
+    propuesta_admisible: false
+    nota: "REDEFINIDA: el criterio de aceptación nº 1 del PROJECT.md era prosa. Aquí es un número: líneas de diff entre la salida de examples/rag-app con y sin OPENAI_BASE_URL apuntando al proxy, excluidos los campos no deterministas declarados en evals/report-hash-exclusions.yaml. Cero o falla; si aparece una diferencia legítima se declara en las exclusiones, no se sube el umbral."
+
+  - id: G-FUNC-COV
+    nombre: "Un test unitario por función pública, con extensión de propiedad"
+    umbral: { operador: "==", valor: 0, unidad: count }
+    comando: "pytest tests/unit --cov --cov-context=test --cov-report=json:/tmp/cov.json && python scripts/check_function_coverage.py"
+    artefacto: ".claude/state/gate-status.json"
+    bloqueante_desde_fase: 1
+    tipo: nucleo
+    propuesta_admisible: false
+    nota: "Funciones públicas de [tool.gate].testable sin contexto de test. Extensión propia sobre CONSTITUCION §2.6: toda función pública de pricing/ y stats/ necesita ADEMÁS >= 1 test en tests/property/, porque ahí el test por ejemplo es demostradamente insuficiente (un coste con tres ejemplos pasa y sigue roto en el cambio de tarifa; un IC bootstrap con un caso pasa con el sesgo invertido)."
+
+  - id: G-LINE-COV
+    nombre: "Cobertura de línea en paquetes testable"
+    umbral: { operador: ">=", valor: 90, unidad: porcentaje }
+    comando: "pytest tests/unit tests/property --cov=src/evalgate --cov-report=json:/tmp/cov.json"
+    artefacto: "/tmp/cov.json#$.totals.percent_covered"
+    bloqueante_desde_fase: 1
+    tipo: nucleo
+    nota: "90 y no el 85 de la constitución: el corazón de este proyecto es determinista y el propio PROJECT.md §4 lo exige en pricing/, metrics/ y gate/. UNIDAD `porcentaje`, no ratio: `coverage.py` escribe `percent_covered` en escala 0-100 y `[tool.gate].cobertura_linea_min` de pyproject.toml vale 90 en esa misma escala. Los dos números están duplicados a propósito y `scripts/check_gate_config.py` falla si difieren (R19): pyproject.toml NO está en deny y un agente bloqueado podría bajarlo sin tocar este fichero. Manda el número de aquí."
+
+  # ---------------------------------------------------------------- F2 · streaming
+  - id: G-TOKENS-EXACT
+    nombre: "Contabilidad exacta de tokens en no-streaming"
+    umbral: { operador: "==", valor: 1.0, unidad: ratio }
+    comando: "pytest tests/contract/test_token_reconcile.py -q"
+    artefacto: ".claude/state/gate-status.json"
+    bloqueante_desde_fase: 2
+    tipo: nucleo
+    propuesta_admisible: false
+    nota: "Proporción de respuestas grabadas donde input_tokens/output_tokens registrados == bloque `usage` del proveedor. Es aritmética: no admite excepción ni intervalo, y por eso no admite propuesta."
+
+  - id: G-TOKENS-STREAM
+    nombre: "Contabilidad de tokens en streaming"
+    umbral:
+      operador: "<="
+      valor: 0.02
+      unidad: ratio
+      adicionales:
+        - { etiqueta: "con chunk final de usage: |delta| relativo", operador: "==", valor: 0 }
+    comando: "pytest tests/property/test_stream_accounting.py -q"
+    artefacto: ".claude/state/gate-status.json"
+    bloqueante_desde_fase: 2
+    tipo: nucleo
+    nota: "La exactitud se exige donde es verificable (P-005 (a), 2026-09-20). Con chunk final de `usage` del proveedor el umbral es 0 exacto, y es el caso normal (Ollama y OpenAI lo mandan con `stream_options.include_usage`). Sin `usage`, el registro viaja declarado con `source: estimated`, NO entra en esta meta, y el informe publica como número propio el porcentaje de streams que trajeron `usage`. Motivo: medido contra Ollama 0.33.3 / qwen3.5:4b-mlx, el mejor estimador heurístico se equivoca un 35 % (JOURNAL 2026-09-12); el 2 % original comparaba contra el mismo tokenizador del proxy y daba 0 por construcción."
+
+  - id: G-DISCONNECT
+    nombre: "Contabilidad ante desconexión del cliente"
+    umbral: { operador: "==", valor: 1.0, unidad: ratio }
+    comando: "pytest tests/property/test_stream_accounting.py tests/contract/test_stream_disconnect_accounting.py -q"
+    artefacto: ".claude/state/gate-status.json"
+    bloqueante_desde_fase: 2
+    tipo: nucleo
+    propuesta_admisible: false
+    nota: "Hypothesis corta el cliente en CADA índice de chunk k en [0, n]. Proporción de k donde existe registro de uso Y tokens_registrados >= tokens de los chunks ya emitidos. Es el diferenciador nº 1 del proyecto: esos tokens ya se han pagado, así que aquí no hay umbral estadístico que negociar."
+
+  # ---------------------------------------------------------------- F3 · telemetría
+  - id: G-OTEL-CONTRACT
+    nombre: "Spans conformes al contrato OTel GenAI pineado"
+    umbral: { operador: "==", valor: 1.0, unidad: ratio }
+    comando: "pytest tests/contract/test_otel_attrs.py -q"
+    artefacto: ".claude/state/gate-status.json"
+    bloqueante_desde_fase: 3
+    tipo: nucleo
+    nota: "Proporción de spans emitidos que llevan los atributos obligatorios de docs/CONTRACTS/otel-genai.md §4 en la versión de otel-semconv.lock, y que la traducción modelo-interno -> externo es total. Incluye app.cost.pricing_version y app.stream.client_disconnected."
+
+  - id: G-TRACE-0
+    nombre: "Cero spans perdidos con almacén sano"
+    umbral: { operador: "==", valor: 0, unidad: count }
+    comando: "make test-int -k trace_lossless"
+    artefacto: ".claude/state/gate-status.json"
+    bloqueante_desde_fase: 3
+    tipo: nucleo
+    nota: "REDEFINIDA: 'pérdida 0 % en operación normal' no definía 'operación normal' y chocaba con 'la cola descarta sin bloquear'. Aquí: spans perdidos == peticiones_servidas - spans_persistidos, a 50 rps sostenidos durante 120 s con ClickHouse sano. El caudal se publica en el README junto al número."
+
+  - id: G-TRACE-DEGRADE
+    nombre: "Degradación elegante con el almacén caído"
+    umbral:
+      operador: "<="
+      valor: 5
+      unidad: ms
+      adicionales:
+        - { etiqueta: "proporción de peticiones servidas", operador: "==", valor: 1.0 }
+    comando: "make test-int -k degradation"
+    artefacto: "evals/reports/degradation-<fecha>.json#$.p95_delta_ms"
+    bloqueante_desde_fase: 3
+    tipo: nucleo
+    propuesta_admisible: false
+    nota: "Milisegundos de degradación del p95 de petición con ClickHouse tumbado a mitad del test. Exige además, como condición binaria del mismo test, que app.spans.dropped == spans emitidos: un descarte silencioso es peor que un descarte medido. Invariante no negociable (R1)."
+
+  - id: G-LAT-PROXY
+    nombre: "Sobrecarga p95 del proxy, no-streaming"
+    umbral: { operador: "<=", valor: 30, unidad: ms }
+    comando: "make bench PROFILE=proxy"
+    artefacto: "evals/reports/bench-proxy-<fecha>.json#$.overhead_ms.p95"
+    bloqueante_desde_fase: 3
+    tipo: nucleo
+    nota: "REDEFINIDA: 'p95 <= 30 ms sobre la llamada directa' no tenía protocolo (ni hardware, ni n, ni longitud de prompt, ni frío/caliente, ni contra qué). Medir contra un proveedor real mide la varianza de la red. Protocolo cerrado en docs/bench/protocol.md: stub local determinista con retardo fijo de 50 ms en loopback, prompt fijo de 512 tokens, n=500 tras descartar 50 de calentamiento, hardware de STACK.md §0 declarado en el informe. Publica además, sin bloquear: $.overhead_ms.p50, $.overhead_ms.p99, $.n, $.hardware."
+
+  - id: G-LAT-TTFT
+    nombre: "Sobrecarga p95 del time-to-first-token, streaming"
+    umbral: { operador: "<=", valor: 15, unidad: ms }
+    comando: "make bench PROFILE=stream"
+    artefacto: "evals/reports/bench-stream-<fecha>.json#$.ttft_overhead_ms.p95"
+    bloqueante_desde_fase: 3
+    tipo: nucleo
+    nota: "Meta hermana separada de G-LAT-PROXY porque es otro código y otro presupuesto. NO es el argumento del proyecto: Bifrost (Go) tiene 11 us a 5.000 rps. La sobrecarga se acota, se mide con protocolo y se publica; competir en latencia con un runtime Python es perder. Publica además, sin bloquear: $.ttft_overhead_ms.p50, $.ttft_overhead_ms.p99, $.n, $.hardware."
+
+  # ---------------------------------------------------------------- F4 · precios
+  - id: G-PRICE-REPRO
+    nombre: "Reproducibilidad de informes de coste históricos"
+    umbral: { operador: "==", valor: 0, unidad: eur }
+    comando: "make eval SUITE=pricing-repro"
+    artefacto: "evals/reports/pricing-repro.json#$.metrics[?(@.id=='G-PRICE-REPRO')].value"
+    bloqueante_desde_fase: 4
+    tipo: nucleo
+    propuesta_admisible: false
+    nota: "Diferencia al recalcular los 12 informes del corpus fijo con la tabla de precios vigente EN SU FECHA (docs/CONTRACTS/pricing-table.md §2: se aplica el effective_from más reciente <= t, nunca el actual). Cero exacto o falla; el artefacto la publica en céntimos. Incluye el tipo de cambio fx.USD_EUR con su fx_date: sin él los euros no son reproducibles."
+
+  - id: G-COST-RECONCILE
+    nombre: "Conciliación contra factura real del proveedor"
+    umbral: { operador: "<=", valor: 60, unidad: count }
+    comando: "python scripts/check_reconciliation.py"
+    artefacto: "docs/reconciliation-<fecha>.md#$.dias_desde_conciliacion"
+    bloqueante_desde_fase: null
+    tipo: ampliacion
+    requiere: ["clave-api", "gasto"]
+    nota: "REDEFINIDA: 'error <= 1 % contra la factura real de un mes' es inviable (30 días de calendario > timebox; con < 20-50 EUR de gasto el redondeo del proveedor domina el 1 %). Ver docs/CONTRACTS/pricing-table.md §5. Lo bloqueante es la FRESCURA DEL ARTEFACTO, no el delta: días transcurridos desde la conciliación <= 60 (unidad `count`: el esquema común no tiene unidad de días). El delta se publica con su signo sea cual sea. La parte automatizable y estricta del 1 % vive en G-PRICE-REPRO. Depende de D-04 y D-05 de _comun/PARA-SAMUEL-GLOBAL.md."
+
+  - id: G-MUTATION
+    nombre: "Mutantes muertos en paquetes con TDD obligatorio"
+    umbral: { operador: ">=", valor: 75, unidad: porcentaje }
+    comando: "make mutation"
+    artefacto: "evals/reports/mutation-<fase>.json#$.killed_pct"
+    bloqueante_desde_fase: 4
+    tipo: nucleo
+    nota: "75 y no el 70 de la constitución: gate/, stats/ y pricing/ son los módulos donde un bug tiene consecuencia real (bloquear cambios buenos, dejar pasar malos, cobrar mal). UNIDAD `porcentaje`, la misma escala que `[tool.gate].mutantes_muertos_min = 75`; el check cruzado de R19 compara los dos números literalmente. Solo en `make done`."
+
+  # ---------------------------------------------------------------- F5 · evals y caché
+  - id: G-CACHE-HIT
+    nombre: "Coste marginal de re-ejecutar la suite"
+    umbral: { operador: "<=", valor: 0.05, unidad: ratio }
+    comando: "make eval && make eval && evalgate cache stats --format json"
+    artefacto: "evals/reports/cache-stats.json#$.second_run.marginal_cost_ratio"
+    bloqueante_desde_fase: 5
+    tipo: nucleo
+    nota: "REDEFINIDA: 'ahorro por caché >= 70 %' se supera trivialmente (en una re-ejecución idéntica el hit es ~100 %) y no dice nada. La afirmación de negocio real es el coste marginal: la segunda ejecución debe costar <= 5 % de la primera. Se publica además hit rate y savings_ratio en el bloque `cache` del informe. La construcción del golden set que alimenta la suite está pendiente de Q-002."
+
+  - id: G-CACHE-INVAL
+    nombre: "La clave de caché de jueces invalida exactamente lo que debe"
+    umbral: { operador: "==", valor: 1.0, unidad: ratio }
+    comando: "pytest tests/unit/judges/test_cache_key.py -q"
+    artefacto: ".claude/state/gate-status.json"
+    bloqueante_desde_fase: 5
+    tipo: nucleo
+    nota: "Proporción de permutaciones correctas: subir la versión de un prompt de juez invalida el 100 % de las entradas de ESE juez y el 0 % de las demás. Property test que permuta cada componente de la clave (id del juez, modelo, parámetros de muestreo, versión del prompt, sha256 del prompt, sha256 del texto evaluado). Aquí es donde están los bugs de una caché, no en el hit rate."
+
+  # ---------------------------------------------------------------- F6 · la puerta
+  - id: G-DETERMINISM
+    nombre: "Determinismo de eval compare"
+    umbral: { operador: "==", valor: 1.0, unidad: ratio }
+    comando: "make eval-compare-twice"
+    artefacto: ".claude/state/gate-status.json"
+    bloqueante_desde_fase: 6
+    tipo: nucleo
+    nota: "Criterio de aceptación nº 3 hecho comando. Dos ejecuciones sobre los mismos informes -> misma decisión y mismo sha256 del informe, excluidos los campos de evals/report-hash-exclusions.yaml (created_at y los de temporización). CORRECCIÓN: la lista de campos no deterministas NO va dentro del informe; el esquema del contrato tiene additionalProperties:false en la raíz. Vive en configuración del proyecto."
+
+  # ---------------------------------------------------------------- F7 · meta-evaluación
+  - id: G-GATE-FP
+    nombre: "Tasa de falsos positivos de la puerta"
+    umbral: { operador: "<=", valor: 0.05, unidad: ratio }
+    comando: "evalgate meta fp --matrix evals/reports/fp-matrix.parquet --format json"
+    artefacto: "evals/reports/meta-eval.json#$.fp_rate_baseline_fixed.point"
+    bloqueante_desde_fase: 7
+    tipo: nucleo
+    nota: "REDEFINIDA: 'FP <= 5 % en 20 ejecuciones' no es medible. Con n=20 y 1 bloqueo el IC95 es ~[1 %, 24 %]; y a temperatura 0 con caché de jueces las 20 ejecuciones son idénticas y la tasa es trivialmente 0, porque la métrica original no declaraba de dónde sale el ruido. Aquí: n >= 49 decisiones con línea base fija, fuente de ruido declarada (SUT a temperatura 0.7, semilla variable, caché de jueces DESACTIVADA en el experimento). El punto bloquea; el intervalo de Wilson se publica siempre y nunca bloquea. Publica además: $.fp_rate_baseline_fixed.wilson_95, $.n_decisiones, $.fuente_de_ruido. La matriz exige una noche de máquina libre (Q-005)."
+
+  - id: G-GATE-MDE
+    nombre: "Efecto mínimo detectable de la puerta"
+    umbral: { operador: "<=", valor: 8, unidad: porcentaje }
+    comando: "evalgate meta mde --matrix evals/reports/fp-matrix.parquet --format json"
+    artefacto: "evals/reports/meta-eval.json#$.mde_pp.point"
+    bloqueante_desde_fase: 7
+    tipo: nucleo
+    nota: "META NUEVA, no estaba en PROJECT.md. Percentil 95 EMPÍRICO de la distribución de deltas pareados bajo H0, leído de la matriz; no se estima con teoría. UNIDAD `porcentaje`: el campo se llama mde_pp y se mide en puntos porcentuales, así que el umbral son 8 pp y no 0.08 en ratio; escribirlo en ratio contra un campo en pp era la contradicción que había aquí. Publicar 'la puerta bloquea' sin decir qué tamaño de caída es capaz de ver es publicar un número sin unidades. Si MDE > 8 pp la respuesta correcta es subir n de la subsuite de calibración, no tocar este umbral. Publica además: $.n_casos_subsuite."
+
+  - id: G-GATE-POWER
+    nombre: "Potencia de la puerta frente a degradaciones inyectadas"
+    umbral: { operador: ">=", valor: 0.90, unidad: ratio }
+    comando: "evalgate meta sensitivity --matrix evals/reports/fp-matrix.parquet --format json"
+    artefacto: "evals/reports/meta-eval.json#$.power.min_over_degradations"
+    bloqueante_desde_fase: 7
+    tipo: nucleo
+    nota: "META NUEVA. Potencia mínima sobre las 4 degradaciones canónicas fijadas (contexto recortado al 50 %; modelo del SUT sustituido por uno más pequeño; 20 % de documentos recuperados sustituidos por aleatorios; temperatura del SUT a 1.2), de tamaño >= MDE*1.5. Una puerta que nunca bloquea es tan inútil como una que bloquea siempre, y sin esta meta el proyecto solo mide la mitad. Publica además: $.power.per_degradation."
+
+  - id: G-JUDGE-KAPPA
+    nombre: "Concordancia del juez LLM con la etiqueta humana"
+    umbral: { operador: ">=", valor: 0.60, unidad: kappa }
+    comando: "evalgate meta kappa --labels golden/human-labels.jsonl --format json"
+    artefacto: "evals/reports/meta-eval.json#$.cohens_kappa.point"
+    bloqueante_desde_fase: 7
+    tipo: nucleo
+    requiere: ["horas-humanas"]
+    propuesta_admisible: false
+    nota: "REDEFINIDA: 'si el juez no correlaciona, la métrica no vale nada' no tenía número, y kappa con n=50 tiene un IC de ~±0.2. Aquí: kappa de Cohen sobre n >= 100 casos etiquetados por Samuel (PARA-SAMUEL Q-004, 6-9 h irreducibles), con IC bootstrap publicado. Consecuencia de fallo explícita y no negociable: si kappa < 0.60 la métrica de ese juez SE RETIRA DEL INFORME; no se baja este umbral. Publica además: $.cohens_kappa.ci95_bootstrap, $.n_etiquetados."
+
+  # ---------------------------------------------------------------- F9 · cierre
+  - id: G-GATE-BLOCK-EVIDENCE
+    nombre: "Evidencia de un bloqueo real de la puerta"
+    umbral: { operador: ">=", valor: 1, unidad: count }
+    comando: "python scripts/check_block_evidence.py"
+    artefacto: "docs/JOURNAL.md#$.n_bloqueos_documentados"
+    bloqueante_desde_fase: 9
+    tipo: nucleo
+    nota: "REDEFINIDA: el criterio de aceptación nº 4 pedía 'un PR público donde la puerta bloqueó' y no hay git. Sustituto de CONSTITUCION §2.2: entradas de JOURNAL.md con la tabla antes/después de una regresión inyectada, la decisión de la puerta y el snapshot correspondiente. El script verifica que existe la entrada, que la tabla tiene ambas columnas y que el snapshot referenciado existe, y escribe el recuento en .claude/state/gate-status.json. Cuando llegue git (Q-006) se convierte en lo que decía el documento sin tocar el número."
+
+  # ---------------------------------------------------------------- ampliación (F8, F10)
+  - id: G-DRIFT-FP
+    nombre: "Falsos positivos del detector de deriva"
+    umbral: { operador: "<=", valor: 0.05, unidad: ratio }
+    comando: "evalgate drift calibrate --format json"
+    artefacto: "evals/reports/drift-calibration.json#$.fp_rate.point"
+    bloqueante_desde_fase: null
+    tipo: ampliacion
+    propuesta_admisible: false
+    nota: "Sobre 100 remuestreos de la MISMA distribución. F8 es ampliación, así que nunca bloquea el núcleo (CONSTITUCION §7.8): `bloqueante_desde_fase: null`. Si sale por encima, el detector se retira del panel y se dice en el README; no se relaja el umbral."
+
+  - id: G-DRIFT-POWER
+    nombre: "Potencia del detector de deriva"
+    umbral: { operador: ">=", valor: 0.90, unidad: ratio }
+    comando: "evalgate drift calibrate --format json"
+    artefacto: "evals/reports/drift-calibration.json#$.power.point"
+    bloqueante_desde_fase: null
+    tipo: ampliacion
+    propuesta_admisible: false
+    nota: "Sobre un desplazamiento sintético declarado: mezcla del 30 % de entradas de un dominio distinto. Mismo criterio de retirada que G-DRIFT-FP, y misma razón para el null."
+
+  - id: G-DEEPEVAL-CORR
+    nombre: "Correlación de las métricas propias con DeepEval"
+    umbral: { operador: ">=", valor: 0.80, unidad: ratio }
+    comando: "make eval-refresh SUITE=deepeval-contrast"
+    artefacto: "evals/reports/deepeval-contrast.json#$.pearson_r"
+    bloqueante_desde_fase: null
+    tipo: ampliacion
+    requiere: ["clave-api"]
+    nota: "Contraste nocturno, nunca en el gate: exige recalcular contra modelo (D-05). DeepEval es contraste, no fuente de verdad; las métricas del gate son propias y puras porque calibrar la kappa de un juez exige poder versionar su prompt. Ragas queda fuera (STACK.md §5: congelado desde febrero de 2026). F10 es ampliación: null."

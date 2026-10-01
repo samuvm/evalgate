@@ -1,0 +1,25 @@
+{
+  "goal": "G-TRACE-DEGRADE",
+  "p95_delta_ms": -0.029,
+  "p95_healthy_ms": 0.563,
+  "p95_killed_ms": 0.534,
+  "served_ratio": 1.0,
+  "n_per_phase": 1000,
+  "rps": 50,
+  "kill_at_request": 50,
+  "spans_emitted": 2000,
+  "spans_exported": 1000,
+  "spans_dropped": 1000,
+  "rows_before_kill": 1000,
+  "queue": {
+    "capacity": 4096,
+    "batch_size": 512,
+    "flush_interval_s": 1.0
+  },
+  "hardware": {
+    "machine": "arm64",
+    "system": "macOS-27.0-arm64-arm-64bit",
+    "python": "3.12.12"
+  },
+  "measured_at": "2026-09-29T19:06:56+00:00"
+}

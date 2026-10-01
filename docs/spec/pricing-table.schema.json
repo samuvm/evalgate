@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://day-300.local/evalgate/spec/pricing-table/v1",
+  "title": "pricing/<YYYY-MM-DD>.yaml · esquema propio de evalgate-02, v1",
+  "description": "Derivado de docs/CONTRACTS/pricing-table.md §2 (contrato v1). Si este esquema y el contrato difieren, gana el contrato y este fichero se corrige. Se valida tras cargar el YAML con las fechas como cadenas ISO. Tres reglas que JSON Schema no expresa y comprueba el cargador: (1) el nombre del fichero es igual a effective_from; (2) no hay dos modelos con el mismo (id, provider, region); (3) el sha256 del fichero coincide con pricing/TABLES.lock (R4). Resolución: para un uso en el instante t se aplica la tabla con el effective_from más reciente <= t, nunca la actual.",
+  "type": "object",
+  "required": ["effective_from", "source", "retrieved_at", "currency", "fx", "models"],
+  "additionalProperties": false,
+  "properties": {
+    "effective_from": {
+      "type": "string",
+      "format": "date",
+      "description": "Primer día de vigencia. Se interpreta como 00:00:00 UTC de ese día."
+    },
+    "source": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL pública consultada. Ningún precio se inventa."
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date",
+      "description": "Día en que se consultó la fuente."
+    },
+    "currency": {
+      "enum": ["USD", "EUR"],
+      "description": "Moneda de todos los precios de la tabla."
+    },
+    "fx": {
+      "type": "object",
+      "required": ["USD_EUR", "fx_date"],
+      "additionalProperties": false,
+      "description": "Tipo de cambio usado, con su fecha. Sin esto los euros no son reproducibles.",
+      "properties": {
+        "USD_EUR": { "type": "number", "exclusiveMinimum": 0 },
+        "fx_date": { "type": "string", "format": "date" }
+      }
+    },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "provider", "region", "input_per_1k", "output_per_1k"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "provider": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Mismo valor que emite el atributo gen_ai.provider.name (ollama, aws.bedrock...)."
+          },
+          "region": { "type": "string", "minLength": 1 },
+          "input_per_1k": { "type": "number", "minimum": 0 },
+          "output_per_1k": { "type": "number", "minimum": 0 },
+          "cache_write_per_1k": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Escritura en caché de prompt. Separado de la lectura (contrato §3.3)."
+          },
+          "cache_read_per_1k": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Lectura de caché de prompt."
+          },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}

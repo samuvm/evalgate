@@ -1,0 +1,18 @@
+{
+  "milestone": 1,
+  "at": "2026-09-12T00:05:37+00:00",
+  "numbers": {
+    "G-FUNC-COV": 0,
+    "G-LINE-COV": 100.0,
+    "G-OPENAI-CONTRACT": {
+      "ratio": 1.0,
+      "n": 5
+    },
+    "G-ADOPTION": {
+      "lineas_de_diff": 0,
+      "n_lineas": 8
+    }
+  },
+  "snapshot": ".snapshots/2026-09-12-fase1",
+  "source": ".claude/state/gate-status.json"
+}

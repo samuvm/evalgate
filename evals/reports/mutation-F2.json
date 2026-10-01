@@ -1,0 +1,119 @@
+{
+  "milestone": 2,
+  "at": "2026-09-20T16:25:16+00:00",
+  "tool": "mutmut==3.7.0",
+  "only_mutate": [
+    "src/evalgate/gate/*",
+    "src/evalgate/stats/*",
+    "src/evalgate/pricing/*",
+    "src/evalgate/accounting/*",
+    "src/evalgate/proxy/streaming.py"
+  ],
+  "killing_suites": [
+    "tests/unit",
+    "tests/property",
+    "tests/contract"
+  ],
+  "killed": 145,
+  "survived": 15,
+  "total": 163,
+  "no_tests": 0,
+  "skipped": 0,
+  "suspicious": 0,
+  "timeout": 3,
+  "check_was_interrupted_by_user": 0,
+  "segfault": 0,
+  "killed_pct": 88.96,
+  "not_killed": [
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ__init____mutmut_13",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ__init____mutmut_13: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -8,5 +8,5 @@\n     self._malformed = 0\n     self._finish_reason: str | None = None\n     self._provider_usage: tuple[int, int] | None = None\n-    self._done = False\n+    self._done = None\n     self._error = False"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ__init____mutmut_15",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ__init____mutmut_15: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -9,4 +9,4 @@\n     self._finish_reason: str | None = None\n     self._provider_usage: tuple[int, int] | None = None\n     self._done = False\n-    self._error = False\n+    self._error = None"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_4",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_4: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -6,7 +6,7 @@\n         own would corrupt the text and is the bug that fixture 07 exists to catch.\n         \"\"\"\n     self._pending += data\n-    while (cut := self._pending.find(_FRAME_END)) != -1:\n+    while (cut := self._pending.rfind(_FRAME_END)) != -1:\n         frame = bytes(self._pending[:cut])\n         del self._pending[: cut + len(_FRAME_END)]\n         self._read(frame)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_6",
+      "status": "timeout",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_6: timeout\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -6,7 +6,7 @@\n         own would corrupt the text and is the bug that fixture 07 exists to catch.\n         \"\"\"\n     self._pending += data\n-    while (cut := self._pending.find(_FRAME_END)) != -1:\n+    while (cut := self._pending.find(_FRAME_END)) != +1:\n         frame = bytes(self._pending[:cut])\n         del self._pending[: cut + len(_FRAME_END)]\n         self._read(frame)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_7",
+      "status": "timeout",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_7: timeout\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -6,7 +6,7 @@\n         own would corrupt the text and is the bug that fixture 07 exists to catch.\n         \"\"\"\n     self._pending += data\n-    while (cut := self._pending.find(_FRAME_END)) != -1:\n+    while (cut := self._pending.find(_FRAME_END)) != -2:\n         frame = bytes(self._pending[:cut])\n         del self._pending[: cut + len(_FRAME_END)]\n         self._read(frame)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_10",
+      "status": "timeout",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_10: timeout\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -8,5 +8,5 @@\n     self._pending += data\n     while (cut := self._pending.find(_FRAME_END)) != -1:\n         frame = bytes(self._pending[:cut])\n-        del self._pending[: cut + len(_FRAME_END)]\n+        del self._pending[: cut - len(_FRAME_END)]\n         self._read(frame)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_3",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_3: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -1,6 +1,6 @@\n def _read(self, frame: bytes) -> None:\n     for line in frame.split(b\"\\n\"):\n-        if not line or line.startswith(b\":\"):\n+        if not line and line.startswith(b\":\"):\n             continue  # `: ping` keep-alive comment\n         if not line.startswith(_DATA):\n             continue  # event:/id:/retry: carry no payload to account for"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_6",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_6: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -1,6 +1,6 @@\n def _read(self, frame: bytes) -> None:\n     for line in frame.split(b\"\\n\"):\n-        if not line or line.startswith(b\":\"):\n+        if not line or line.startswith(b\"XX:XX\"):\n             continue  # `: ping` keep-alive comment\n         if not line.startswith(_DATA):\n             continue  # event:/id:/retry: carry no payload to account for"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_13",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_13: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -6,7 +6,7 @@\n             continue  # event:/id:/retry: carry no payload to account for\n         payload = line[len(_DATA) :].strip()\n         if not payload:\n-            continue  # `data:` with nothing in it: keep-alive too, not a malformed frame\n+            break  # `data:` with nothing in it: keep-alive too, not a malformed frame\n         if payload == _DONE:\n             self._done = True\n             continue"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_17",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_17: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -9,7 +9,7 @@\n             continue  # `data:` with nothing in it: keep-alive too, not a malformed frame\n         if payload == _DONE:\n             self._done = True\n-            continue\n+            break\n         try:\n             event = json.loads(payload)\n         except (UnicodeDecodeError, json.JSONDecodeError):"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_23",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_23: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -14,7 +14,7 @@\n             event = json.loads(payload)\n         except (UnicodeDecodeError, json.JSONDecodeError):\n             self._malformed += 1\n-            continue\n+            break\n         if not isinstance(event, dict):\n             self._malformed += 1\n             continue"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_25",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_25: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -16,6 +16,6 @@\n             self._malformed += 1\n             continue\n         if not isinstance(event, dict):\n-            self._malformed += 1\n+            self._malformed = 1\n             continue\n         self._account(event)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_26",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_26: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -16,6 +16,6 @@\n             self._malformed += 1\n             continue\n         if not isinstance(event, dict):\n-            self._malformed += 1\n+            self._malformed -= 1\n             continue\n         self._account(event)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_27",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_27: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -16,6 +16,6 @@\n             self._malformed += 1\n             continue\n         if not isinstance(event, dict):\n-            self._malformed += 1\n+            self._malformed += 2\n             continue\n         self._account(event)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_28",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_28: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -17,5 +17,5 @@\n             continue\n         if not isinstance(event, dict):\n             self._malformed += 1\n-            continue\n+            break\n         self._account(event)"
+    },
+    {
+      "mutant": "evalgate.pricing.lookup.x_price_at__mutmut_1",
+      "status": "survived",
+      "diff": "# evalgate.pricing.lookup.x_price_at__mutmut_1: survived\n--- src/evalgate/pricing/lookup.py\n+++ src/evalgate/pricing/lookup.py\n@@ -9,7 +9,7 @@\n     Raises ValueError if `at` has no timezone (the instant would be ambiguous) or if two tables share an\n     `effective_from` (one file per date: the contract makes it impossible, so it is corrupt input).\n     \"\"\"\n-    if at.tzinfo is None or at.utcoffset() is None:\n+    if at.tzinfo is None and at.utcoffset() is None:\n         raise ValueError(\"price_at needs a timezone-aware instant\")\n     starts = [t.effective_from for t in tables]\n     if len(starts) != len(set(starts)):"
+    },
+    {
+      "mutant": "evalgate.pricing.lookup.x_price_at__mutmut_5",
+      "status": "survived",
+      "diff": "# evalgate.pricing.lookup.x_price_at__mutmut_5: survived\n--- src/evalgate/pricing/lookup.py\n+++ src/evalgate/pricing/lookup.py\n@@ -10,7 +10,7 @@\n     `effective_from` (one file per date: the contract makes it impossible, so it is corrupt input).\n     \"\"\"\n     if at.tzinfo is None or at.utcoffset() is None:\n-        raise ValueError(\"price_at needs a timezone-aware instant\")\n+        raise ValueError(\"XXprice_at needs a timezone-aware instantXX\")\n     starts = [t.effective_from for t in tables]\n     if len(starts) != len(set(starts)):\n         raise ValueError(\"two price tables share the same effective_from\")"
+    },
+    {
+      "mutant": "evalgate.pricing.lookup.x_price_at__mutmut_10",
+      "status": "survived",
+      "diff": "# evalgate.pricing.lookup.x_price_at__mutmut_10: survived\n--- src/evalgate/pricing/lookup.py\n+++ src/evalgate/pricing/lookup.py\n@@ -13,7 +13,7 @@\n         raise ValueError(\"price_at needs a timezone-aware instant\")\n     starts = [t.effective_from for t in tables]\n     if len(starts) != len(set(starts)):\n-        raise ValueError(\"two price tables share the same effective_from\")\n+        raise ValueError(\"XXtwo price tables share the same effective_fromXX\")\n     in_force = [t for t in tables if datetime.combine(t.effective_from, time.min, UTC) <= at]\n     if not in_force:\n         return None"
+    }
+  ]
+}

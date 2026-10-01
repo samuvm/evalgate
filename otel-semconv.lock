@@ -1,0 +1,10 @@
+# Versión pineada de las convenciones semánticas GenAI de OpenTelemetry (docs/CONTRACTS/otel-genai.md §3).
+# Desvío del contrato, decidido por Samuel en PARA-SAMUEL Q-008 (a), 2026-09-10: el contrato fija
+# semantic-conventions-genai@v1.42.0, que no existe (ese repo no ha publicado ningún tag). Se usa la última
+# versión PUBLICADA que contiene model/gen-ai/ completo. Verificado con la API de GitHub el 2026-09-10:
+# los 9 atributos y las 2 métricas gen_ai.* obligatorias del contrato §4 están en model/gen-ai/.
+# Subir esta versión es un cambio consciente: CHANGELOG + revisión del traductor. Nunca automático.
+repo:    open-telemetry/semantic-conventions
+version: v1.41.1
+sha:     ead83b9b0fa36540c1642fce46e874f002ac23f1
+path:    model/gen-ai, model/error, model/server

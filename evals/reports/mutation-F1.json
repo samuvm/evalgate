@@ -1,0 +1,44 @@
+{
+  "milestone": 1,
+  "at": "2026-09-12T00:03:26+00:00",
+  "tool": "mutmut==3.7.0",
+  "only_mutate": [
+    "src/evalgate/gate/*",
+    "src/evalgate/stats/*",
+    "src/evalgate/pricing/*",
+    "src/evalgate/accounting/*",
+    "src/evalgate/proxy/streaming.py"
+  ],
+  "killing_suites": [
+    "tests/unit",
+    "tests/property",
+    "tests/contract"
+  ],
+  "killed": 26,
+  "survived": 3,
+  "total": 29,
+  "no_tests": 0,
+  "skipped": 0,
+  "suspicious": 0,
+  "timeout": 0,
+  "check_was_interrupted_by_user": 0,
+  "segfault": 0,
+  "killed_pct": 89.66,
+  "not_killed": [
+    {
+      "mutant": "evalgate.pricing.lookup.x_price_at__mutmut_1",
+      "status": "survived",
+      "diff": "# evalgate.pricing.lookup.x_price_at__mutmut_1: survived\n--- src/evalgate/pricing/lookup.py\n+++ src/evalgate/pricing/lookup.py\n@@ -9,7 +9,7 @@\n     Raises ValueError if `at` has no timezone (the instant would be ambiguous) or if two tables share an\n     `effective_from` (one file per date: the contract makes it impossible, so it is corrupt input).\n     \"\"\"\n-    if at.tzinfo is None or at.utcoffset() is None:\n+    if at.tzinfo is None and at.utcoffset() is None:\n         raise ValueError(\"price_at needs a timezone-aware instant\")\n     starts = [t.effective_from for t in tables]\n     if len(starts) != len(set(starts)):"
+    },
+    {
+      "mutant": "evalgate.pricing.lookup.x_price_at__mutmut_5",
+      "status": "survived",
+      "diff": "# evalgate.pricing.lookup.x_price_at__mutmut_5: survived\n--- src/evalgate/pricing/lookup.py\n+++ src/evalgate/pricing/lookup.py\n@@ -10,7 +10,7 @@\n     `effective_from` (one file per date: the contract makes it impossible, so it is corrupt input).\n     \"\"\"\n     if at.tzinfo is None or at.utcoffset() is None:\n-        raise ValueError(\"price_at needs a timezone-aware instant\")\n+        raise ValueError(\"XXprice_at needs a timezone-aware instantXX\")\n     starts = [t.effective_from for t in tables]\n     if len(starts) != len(set(starts)):\n         raise ValueError(\"two price tables share the same effective_from\")"
+    },
+    {
+      "mutant": "evalgate.pricing.lookup.x_price_at__mutmut_10",
+      "status": "survived",
+      "diff": "# evalgate.pricing.lookup.x_price_at__mutmut_10: survived\n--- src/evalgate/pricing/lookup.py\n+++ src/evalgate/pricing/lookup.py\n@@ -13,7 +13,7 @@\n         raise ValueError(\"price_at needs a timezone-aware instant\")\n     starts = [t.effective_from for t in tables]\n     if len(starts) != len(set(starts)):\n-        raise ValueError(\"two price tables share the same effective_from\")\n+        raise ValueError(\"XXtwo price tables share the same effective_fromXX\")\n     in_force = [t for t in tables if datetime.combine(t.effective_from, time.min, UTC) <= at]\n     if not in_force:\n         return None"
+    }
+  ]
+}

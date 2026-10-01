@@ -1,0 +1,11 @@
+# Procedencia del snapshot de la OpenAPI de OpenAI. Descargado, nunca interpretado (G-OPENAI-CONTRACT).
+# Subir de versión es un cambio consciente: fichero nuevo, entrada en CHANGELOG y tests de contrato en verde.
+repo:        openai/openai-openapi
+commit:      b5362da020b772e9f6feffe8f4e94b5e6c07de3f
+path:        openapi.json
+url:         https://raw.githubusercontent.com/openai/openai-openapi/b5362da020b772e9f6feffe8f4e94b5e6c07de3f/openapi.json
+info_version: 2.3.0
+openapi:     3.1.0
+file:        docs/spec/openai-openapi-2.3.0.json
+sha256:      58164f5f98ef577a0cf00844c9d02eda531356bbee4624208fb7f59d0799f9ba
+retrieved_at: 2026-09-10

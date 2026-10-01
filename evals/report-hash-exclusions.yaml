@@ -1,0 +1,16 @@
+# Campos del informe de evaluación (docs/CONTRACTS/eval-report.schema.json) que NO entran en su sha256.
+#
+# Por qué vive aquí y no dentro del informe: el esquema del contrato tiene additionalProperties:false en la
+# raíz, así que una lista de campos no deterministas no cabe en él (RULES.md §6).
+#
+# De esta lista dependen G-DETERMINISM (dos `eval compare` sobre los mismos informes -> mismo sha256) y
+# G-ADOPTION (cero líneas de diff con y sin proxy). Añadir una exclusión es una decisión, no un arreglo:
+# lleva motivo y entrada en JOURNAL.md. `run_id` NO se excluye: es determinista si la ejecución lo es.
+version: 1
+exclusions:
+  - path: "$.created_at"
+    motivo: "Marca de tiempo de la ejecución: cambia en cada invocación por definición."
+  - path: "$.environment.timing"
+    motivo: >-
+      Temporización de reloj de la ejecución (duraciones). Depende de la carga de la máquina, no de los
+      datos. `environment` admite propiedades adicionales en el contrato, y aquí es donde evalgate las escribe.
