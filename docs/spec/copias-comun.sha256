@@ -1,0 +1,8 @@
+# sha256 de cada contrato de docs/CONTRACTS/ (R20). Se regenera al versionar un contrato, con su entrada en CHANGELOG.md.
+# Formato: <sha256>  <ruta relativa al proyecto>. Lo comprueba tests/contract/test_contracts_are_verbatim_copies.py
+17d5217971e6f10bca864361b8c83b2b498e21d2f71b43e3c8d12679be6b5dd3  docs/CONTRACTS/eval-report.schema.json
+87d0c7f19d2d1ec9b0590f744d5d66433f819530d37bdc915ef240e82dfa3925  docs/CONTRACTS/goals.schema.json
+490d7c25cd897c55919ca20a4cd678b6485533ee2eb00981275a8da3fcfcfae1  docs/CONTRACTS/otel-genai.md
+be20696196920a20a378cd604ffdd8530c169a499a5a731c58a1b9ba86b699f0  docs/CONTRACTS/pricing-table.md
+fcc5d07eb3c49a84d4452767e7d1478054a430570be40732c98cb0b8c5c76c8b  docs/CONTRACTS/README.md
+e1cd37b5bef1f7c2040896983a2ade887e3d76cc88424f902eda2f752731472c  docs/CONTRACTS/retrieval-metrics.md

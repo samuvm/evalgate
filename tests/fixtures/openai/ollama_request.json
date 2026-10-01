@@ -1,0 +1,1 @@
+{"model":"qwen3.5:4b-mlx","messages":[{"role":"system","content":"Responde en una frase."},{"role":"user","content":"¿Qué es un proxy?"}],"temperature":0,"seed":7,"max_tokens":80,"reasoning_effort":"none"}

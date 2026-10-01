@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://evalgate.local/contracts/goals/v1",
+  "title": "docs/GOALS.yaml · contrato v1",
+  "description": "Forma de las metas del proyecto. Existe porque sin esquema cada meta inventa su convención: 'clase' significaba dos cosas incompatibles, la cobertura estaba unas veces en ratio y otras en porcentaje, y los umbrales iban a veces en prosa. Sin esquema no se puede escribir un solo goals-check.sh que las compruebe todas, y ese script es parte de la definición de hecho. Validar con: uv run --with pyyaml --with jsonschema python scripts/goals_lint.py",
+  "type": "object",
+  "required": ["version", "proyecto", "metas"],
+  "additionalProperties": true,
+  "properties": {
+    "version": { "const": 1, "description": "Versión de este contrato." },
+    "proyecto": {
+      "enum": ["evalgate"]
+    },
+    "hardware_referencia": {
+      "type": "string",
+      "description": "Obligatorio si alguna meta es de latencia. Un p95 sin hardware declarado no es comparable con nada."
+    },
+    "comparacion": {
+      "type": "object",
+      "description": "Estadística de la puerta. Sólo en proyectos con metas de tipo evaluación.",
+      "additionalProperties": true,
+      "properties": {
+        "metodo": { "const": "bootstrap" },
+        "pareado": { "const": true },
+        "n_resamples": { "type": "integer", "minimum": 1000 },
+        "semilla": { "type": "integer" },
+        "correccion_multiple": {
+          "enum": ["holm", "benjamini-hochberg", "bonferroni", null],
+          "default": "holm"
+        }
+      }
+    },
+    "metas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "nombre", "umbral", "comando", "artefacto", "bloqueante_desde_fase", "tipo"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^G-[A-Z0-9-]+$",
+            "description": "Estable. Lo referencia el informe de evaluación."
+          },
+          "nombre": { "type": "string" },
+
+          "umbral": {
+            "type": "object",
+            "required": ["operador", "valor"],
+            "additionalProperties": false,
+            "description": "Estructurado, nunca prosa. Un umbral en prosa no lo puede leer goals-check.sh, y entonces la meta no bloquea nada.",
+            "properties": {
+              "operador": { "enum": [">=", ">", "<=", "<", "==", "!="] },
+              "valor": { "type": ["number", "boolean"] },
+              "unidad": {
+                "enum": ["ratio", "porcentaje", "count", "ms", "s", "min", "eur", "usd", "tokens", "kappa", "bool"],
+                "default": "ratio",
+                "description": "Obligatorio distinguir ratio de porcentaje: 0.90 y 90 son el mismo objetivo escrito de dos formas, y mezclarlos hace que un check cruzado contra [tool.gate] falle sin motivo."
+              },
+              "adicionales": {
+                "type": "array",
+                "description": "Umbrales secundarios de la misma meta (p99, máximo absoluto). Cada uno con su propia forma estructurada.",
+                "items": {
+                  "type": "object",
+                  "required": ["etiqueta", "operador", "valor"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "etiqueta": { "type": "string" },
+                    "operador": { "enum": [">=", ">", "<=", "<", "==", "!="] },
+                    "valor": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+
+          "comando": {
+            "type": "string",
+            "minLength": 1,
+            "description": "El comando EXACTO que produce el número. Si no se puede escribir, la meta está mal definida y hay que redefinirla."
+          },
+          "artefacto": {
+            "type": "string",
+            "description": "Ruta del fichero donde queda el número, para poder auditarlo."
+          },
+
+          "bloqueante_desde_fase": {
+            "type": ["integer", "null"],
+            "minimum": 0,
+            "description": "Fase a partir de la cual make done exige esta meta. null = nunca bloquea. INVARIANTE: si tipo='ampliacion', esto DEBE ser null o apuntar a una fase que también sea de ampliación. Una meta de ampliación que bloquea una fase de núcleo deja inalcanzable el punto de parada del núcleo."
+          },
+          "tipo": {
+            "enum": ["nucleo", "ampliacion"],
+            "description": "nucleo = hace el proyecto enseñable y defendible. ampliacion = lo completa; nunca bloquea al núcleo."
+          },
+
+          "requiere": {
+            "type": "array",
+            "description": "Recursos externos sin los cuales esta meta no se puede medir. Si no está vacío, el recurso se declara y se pide antes de la fase que bloquea.",
+            "items": { "enum": ["aws", "clave-api", "gasto", "corpus", "dataset", "horas-humanas", "ninguno"] },
+            "default": ["ninguno"]
+          },
+          "propuesta_admisible": {
+            "type": "boolean",
+            "default": true,
+            "description": "false = ni siquiera se admite una propuesta de bajar este umbral. Reservado a invariantes de seguridad y corrección (alucinación, contabilidad ante desconexión, fuga de datos sensibles, secretos). Cero es cero: ahí no hay umbral estadístico que negociar."
+          },
+          "nota": {
+            "type": "string",
+            "description": "Una línea. Se usa sobre todo para declarar que la métrica se ha redefinido respecto a su formulación original y por qué."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+data: {"id":"chatcmpl-f2","object":"chat.completion.chunk","created":1789045500,"model":"qwen3.5:4b-mlx","choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-f2","object":"chat.completion.chunk","created":1789045500,"model":"qwen3.5:4b-mlx","choices":[{"index":0,"delta":{"content":"El año "},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-f2","object":"chat.completion.chunk","created":1789045500,"model":"qwen3.5:4b-mlx","choices":[{"index":0,"delta":{"content":"cuesta 42 € "},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-f2","object":"chat.completion.chunk","created":1789045500,"model":"qwen3.5:4b-mlx","choices":[{"index":0,"delta":{"content":"🙂"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-f2","object":"chat.completion.chunk","created":1789045500,"model":"qwen3.5:4b-mlx","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+
+data: {"id":"chatcmpl-f2","object":"chat.completion.chunk","created":1789045500,"model":"qwen3.5:4b-mlx","choices":[],"usage":{"prompt_tokens":15,"completion_tokens":7,"total_tokens":22}}
+
+data: [DONE]
+

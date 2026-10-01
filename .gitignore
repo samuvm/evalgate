@@ -1,0 +1,17 @@
+# Estado local del gate (último resultado, inventario de tests, fase activa) y snapshots de cada cierre.
+.gate/
+.snapshots/
+.run/
+.venv/
+mutants/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+__pycache__/
+.hypothesis/
+htmlcov/
+.DS_Store
+
+# Suite reservada (held-out): publicarla la convertiría en tests contra los que se puede ajustar el código.
+tests/holdout/

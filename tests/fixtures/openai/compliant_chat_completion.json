@@ -1,0 +1,16 @@
+{
+  "id": "chatcmpl-stub-0001",
+  "object": "chat.completion",
+  "created": 1789000000,
+  "model": "stub-model",
+  "system_fingerprint": "fp_stub",
+  "choices": [
+    {
+      "index": 0,
+      "logprobs": null,
+      "finish_reason": "stop",
+      "message": { "role": "assistant", "content": "Respuesta con ñ, tildes (acción) y un emoji 🚦.", "refusal": null }
+    }
+  ],
+  "usage": { "prompt_tokens": 12, "completion_tokens": 9, "total_tokens": 21 }
+}

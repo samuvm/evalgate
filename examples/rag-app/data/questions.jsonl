@@ -1,0 +1,20 @@
+{"id": "q-0000", "pregunta": "¿Cuántos meses de garantía tiene el Midemi-977?", "respuesta_referencia": "6 meses", "refs": ["ficha-0020"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0001", "pregunta": "¿En qué país se fabrica el Nokari-902?", "respuesta_referencia": "Noruega", "refs": ["ficha-0036"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0002", "pregunta": "¿Cuántos meses de garantía tiene el Loxexe-781?", "respuesta_referencia": "12 meses", "refs": ["ficha-0016"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0003", "pregunta": "¿Cuál es el precio en euros del Tesasa-702?", "respuesta_referencia": "551 €", "refs": ["ficha-0032"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0004", "pregunta": "¿Cuál es el precio en euros del Dexemi-370?", "respuesta_referencia": "363 €", "refs": ["ficha-0035"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0005", "pregunta": "¿Cuántas horas de autonomía tiene el Xenora-384?", "respuesta_referencia": "272 h", "refs": ["ficha-0030"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0006", "pregunta": "¿Cuál es el precio en euros del Desaxe-592?", "respuesta_referencia": "530 €", "refs": ["ficha-0003"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0007", "pregunta": "¿Cuántos meses de garantía tiene el Lomimi-834?", "respuesta_referencia": "24 meses", "refs": ["ficha-0001"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0008", "pregunta": "¿Cuál es el precio en euros del Minote-236?", "respuesta_referencia": "118 €", "refs": ["ficha-0039"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0009", "pregunta": "¿En qué país se fabrica el Fodera-309?", "respuesta_referencia": "Marruecos", "refs": ["ficha-0011"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0010", "pregunta": "¿En qué país se fabrica el Tequmi-742?", "respuesta_referencia": "Kenia", "refs": ["ficha-0002"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0011", "pregunta": "¿Cuántas horas de autonomía tiene el Xelote-179?", "respuesta_referencia": "368 h", "refs": ["ficha-0000"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0012", "pregunta": "¿Cuál es el precio en euros del Tesasa-702?", "respuesta_referencia": "551 €", "refs": ["ficha-0032"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0013", "pregunta": "¿Cuál es el precio en euros del Loxexe-781?", "respuesta_referencia": "318 €", "refs": ["ficha-0016"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0014", "pregunta": "¿En qué país se fabrica el Fokari-681?", "respuesta_referencia": "Portugal", "refs": ["ficha-0037"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0015", "pregunta": "¿En qué país se fabrica el Fokari-681?", "respuesta_referencia": "Portugal", "refs": ["ficha-0037"], "tipo": "positivo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0016", "pregunta": "¿En qué año se fabricó el Dedequ-159?", "respuesta_referencia": "NO_CONSTA", "refs": [], "tipo": "negativo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0017", "pregunta": "¿Cuál es el precio en euros del Xerasa-686?", "respuesta_referencia": "NO_CONSTA", "refs": [], "tipo": "negativo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0018", "pregunta": "¿En qué año se fabricó el Foriqu-147?", "respuesta_referencia": "NO_CONSTA", "refs": [], "tipo": "negativo", "provenance": "sintetico_por_construccion"}
+{"id": "q-0019", "pregunta": "¿Cuánto pesa, en gramos, el Nodede-171?", "respuesta_referencia": "NO_CONSTA", "refs": [], "tipo": "negativo", "provenance": "sintetico_por_construccion"}
