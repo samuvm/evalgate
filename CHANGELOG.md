@@ -35,6 +35,43 @@ Versionado: [SemVer](https://semver.org/lang/es/).
 ### Pendiente
 - F0. Nada medido todavía: ninguna meta de `docs/GOALS.yaml` tiene número.
 
+## [0.5.0] · F4 · precios versionados y contabilidad · 2026-10-06
+
+### Añadido
+- `pricing/cost.py`: `cost_of` (coste de una llamada con la tabla vigente **en su fecha**),
+  `period_total_eur` (un periodo que cruza cambios de tarifa, cada llamada con su tabla), `total_eur` y
+  `presented`, el único redondeo del paquete. `Decimal` de punta a punta.
+- `pricing/loader.py`: carga `pricing/<AAAA-MM-DD>.yaml` leyendo cada precio como el texto escrito, y
+  rechaza una tabla editada, borrada o sin sellar en `TABLES.lock` (R4).
+- Suite `pricing-repro` (`make eval SUITE=pricing-repro`): 12 informes de coste con el total calculado a
+  mano, recalculados con la tabla de cada fecha. `evalgate eval pricing-repro` emite el informe con el
+  formato de `eval-report.schema.json`.
+- La traza de cada llamada servida lleva `app.cost.eur` y `app.cost.pricing_version`; `evalgate serve`
+  carga las tablas selladas al arrancar (`--pricing-dir`).
+- Reglas mecánicas, probadas en negativo: `rules/no_price_literals.py` (R3) y `rules/tables_lock.py` (R4).
+- `pricing/borrador/2026-10-06.yaml`: primera tabla real (Claude Haiku 4.5 a precio de lista, modelos
+  locales a 0, cambio del BCE del día). Se publica cuando se selle en `TABLES.lock`.
+- `scripts/check_reconciliation.py`: declara que no hay conciliación contra factura en vez de simularla.
+
+### Cambiado
+- `done.py` lee la forma de JSONPath con filtro que `GOALS.yaml` declara para `G-PRICE-REPRO`.
+- La copia de trabajo de mutmut incluye `scripts/`: un test de contrato de F3 lo ejecuta.
+
+### Números medidos
+| Meta | Umbral | Medido | n | Artefacto |
+|---|---|---|---|---|
+| G-PRICE-REPRO | == 0 EUR | **0** | 12 informes, las 5 reglas de cálculo del contrato | `evals/reports/pricing-repro.json` |
+| G-MUTATION | >= 75 % | **87,22 %** | 505 muertos de 579 | `evals/reports/mutation-F4.json` |
+| G-COST-RECONCILE | no bloquea (solo modelos locales) | **no realizada** | — | no existe `docs/reconciliation-<fecha>.md`: solo modelos locales, coste real 0 EUR |
+
+### Decisiones
+- ADR-013 · Tablas de precios inmutables y fechadas, coste exacto hasta presentar. Ante un dato que falta,
+  el paquete se niega; nunca supone. LiteLLM no entra: con solo modelos locales no hace falta adaptador.
+
+### Contratos
+- Sin cambios en `docs/CONTRACTS/`. El cargador es más estricto que el esquema propio en un punto,
+  declarado: rechaza el mismo `id` de modelo en dos regiones (ADR-013, límite 1).
+
 ## [0.4.0] · F3 · telemetría, almacén y degradación · 2026-10-06
 
 ### Añadido
