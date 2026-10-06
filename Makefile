@@ -68,8 +68,9 @@ test-e2e: ## nivel 5. `make test-e2e -k adoption` = G-ADOPTION (make -k sigue tr
 	$(PYTEST) tests/e2e -q
 adoption: ## G-ADOPTION: líneas de diff de examples/rag-app con y sin proxy. Tiene que dar 0
 	$(PYTEST) tests/e2e/test_adoption.py -q -s
-eval: ## nivel 4 desde caché grabada
-	$(call not_yet,F4 (pricing-repro) y F5 (suite))
+eval: ## nivel 4 desde caché grabada. `make eval SUITE=pricing-repro` = G-PRICE-REPRO; la suite de evals llega en F5
+	@test "$(SUITE)" = "pricing-repro" || { echo "make eval: de momento solo SUITE=pricing-repro (la suite de evals llega en F5)" >&2; exit 2; }
+	$(RUN) evalgate eval pricing-repro
 eval-refresh: ## nivel 4 recalculando; nunca en el gate
 	$(call not_yet,F5)
 eval-compare-twice: ## G-DETERMINISM

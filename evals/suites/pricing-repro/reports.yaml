@@ -1,0 +1,104 @@
+# Corpus fijo de G-PRICE-REPRO: 12 informes de coste y el total que cada uno registró.
+#
+# provenance: sintetico_declarado. Ni las llamadas ni los precios son tráfico real: son casos construidos
+# para cubrir, uno a uno, las reglas de cálculo de docs/CONTRACTS/pricing-table.md §3.
+#
+# `recorded_total_eur` se calculó A MANO, con la aritmética escrita en `calculo`, y NO con el código que
+# la meta mide: si saliera de `cost_of`, recalcular daría cero por construcción y no demostraría nada.
+# Es texto y no número para que ningún float lo toque.
+#
+# Qué mide la meta: que recalcular hoy cada informe, con la tabla vigente EN LA FECHA de cada llamada, da el
+# mismo total exacto. Estos totales no se editan nunca. Si un cambio de código los mueve, el código está mal.
+version: 1
+haiku: &haiku anthropic.claude-haiku-4-5
+qwen: &qwen qwen3.5:9b-mlx
+reports:
+  - id: R01-entrada-y-salida
+    regla: "§3.1 precio distinto de entrada y de salida"
+    calculo: "1,5 x 0,0008 + 0,5 x 0,004 = 0,0032 USD; x 0,92 = 0,002944 EUR"
+    recorded_total_eur: "0.002944"
+    calls:
+      - { at: "2026-08-15T12:00:00+00:00", model: *haiku, input: 1500, output: 500 }
+
+  - id: R02-solo-entrada
+    regla: "§3.1"
+    calculo: "10 x 0,0008 = 0,008 USD; x 0,92 = 0,00736 EUR"
+    recorded_total_eur: "0.00736"
+    calls:
+      - { at: "2026-08-02T08:00:00+00:00", model: *haiku, input: 10000, output: 0 }
+
+  - id: R03-solo-salida
+    regla: "§3.1"
+    calculo: "2,5 x 0,004 = 0,01 USD; x 0,92 = 0,0092 EUR"
+    recorded_total_eur: "0.0092"
+    calls:
+      - { at: "2026-08-02T09:00:00+00:00", model: *haiku, input: 0, output: 2500 }
+
+  - id: R04-cache-agosto
+    regla: "§3.3 caché de prompt: escritura y lectura con precio propio"
+    calculo: "1 x 0,0008 + 2 x 0,001 + 10 x 0,00008 = 0,0036 USD; x 0,92 = 0,003312 EUR"
+    recorded_total_eur: "0.003312"
+    calls:
+      - { at: "2026-08-20T10:00:00+00:00", model: *haiku, input: 1000, output: 0, cache_write: 2000, cache_read: 10000 }
+
+  - id: R05-frontera-de-vigencia
+    regla: "§3.2 cambio de tarifa a mitad de periodo: un segundo antes y el instante exacto"
+    calculo: "agosto 0,0048 USD x 0,92 = 0,004416; septiembre 0,0060 USD x 0,90 = 0,0054; suma 0,009816 EUR"
+    recorded_total_eur: "0.009816"
+    calls:
+      - { at: "2026-08-31T23:59:59+00:00", model: *haiku, input: 1000, output: 1000 }
+      - { at: "2026-09-01T00:00:00+00:00", model: *haiku, input: 1000, output: 1000 }
+
+  - id: R06-volumen-septiembre
+    regla: "§3.1 con volumen"
+    calculo: "250 x 0,0010 + 80 x 0,005 = 0,25 + 0,40 = 0,65 USD; x 0,90 = 0,585 EUR"
+    recorded_total_eur: "0.585"
+    calls:
+      - { at: "2026-09-15T12:00:00+00:00", model: *haiku, input: 250000, output: 80000 }
+
+  - id: R07-cache-septiembre
+    regla: "§3.3 con la tabla nueva"
+    calculo: "4 x 0,00125 + 40 x 0,0001 = 0,005 + 0,004 = 0,009 USD; x 0,90 = 0,0081 EUR"
+    recorded_total_eur: "0.0081"
+    calls:
+      - { at: "2026-09-10T12:00:00+00:00", model: *haiku, input: 0, output: 0, cache_write: 4000, cache_read: 40000 }
+
+  - id: R08-modelo-local
+    regla: "contrato §4: coste real incurrido en local = 0, que es un precio"
+    calculo: "123,456 x 0 + 65,432 x 0 = 0"
+    recorded_total_eur: "0"
+    calls:
+      - { at: "2026-08-10T12:00:00+00:00", model: *qwen, input: 123456, output: 65432 }
+
+  - id: R09-cliente-cortado
+    regla: "§3.4 los tokens emitidos antes del corte se pagan y se cuentan"
+    calculo: "0,015 x 0,0008 + 0,002 x 0,004 = 0,000012 + 0,000008 = 0,00002 USD; x 0,92 = 0,0000184 EUR"
+    recorded_total_eur: "0.0000184"
+    calls:
+      - { at: "2026-08-12T12:00:00+00:00", model: *haiku, input: 15, output: 2 }
+
+  - id: R10-redondeo
+    regla: "§3.5 se acumula exacto y se redondea solo al presentar"
+    calculo: "cada llamada 5 x 0,0010 = 0,005 USD x 0,90 = 0,0045 EUR; tres = 0,0135 EUR (redondeando una a una: 0,00)"
+    recorded_total_eur: "0.0135"
+    calls:
+      - { at: "2026-09-05T10:00:00+00:00", model: *haiku, input: 5000, output: 0 }
+      - { at: "2026-09-05T11:00:00+00:00", model: *haiku, input: 5000, output: 0 }
+      - { at: "2026-09-05T12:00:00+00:00", model: *haiku, input: 5000, output: 0 }
+
+  - id: R11-tabla-en-euros
+    regla: "una tabla en EUR no aplica tipo de cambio"
+    calculo: "2 x 0,0009 + 1 x 0,0045 = 0,0018 + 0,0045 = 0,0063 EUR"
+    recorded_total_eur: "0.0063"
+    calls:
+      - { at: "2026-10-03T12:00:00+00:00", model: *haiku, input: 2000, output: 1000 }
+
+  - id: R12-trimestre
+    regla: "§3.2 un trimestre que cruza dos fronteras, tres monedas de cambio y un modelo local"
+    calculo: "ago 1 x 0,0008 x 0,92 = 0,000736; sep 1 x 0,0010 x 0,90 = 0,0009; oct 1 x 0,0009 = 0,0009 EUR; local 0; suma 0,002536 EUR"
+    recorded_total_eur: "0.002536"
+    calls:
+      - { at: "2026-08-05T12:00:00+00:00", model: *haiku, input: 1000, output: 0 }
+      - { at: "2026-09-05T12:00:00+00:00", model: *haiku, input: 1000, output: 0 }
+      - { at: "2026-10-05T12:00:00+00:00", model: *haiku, input: 1000, output: 0 }
+      - { at: "2026-09-20T12:00:00+00:00", model: *qwen, input: 5000, output: 5000 }

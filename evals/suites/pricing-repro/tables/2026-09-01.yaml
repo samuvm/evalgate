@@ -1,0 +1,26 @@
+# TABLA SINTÉTICA del corpus de prueba `pricing-repro`. NO es un precio publicado por ningún proveedor.
+# Procedencia: el ejemplo de docs/CONTRACTS/pricing-table.md §2, que es lo que `source` enlaza.
+# Las tablas publicadas de verdad viven en pricing/ y se sellan en pricing/TABLES.lock; estas se sellan en
+# el TABLES.lock de esta carpeta y no se editan nunca: los 12 totales de reports.yaml dependen de ellas.
+# Valores: los de agosto con una subida del 25 % y otro tipo de cambio. Existe para que haya una frontera
+# de vigencia con las dos cosas cambiando a la vez.
+effective_from: 2026-09-01
+source: https://github.com/samuvm/evalgate/blob/main/docs/CONTRACTS/pricing-table.md
+retrieved_at: 2026-10-06
+currency: USD
+fx:
+  USD_EUR: 0.90
+  fx_date: 2026-09-01
+models:
+  - id: anthropic.claude-haiku-4-5
+    provider: aws.bedrock
+    region: eu-west-1
+    input_per_1k: 0.0010
+    output_per_1k: 0.005
+    cache_write_per_1k: 0.00125
+    cache_read_per_1k: 0.0001
+  - id: qwen3.5:9b-mlx
+    provider: ollama
+    region: local
+    input_per_1k: 0.0
+    output_per_1k: 0.0

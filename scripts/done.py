@@ -124,11 +124,23 @@ def function_coverage(milestone: int) -> Step:
     return Step("4 · cobertura por función", ok, detail, is_blocking(meta, milestone), {"G-FUNC-COV": value})
 
 
+_FILTER = re.compile(r"^(\w+)\[\?\(@\.(\w+)=='([^']*)'\)\]$")
+
+
 def json_path(document: Any, path: str) -> Any:
-    """Minimal `$.a.b` JSONPath: the only form GOALS.yaml uses outside filter expressions."""
+    """The two JSONPath forms GOALS.yaml uses: `$.a.b`, and one filter step `a[?(@.k=='v')]` that picks the
+    single element of list `a` whose field `k` equals `v` (the eval-report contract keeps metrics in a list).
+    Zero or several matches is an error: a goal must read exactly one number."""
     value = document
-    for key in path.removeprefix("$.").split("."):
-        value = value[key]
+    for key in re.findall(r"[^.\[]+(?:\[[^\]]*\])?", path.removeprefix("$.")):
+        if found := _FILTER.match(key):
+            name, field, wanted = found.groups()
+            matches = [item for item in value[name] if item.get(field) == wanted]
+            if len(matches) != 1:
+                raise KeyError(f"{key}: {len(matches)} coincidencias, se esperaba exactamente 1")
+            value = matches[0]
+        else:
+            value = value[key]
     return value
 
 

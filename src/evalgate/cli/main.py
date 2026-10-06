@@ -6,6 +6,7 @@ plain `on_call` sink and never an exporter (R1, `scripts/rules/no_blocking_expor
 
 from collections.abc import Callable
 from importlib.metadata import version
+from pathlib import Path
 from typing import Annotated
 
 import clickhouse_connect
@@ -13,6 +14,7 @@ import typer
 import uvicorn
 from opentelemetry import metrics
 
+from evalgate.cli import pricing_repro
 from evalgate.proxy.app import DEFAULT_PROVIDER, DEFAULT_UPSTREAM, ProxySettings, create_app
 from evalgate.telemetry.exporters import StoreClient
 from evalgate.telemetry.exporters.clickhouse import ClickHouseSpanExporter
@@ -103,3 +105,19 @@ def migrate(clickhouse: ClickHouseUrl = None) -> None:
         raise typer.BadParameter("hace falta --clickhouse o EVALGATE_CLICKHOUSE_URL")
     applied = apply(connector(clickhouse)())
     typer.echo(f"migraciones aplicadas: {[m.version for m in applied] or 'ninguna pendiente'}")
+
+
+eval_app = typer.Typer(no_args_is_help=True, help="Evaluation suites (level 4).")
+app.add_typer(eval_app, name="eval")
+
+
+@eval_app.command("pricing-repro")
+def eval_pricing_repro(
+    suite_dir: Annotated[Path, typer.Option(help="Corpus directory.")] = Path("evals/suites/pricing-repro"),
+    out: Annotated[Path, typer.Option(help="Report to write.")] = Path("evals/reports/pricing-repro.json"),
+) -> None:
+    """G-PRICE-REPRO: recompute the fixed corpus of cost reports with the table in force at each date."""
+    worst = pricing_repro.run(suite_dir, out)
+    typer.echo(f"{pricing_repro.GOAL} diff_max_eur={format(worst.normalize(), 'f')} informe={out}")
+    if worst != 0:
+        raise typer.Exit(code=1)

@@ -1,0 +1,24 @@
+# TABLA SINTÉTICA del corpus de prueba `pricing-repro`. NO es un precio publicado por ningún proveedor.
+# Procedencia: el ejemplo de docs/CONTRACTS/pricing-table.md §2, que es lo que `source` enlaza.
+# Las tablas publicadas de verdad viven en pricing/ y se sellan en pricing/TABLES.lock; estas se sellan en
+# el TABLES.lock de esta carpeta y no se editan nunca: los 12 totales de reports.yaml dependen de ellas.
+# Valores: una tabla ya en EUROS y sin precios de caché. Existe para comprobar que a una tabla en euros no
+# se le aplica ningún tipo de cambio (el campo fx es obligatorio en el esquema, pero no se usa).
+effective_from: 2026-10-01
+source: https://github.com/samuvm/evalgate/blob/main/docs/CONTRACTS/pricing-table.md
+retrieved_at: 2026-10-06
+currency: EUR
+fx:
+  USD_EUR: 0.88
+  fx_date: 2026-10-01
+models:
+  - id: anthropic.claude-haiku-4-5
+    provider: aws.bedrock
+    region: eu-west-1
+    input_per_1k: 0.0009
+    output_per_1k: 0.0045
+  - id: qwen3.5:9b-mlx
+    provider: ollama
+    region: local
+    input_per_1k: 0.0
+    output_per_1k: 0.0

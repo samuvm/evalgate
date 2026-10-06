@@ -1,0 +1,98 @@
+[
+  {
+    "id": "R01-entrada-y-salida",
+    "regla": "§3.1 precio distinto de entrada y de salida",
+    "recorded_total_eur": "0.002944",
+    "recomputed_total_eur": "0.002944",
+    "diff_eur": "0",
+    "match": true
+  },
+  {
+    "id": "R02-solo-entrada",
+    "regla": "§3.1",
+    "recorded_total_eur": "0.00736",
+    "recomputed_total_eur": "0.00736",
+    "diff_eur": "0",
+    "match": true
+  },
+  {
+    "id": "R03-solo-salida",
+    "regla": "§3.1",
+    "recorded_total_eur": "0.0092",
+    "recomputed_total_eur": "0.0092",
+    "diff_eur": "0",
+    "match": true
+  },
+  {
+    "id": "R04-cache-agosto",
+    "regla": "§3.3 caché de prompt: escritura y lectura con precio propio",
+    "recorded_total_eur": "0.003312",
+    "recomputed_total_eur": "0.003312",
+    "diff_eur": "0",
+    "match": true
+  },
+  {
+    "id": "R05-frontera-de-vigencia",
+    "regla": "§3.2 cambio de tarifa a mitad de periodo: un segundo antes y el instante exacto",
+    "recorded_total_eur": "0.009816",
+    "recomputed_total_eur": "0.009816",
+    "diff_eur": "0",
+    "match": true
+  },
+  {
+    "id": "R06-volumen-septiembre",
+    "regla": "§3.1 con volumen",
+    "recorded_total_eur": "0.585",
+    "recomputed_total_eur": "0.585",
+    "diff_eur": "0",
+    "match": true
+  },
+  {
+    "id": "R07-cache-septiembre",
+    "regla": "§3.3 con la tabla nueva",
+    "recorded_total_eur": "0.0081",
+    "recomputed_total_eur": "0.0081",
+    "diff_eur": "0",
+    "match": true
+  },
+  {
+    "id": "R08-modelo-local",
+    "regla": "contrato §4: coste real incurrido en local = 0, que es un precio",
+    "recorded_total_eur": "0",
+    "recomputed_total_eur": "0",
+    "diff_eur": "0",
+    "match": true
+  },
+  {
+    "id": "R09-cliente-cortado",
+    "regla": "§3.4 los tokens emitidos antes del corte se pagan y se cuentan",
+    "recorded_total_eur": "0.0000184",
+    "recomputed_total_eur": "0.0000184",
+    "diff_eur": "0",
+    "match": true
+  },
+  {
+    "id": "R10-redondeo",
+    "regla": "§3.5 se acumula exacto y se redondea solo al presentar",
+    "recorded_total_eur": "0.0135",
+    "recomputed_total_eur": "0.0135",
+    "diff_eur": "0",
+    "match": true
+  },
+  {
+    "id": "R11-tabla-en-euros",
+    "regla": "una tabla en EUR no aplica tipo de cambio",
+    "recorded_total_eur": "0.0063",
+    "recomputed_total_eur": "0.0063",
+    "diff_eur": "0",
+    "match": true
+  },
+  {
+    "id": "R12-trimestre",
+    "regla": "§3.2 un trimestre que cruza dos fronteras, tres monedas de cambio y un modelo local",
+    "recorded_total_eur": "0.002536",
+    "recomputed_total_eur": "0.002536",
+    "diff_eur": "0",
+    "match": true
+  }
+]

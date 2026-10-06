@@ -1,0 +1,29 @@
+{
+  "contract_version": 1,
+  "run_id": "pricing-repro-aa1ed6875b10fc53",
+  "project": "evalgate",
+  "suite": "pricing-repro",
+  "created_at": "2026-10-06T19:18:04+00:00",
+  "environment": {
+    "hardware": "arm64 · macOS-27.0.1-arm64-arm-64bit",
+    "python": "3.12.12",
+    "deterministic": true,
+    "tables_lock": "sha256:673ee940e69b374090b1b65250ebeef59b403cf167c3dfdf54ea11fb603685b7"
+  },
+  "dataset": {
+    "name": "pricing-repro",
+    "version": 1,
+    "n_cases": 12,
+    "sha256": "sha256:254ff7b3d5b9f433e4f322ea29caccd37038831868cf68848f327b9d9dd39a9c"
+  },
+  "metrics": [
+    {
+      "id": "G-PRICE-REPRO",
+      "value": 0.0,
+      "n": 12,
+      "unit": "eur",
+      "raw_path": "pricing-repro-cases.json"
+    }
+  ],
+  "notes": "Diferencia máxima al recalcular: 0 céntimos. 12 de 12 informes coinciden exactamente. Corpus y tablas sintéticos y declarados (evals/suites/pricing-repro/). Los totales registrados se calcularon a mano."
+}
