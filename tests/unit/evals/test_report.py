@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[3]
 SCHEMA = json.loads((ROOT / "docs" / "CONTRACTS" / "eval-report.schema.json").read_text("utf-8"))
 PROMPT = Prompt("judge_faithfulness", 2, "gemma4:12b-mlx", 0.0, "v2", "Eres...\n", "ab" * 32)
 SUITE = Suite("rag-app", "evals/golden/rag-app-v1", "qwen3.5:9b-mlx", "faithfulness", PROMPT,
-              {"temperature": 0.0, "seed": 7}, "sut/base.jsonl", "cache.jsonl")
+              {"temperature": 0.0, "seed": 7}, "sut/base.jsonl", "cache.jsonl", {"base": {}})
 SCORES = {
     "answer_correct": {"gs-1": 1.0, "gs-2": 0.0, "gs-3": 1.0, "gs-4": 1.0},
     "context_recall": {"gs-1": 1.0, "gs-2": 0.5},

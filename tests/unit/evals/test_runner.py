@@ -149,3 +149,23 @@ def test_a_miss_in_a_recorded_run_is_an_error_and_no_model_is_called(tmp_path: A
     drifted apart, and the answer is `make eval-refresh`, said out loud."""
     with pytest.raises(CacheMiss, match="eval-refresh"):
         cached_answer(ModelCache(tmp_path / "c.jsonl"), CALL, None)
+
+
+# --- a system that did not show the model the fichas whole (a degraded variant) -------------------------
+
+
+def test_when_the_system_says_what_the_model_saw_the_judge_reads_that_and_not_the_whole_fichas() -> None:
+    """A variant that cuts the context reports the text the model actually received. Judging the answer
+    against fichas the model never read in full would call an honest NO_CONSTA unfaithful."""
+    rows = [{**OUTPUTS[0], "context": '{"id": "f-1", "nombre": "Alfa-1", "garan'}]
+    case, output = golden_cases(ROWS)[0], sut_outputs(rows)["gs-1"]
+
+    text = judge_text("P\n", case, output, {"f-1": {"id": "f-1", "garantia_meses": 6}, "f-9": {"id": "f-9"}})
+
+    assert output.context == '{"id": "f-1", "nombre": "Alfa-1", "garan'
+    assert 'FICHAS:\n{"id": "f-1", "nombre": "Alfa-1", "garan\n' in text
+    assert "garantia_meses" not in text
+
+
+def test_an_output_without_a_context_is_judged_against_the_fichas_it_retrieved() -> None:
+    assert sut_outputs(OUTPUTS)["gs-1"].context is None

@@ -11,3 +11,14 @@ judge:
   # Entra en la clave de caché: cambiarlo son otras 200 llamadas.
   sampling: { seed: 7, max_tokens: 8, reasoning_effort: none }
 cache: evals/suites/rag-app/cache.jsonl
+
+# Variantes del sistema bajo prueba: la misma suite y el mismo juez, con el sistema cambiado a propósito.
+# Cada una es un puñado de variables de entorno de examples/rag-app (solo RAG_*). Sus salidas se graban en
+# sut/<variante>.jsonl. Las cuatro degradaciones son las canónicas de RULES §5: están fijadas y no se
+# negocian. Contra ellas se mide si la puerta detecta una caída real (F7).
+variants:
+  base: {}
+  contexto-50: { RAG_CONTEXT_KEEP: "0.5" }          # (a) contexto recortado al 50 %
+  modelo-pequeno: { RAG_MODEL: "qwen3.5:4b-mlx" }   # (b) modelo sustituido por uno más pequeño
+  docs-aleatorios-20: { RAG_RANDOM_DOCS: "0.2" }    # (c) 20 % de los documentos recuperados, aleatorios
+  temperatura-1.2: { RAG_TEMPERATURE: "1.2" }       # (d) temperatura del sistema a 1,2

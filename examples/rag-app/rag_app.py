@@ -12,6 +12,7 @@ Prints one JSON line per question: {"id", "retrieved", "answer"}.
 import argparse
 import json
 import os
+import random
 import re
 import unicodedata
 import urllib.request
@@ -51,15 +52,32 @@ def retrieve(question: str, fichas: list[dict[str, object]]) -> list[dict[str, o
     return scored[:TOP_K]
 
 
-def ask(base_url: str, model: str, question: str, context: list[dict[str, object]]) -> str:
-    fichas = "\n".join(json.dumps(f, ensure_ascii=False) for f in context)
+def degraded(
+    question_id: str, context: list[dict[str, object]], fichas: list[dict[str, object]]
+) -> list[dict[str, object]]:
+    """RAG_RANDOM_DOCS=p: each retrieved ficha is swapped for a random one with probability p. Seeded by the
+    question, so a run is reproducible. Default 0: nothing changes."""
+    share = float(os.environ.get("RAG_RANDOM_DOCS", "0"))
+    if share <= 0:
+        return context
+    rng = random.Random(f"{question_id}:{share}")  # noqa: S311 - reproducible degradation, not cryptography
+    return [rng.choice(fichas) if rng.random() < share else ficha for ficha in context]
+
+
+def context_text(context: list[dict[str, object]]) -> str:
+    """RAG_CONTEXT_KEEP=f: only the first fraction f of the context text reaches the model. Default 1."""
+    text = "\n".join(json.dumps(f, ensure_ascii=False) for f in context)
+    return text[: int(len(text) * float(os.environ.get("RAG_CONTEXT_KEEP", "1")))]
+
+
+def ask(base_url: str, model: str, question: str, fichas: str) -> str:
     payload = {
         "model": model,
         "messages": [
             {"role": "system", "content": SYSTEM},
             {"role": "user", "content": f"Fichas:\n{fichas}\n\nPregunta: {question}"},
         ],
-        "temperature": 0,
+        "temperature": float(os.environ.get("RAG_TEMPERATURE", "0")),
         "seed": 7,
         "max_tokens": 64,
         # qwen3.5 reasons by default and spends max_tokens on it (measured 2026-09-10).
@@ -86,15 +104,15 @@ def main() -> None:
     model = os.environ.get("RAG_MODEL", "qwen3.5:9b-mlx")
     fichas = load("corpus.jsonl")
     for question in load("questions.jsonl")[: args.limit]:
-        context = retrieve(str(question["pregunta"]), fichas)
-        answer = ask(base_url, model, str(question["pregunta"]), context)
-        print(
-            json.dumps(
-                {"id": question["id"], "retrieved": [f["id"] for f in context], "answer": answer},
-                ensure_ascii=False,
-            ),
-            flush=True,
-        )
+        context = degraded(str(question["id"]), retrieve(str(question["pregunta"]), fichas), fichas)
+        shown = context_text(context)
+        answer = ask(base_url, model, str(question["pregunta"]), shown)
+        row = {"id": question["id"], "retrieved": [f["id"] for f in context], "answer": answer}
+        if "RAG_CONTEXT_KEEP" in os.environ:
+            # What the model actually saw, when it is not simply the retrieved fichas: whoever judges the
+            # answer has to judge it against this, not against fichas the model never read in full.
+            row["context"] = shown
+        print(json.dumps(row, ensure_ascii=False), flush=True)
 
 
 if __name__ == "__main__":

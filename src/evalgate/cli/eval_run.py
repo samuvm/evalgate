@@ -18,6 +18,7 @@ import os
 import platform
 import subprocess  # nosec B404 - launches this repository's own example client, see record_sut
 import sys
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -31,7 +32,7 @@ from evalgate.evals.judges import client
 from evalgate.evals.prompts import load_prompt
 from evalgate.evals.report import eval_report, raw_rows
 from evalgate.evals.runner import GoldenCase, SutOutput, evaluate, golden_cases, judge_text, sut_outputs
-from evalgate.evals.suite import Suite, parse_suite
+from evalgate.evals.suite import BASE, Suite, parse_suite
 
 JUDGE_PROMPT = Path("prompts/judge_faithfulness.md")
 RUNS_LOG = Path(".run/cache-runs.jsonl")  # local state: the cost of each run, for `evalgate cache stats`
@@ -45,16 +46,18 @@ def _digest(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def record_sut(suite: Suite, root: Path, base_url: str) -> None:
-    """Run the system under test over the golden set and record what it printed. It is a CLIENT: launched as
-    a separate process with two environment variables, never imported (R13)."""
-    out = root / suite.sut_outputs
+def record_sut(suite: Suite, variant: str, root: Path, base_url: str) -> None:
+    """Run one variant of the system under test over the golden set and record what it printed. It is a
+    CLIENT: launched as a separate process with environment variables, never imported (R13)."""
+    out = root / suite.outputs_of(variant)
     out.parent.mkdir(parents=True, exist_ok=True)
     env = {
-        **os.environ,
+        # No RAG_* leaks in from the shell: a variant is exactly the knobs the suite declares for it.
+        **{key: value for key, value in os.environ.items() if not key.startswith("RAG_")},
         "RAG_DATA": str(root / suite.golden_dir),
         "OPENAI_BASE_URL": base_url,
         "RAG_MODEL": suite.generator_model,
+        **suite.variants[variant],
     }
     done = subprocess.run(  # noqa: S603  # nosec B603 - fixed script of this repository, no user input
         [sys.executable, str(root / "examples" / "rag-app" / "rag_app.py")],
@@ -68,18 +71,27 @@ def record_sut(suite: Suite, root: Path, base_url: str) -> None:
     out.write_text(done.stdout, encoding="utf-8")
 
 
-def run(
-    suite_dir: Path, root: Path, out_dir: Path, *, refresh: bool, base_url: str
+def run(  # noqa: PLR0913 - the knobs of a run, all named at the call
+    suite_dir: Path, root: Path, out_dir: Path, *, refresh: bool, base_url: str, variant: str = BASE
 ) -> tuple[dict[str, Any], CacheStats]:
-    """Run the suite, write `<out_dir>/<suite>.json` with its per-case files, and return report and stats."""
-    suite = parse_suite(
+    """Run one variant of the suite, write its report with its per-case files, return report and stats.
+
+    The base variant is `<out_dir>/<suite>.json`; any other, `<out_dir>/<suite>-<variant>.json`. Same suite,
+    same golden set, same judge: only the system changes, so the gate can compare the two reports.
+    """
+    declared = parse_suite(
         yaml.safe_load((suite_dir / "suite.yaml").read_text("utf-8")), load_prompt(root / JUDGE_PROMPT)
     )
+    # From here on `suite` is the variant being run: its model and its recorded outputs.
+    suite = replace(
+        declared, generator_model=declared.model_of(variant), sut_outputs=declared.outputs_of(variant)
+    )
+    name = suite.name if variant == BASE else f"{suite.name}-{variant}"
     golden_path = root / suite.golden_dir / "questions.jsonl"
     golden = golden_cases(_jsonl(golden_path))
     fichas = {str(row["id"]): row for row in _jsonl(root / suite.golden_dir / "corpus.jsonl")}
     if refresh:
-        record_sut(suite, root, base_url)
+        record_sut(declared, variant, root, base_url)
     outputs = sut_outputs(_jsonl(root / suite.sut_outputs))
     cache = ModelCache(root / suite.cache_path)
     prompt = suite.judge_prompt
@@ -113,23 +125,21 @@ def run(
             "python": platform.python_version(),
             "deterministic": not refresh,
             "created_at": datetime.now(UTC).isoformat(timespec="seconds"),
-            "raw_dir": suite.name,
+            "raw_dir": name,
         },
     )
-    raw_dir = out_dir / suite.name
+    raw_dir = out_dir / name
     raw_dir.mkdir(parents=True, exist_ok=True)
     for metric, rows in raw_rows(scores).items():
         (raw_dir / f"{metric}.json").write_text(
             json.dumps(rows, separators=(",", ":")) + "\n", encoding="utf-8"
         )
-    (out_dir / f"{suite.name}.json").write_text(
-        json.dumps(report, indent=2, ensure_ascii=False) + "\n", "utf-8"
-    )
+    (out_dir / f"{name}.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", "utf-8")
 
     log = root / RUNS_LOG
     log.parent.mkdir(parents=True, exist_ok=True)
     with log.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps({"suite": suite.name, "at": report["created_at"], **_cost(stats)}) + "\n")
+        handle.write(json.dumps({"suite": name, "at": report["created_at"], **_cost(stats)}) + "\n")
     return report, stats
 
 

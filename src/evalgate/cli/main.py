@@ -166,11 +166,14 @@ def eval_run_command(
         ),
     ] = DEFAULT_UPSTREAM,
     out_dir: Annotated[Path, typer.Option(help="Where the report goes.")] = Path("evals/reports"),
+    variant: Annotated[
+        str, typer.Option(help="Variant of the system under test, as the suite declares it.")
+    ] = "base",
 ) -> None:
     """Run an eval suite from the recorded cache (default) or against the models (--refresh)."""
     try:
         report, stats = eval_run.run(
-            Path("evals/suites") / suite, Path(), out_dir, refresh=refresh, base_url=base_url
+            Path("evals/suites") / suite, Path(), out_dir, refresh=refresh, base_url=base_url, variant=variant
         )
     except (ValueError, LookupError, OSError) as refused:
         typer.echo(f"evalgate eval run: {refused}", err=True)
@@ -179,7 +182,7 @@ def eval_run_command(
         typer.echo(f"{metric['id']:24} {metric['value']:.4f}  n={metric['n']}")
     typer.echo(
         f"caché de jueces: {stats.hits} aciertos, {stats.misses} fallos · "
-        f"coste marginal {stats.marginal_cost_ratio:.4f} · informe {out_dir / (suite + '.json')}"
+        f"coste marginal {stats.marginal_cost_ratio:.4f} · {report['run_id']} en {out_dir}"
     )
 
 

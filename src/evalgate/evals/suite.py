@@ -8,13 +8,18 @@ The judge's model and temperature are not in the suite file at all: they are the
 and so its digest). One place to say it, and it is the place the cache key reads.
 """
 
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass
+from pathlib import PurePosixPath
 from typing import Any
 
 from evalgate.evals.prompts import Prompt
 
-_KEYS = {"suite", "golden", "sut", "judge", "cache"}
+_KEYS = {"suite", "golden", "sut", "judge", "cache", "variants"}
+BASE = "base"  # the variant that changes nothing: the system as it is
+_KNOB = re.compile(r"^RAG_[A-Z_]+$")  # a variant may only turn the system's own knobs
+_NAME = re.compile(r"^[a-z0-9][a-z0-9.-]*$")  # it becomes a file name
 
 
 class SuiteError(ValueError):
@@ -31,6 +36,46 @@ class Suite:
     judge_sampling: Mapping[str, float | int | str]
     sut_outputs: str
     cache_path: str
+    # Variants of the system under test: name → the environment variables that change it. `base` is the
+    # system as it is. The same suite, the same judge, the system degraded on purpose: what the gate is
+    # measured against.
+    variants: Mapping[str, Mapping[str, str]]
+
+    def _known(self, variant: str) -> Mapping[str, str]:
+        if variant not in self.variants:
+            raise SuiteError(f"{self.name}: la suite no declara la variante {variant!r}")
+        return self.variants[variant]
+
+    def outputs_of(self, variant: str) -> str:
+        """Where the recorded outputs of `variant` live: next to the base ones, under the variant's name."""
+        self._known(variant)
+        return str(PurePosixPath(self.sut_outputs).with_name(f"{variant}.jsonl"))
+
+    def model_of(self, variant: str) -> str:
+        return self._known(variant).get("RAG_MODEL", self.generator_model)
+
+
+def _variants(node: Any, name: str, generator: str, judge_model: str) -> dict[str, dict[str, str]]:
+    if node is None:
+        return {BASE: {}}
+    if not isinstance(node, Mapping) or node.get(BASE) != {}:
+        raise SuiteError(f"{name}: `variants` debe incluir `{BASE}: {{}}`, la variante que no cambia nada")
+    parsed: dict[str, dict[str, str]] = {}
+    for variant, knobs in node.items():
+        if not isinstance(variant, str) or not _NAME.match(variant):
+            raise SuiteError(f"{name}: nombre de variante no válido: {variant!r}")
+        if not isinstance(knobs, Mapping):
+            raise SuiteError(f"{name}: la variante {variant} debe ser un bloque de variables")
+        for key, value in knobs.items():
+            if not isinstance(key, str) or not _KNOB.match(key):
+                raise SuiteError(f"{name}: la variante {variant} toca {key!r}; solo se admiten variables RAG_*")
+            if not isinstance(value, str):
+                raise SuiteError(f"{name}: la variante {variant}: {key} debe ser un texto (es una variable de entorno)")
+        model = str(knobs.get("RAG_MODEL", generator))
+        if model.strip().lower() == judge_model.strip().lower():
+            raise SuiteError(f"{name}: en la variante {variant} el juez ({judge_model}) sería el que genera (R12)")
+        parsed[variant] = dict(knobs)
+    return parsed
 
 
 def _text(node: Mapping[str, Any], key: str, where: str) -> str:
@@ -76,4 +121,5 @@ def parse_suite(node: Mapping[str, Any], judge_prompt: Prompt) -> Suite:
         judge_sampling={"temperature": judge_prompt.temperature, **sampling},
         sut_outputs=outputs,
         cache_path=cache,
+        variants=_variants(node.get("variants"), name, generator, judge_prompt.model),
     )

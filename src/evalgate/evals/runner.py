@@ -42,6 +42,9 @@ class GoldenCase:
 class SutOutput:
     answer: str
     retrieved: tuple[str, ...]
+    # The exact context the model received, when the system says so (a variant that cut it). `None`: the
+    # model saw the retrieved fichas whole.
+    context: str | None = None
 
 
 Judge = Callable[[GoldenCase, SutOutput], str]  # returns the judge's verdict, as text
@@ -76,7 +79,10 @@ def sut_outputs(rows: Sequence[Mapping[str, Any]]) -> dict[str, SutOutput]:
         case_id = str(row["id"])
         if case_id in outputs:
             raise RunError(f"dos salidas del sistema para el caso {case_id}")
-        outputs[case_id] = SutOutput(str(row["answer"]), tuple(row["retrieved"]))
+        context = row.get("context")
+        outputs[case_id] = SutOutput(
+            str(row["answer"]), tuple(row["retrieved"]), None if context is None else str(context)
+        )
     return outputs
 
 
@@ -117,5 +123,9 @@ def judge_text(
     """
     if missing := [ficha_id for ficha_id in output.retrieved if ficha_id not in fichas]:
         raise RunError(f"caso {case.id}: el sistema recuperó fichas que no están en el corpus: {', '.join(missing)}")
-    context = "\n".join(json.dumps(fichas[ficha_id], ensure_ascii=False) for ficha_id in output.retrieved)
+    # What the model SAW. Judging against fichas it never read in full would call an honest abstention
+    # unfaithful, and a degraded variant would look worse than it is for the wrong reason.
+    context = output.context
+    if context is None:
+        context = "\n".join(json.dumps(fichas[ficha_id], ensure_ascii=False) for ficha_id in output.retrieved)
     return f"{prompt_body}\nFICHAS:\n{context}\n\nPREGUNTA: {case.question}\nRESPUESTA: {output.answer}\n"

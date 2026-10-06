@@ -43,9 +43,9 @@ def show(item: dict[str, object], position: int, total: int) -> None:
     print(f"  Caso {position} de {total}")
     print("  f = FIEL · n = NO_FIEL · s = saltar · d = deshacer · q = salir")
     print("=" * 100)
-    print("FICHAS que recuperó el sistema:")
-    for ficha in item["fichas"]:  # type: ignore[union-attr]
-        print("   " + json.dumps(ficha, ensure_ascii=False))
+    print("FICHAS que vio el sistema (puede venir cortada: es lo que recibió el modelo):")
+    for line in str(item["contexto"]).splitlines():
+        print("   " + line)
     print(f"\nPREGUNTA:  {item['pregunta']}")
     print(f"RESPUESTA: {item['respuesta']}")
 
@@ -72,12 +72,12 @@ def main() -> int:
             print("Tanda completa. Gracias: ya no hay que hacer nada más con este script.")
         return 0
 
+    by_id = {str(item["item_id"]): item for item in items}
     history: list[str] = []
-    skipped: list[dict[str, object]] = []
     queue = list(pending)
     while queue:
-        item = queue.pop(0)
-        show(item, len(items) - len(queue) - len(skipped), len(items))
+        item = queue[0]
+        show(item, len(items) - len(queue) + 1, len(items))
         try:
             key = input("Tu veredicto [f/n/s/d/q]: ").strip().lower()
         except (EOFError, KeyboardInterrupt):
@@ -85,22 +85,22 @@ def main() -> int:
         if key == "q":
             break
         if key == "d":
-            queue.insert(0, item)
-            if history:
-                undone = history.pop()
-                rows = [row for row in jsonl(labels_path) if str(row["item_id"]) != undone]
-                labels_path.write_text(
-                    "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), "utf-8"
-                )
-                queue.insert(0, next(i for i in items if str(i["item_id"]) == undone))
-                print("   (deshecha la última etiqueta)")
+            if not history:
+                print("   No hay nada que deshacer en esta sesión.")
+                continue
+            undone = history.pop()
+            kept = [row for row in jsonl(labels_path) if str(row["item_id"]) != undone]
+            labels_path.write_text(
+                "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in kept), "utf-8"
+            )
+            queue.insert(0, by_id[undone])
+            print("   Deshecha la última etiqueta: te la vuelvo a enseñar.")
             continue
         if key == "s":
-            skipped.append(item)
+            queue.append(queue.pop(0))  # al final de la cola: volverá a salir
             continue
         if key not in KEYS:
             print("   Tecla no reconocida: f, n, s, d o q.")
-            queue.insert(0, item)
             continue
         row = {
             "item_id": item["item_id"],
@@ -113,6 +113,7 @@ def main() -> int:
         with labels_path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(row, ensure_ascii=False) + "\n")
         history.append(str(item["item_id"]))
+        queue.pop(0)
 
     total_done = len(jsonl(labels_path))
     print(f"\nGuardado. Llevas {total_done} de {len(items)} en la tanda {args.tanda}.")

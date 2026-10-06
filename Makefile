@@ -72,7 +72,7 @@ eval: ## nivel 4 desde caché grabada: no llama a ningún modelo. SUITE=rag-app 
 	@if [ "$(SUITE)" = "pricing-repro" ]; then $(RUN) evalgate eval pricing-repro; \
 	else $(RUN) evalgate eval run --suite $(or $(SUITE),rag-app); fi
 eval-refresh: ## nivel 4 recalculando contra los modelos locales (Ollama en el host); nunca en el gate
-	$(RUN) evalgate eval run --suite $(or $(SUITE),rag-app) --refresh
+	$(RUN) evalgate eval run --suite $(or $(SUITE),rag-app) --variant $(or $(VARIANT),base) --refresh
 eval-compare-twice: ## G-DETERMINISM: `eval compare` dos veces, en dos procesos, sobre los mismos informes
 	$(RUN) python scripts/eval_compare_twice.py
 bench: ## protocolo de docs/bench/protocol.md. PROFILE=proxy|stream. Con la máquina sin otra carga
