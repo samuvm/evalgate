@@ -83,6 +83,7 @@ def test_a_price_is_the_digits_written_in_the_file_not_their_float() -> None:
         (edited("USD_EUR: 0.92 ", "USD_EUR: 0    "), "USD_EUR"),
         (edited("effective_from: 2026-08-01", "effective_from: agosto"), "effective_from"),
         (edited("source: https://aws.amazon.com/bedrock/pricing/", "source: me lo dijeron"), "source"),
+        (edited("    provider: ollama\n", "    provider: \"\"\n"), "provider"),
         ("- solo\n- una lista\n", "mapping"),
         ("effective_from: [2026\n", "YAML"),
     ],

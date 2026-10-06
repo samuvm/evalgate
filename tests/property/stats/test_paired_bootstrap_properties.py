@@ -108,3 +108,17 @@ def test_more_confidence_always_leaves_a_smaller_tail(one: Fraction, other: Frac
 
     assert 0 < tail(high) <= tail(low) < Fraction(1, 2)
     assert tail(low) * 2 + low == 1
+
+
+@given(runs(), SEEDS)
+def test_worse_is_the_sign_of_the_delta_and_never_true_in_both_directions(
+    pair: tuple[dict[str, float], dict[str, float]], seed: int
+) -> None:
+    base, head = pair
+    forward = paired_bootstrap(base, head, replicates=B, seed=seed, level=LEVEL)
+    backward = paired_bootstrap(head, base, replicates=B, seed=seed, level=LEVEL)
+    itself = paired_bootstrap(base, base, replicates=B, seed=seed, level=LEVEL)
+
+    assert forward.worse == (forward.delta < 0)
+    assert not (forward.worse and backward.worse)
+    assert not itself.worse

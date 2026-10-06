@@ -102,6 +102,8 @@ def test_a_missing_parameter_is_not_filled_in_with_a_default(missing: str) -> No
         ([{"id": "m"}], "blocking"),
         ([{"id": "m", "blocking": "si"}], "blocking"),
         ([{"id": "m", "blocking": True, "absolute": "alto"}], "absolute"),
+        ([{"id": "m", "blocking": True, "higher_is_better": "claro"}], "higher_is_better"),
+        ([{"id": "m", "blocking": True, "absolute": True}], "absolute"),
         ([{"id": "m", "blocking": True, "umbral": 0.9}], "umbral"),
         ([{"id": "m", "blocking": True}, {"id": "m", "blocking": False}], "m"),
     ],
