@@ -1,0 +1,13 @@
+# Suite `rag-app`: la app de ejemplo sobre el golden set sintético de 200 casos.
+# El modelo y la temperatura del juez NO van aquí: son los de su prompt (prompts/judge_faithfulness.md).
+suite: rag-app
+golden: evals/golden/rag-app-v1
+sut:
+  model: qwen3.5:9b-mlx            # el sistema bajo prueba. R12: nunca el mismo que el juez
+  outputs: evals/suites/rag-app/sut/base.jsonl
+judge:
+  id: faithfulness
+  # gemma4 razona por defecto y gasta max_tokens en ello sin llegar al veredicto (medido el 2026-10-07).
+  # Entra en la clave de caché: cambiarlo son otras 200 llamadas.
+  sampling: { seed: 7, max_tokens: 8, reasoning_effort: none }
+cache: evals/suites/rag-app/cache.jsonl

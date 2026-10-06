@@ -48,11 +48,15 @@ def main() -> None:
 
     cases: list[dict[str, object]] = []
     for ficha, field in pairs:
-        question, answer = corpus_module.FIELDS[field]
+        question, _presentation = corpus_module.FIELDS[field]
         cases.append(
             {
                 "pregunta": question.format(name=ficha["nombre"]),
-                "respuesta_referencia": answer.format(v=ficha[field]),
+                # The DATUM, not its presentation ("433", not "433 €"). The question already names the unit
+                # ("precio en euros", "en gramos"), so a system that answers "433" is right. With the unit in
+                # the reference, the first real run scored 0.39 on a system that was answering correctly
+                # (2026-10-07): the measure was wrong, not the system.
+                "respuesta_referencia": str(ficha[field]),
                 "refs": [ficha["id"]],
                 "materia": field,
                 "tipo": "positivo",

@@ -120,8 +120,9 @@ def test_the_text_digest_is_of_the_exact_text() -> None:
 def test_the_key_is_a_sha256_and_does_not_contain_what_it_was_made_from() -> None:
     key = cache_key(BASE)
 
-    assert len(key) == 64
-    assert int(key, 16) >= 0
+    assert key.startswith("sha256:")
+    assert len(key.removeprefix("sha256:")) == 64
+    assert int(key.removeprefix("sha256:"), 16) >= 0
     assert "gemma" not in key
 
 

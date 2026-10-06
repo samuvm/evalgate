@@ -4,6 +4,7 @@ This is where the trace pipeline is assembled, and the only place that sees both
 plain `on_call` sink and never an exporter (R1, `scripts/rules/no_blocking_export.py`).
 """
 
+import json
 from collections.abc import Callable
 from importlib.metadata import version
 from pathlib import Path
@@ -15,7 +16,7 @@ import uvicorn
 from opentelemetry import metrics
 
 from evalgate.cli import compare as compare_cli
-from evalgate.cli import pricing_repro
+from evalgate.cli import eval_run, pricing_repro
 from evalgate.gate.decision import BLOCK
 from evalgate.pricing.loader import load_tables
 from evalgate.proxy.app import DEFAULT_PROVIDER, DEFAULT_UPSTREAM, ProxySettings, create_app
@@ -150,3 +151,61 @@ def eval_compare(
     typer.echo(compare_cli.table(comparison))
     if comparison.outcome == BLOCK:
         raise typer.Exit(code=1)
+
+
+@eval_app.command("run")
+def eval_run_command(
+    suite: Annotated[str, typer.Option(help="Suite name, as in evals/suites/.")] = "rag-app",
+    refresh: Annotated[
+        bool, typer.Option(help="Call the models for what is not recorded. Never in the gate.")
+    ] = False,
+    base_url: Annotated[
+        str,
+        typer.Option(
+            envvar="EVALGATE_EVAL_BASE_URL", help="OpenAI-compatible endpoint, only with --refresh."
+        ),
+    ] = DEFAULT_UPSTREAM,
+    out_dir: Annotated[Path, typer.Option(help="Where the report goes.")] = Path("evals/reports"),
+) -> None:
+    """Run an eval suite from the recorded cache (default) or against the models (--refresh)."""
+    try:
+        report, stats = eval_run.run(
+            Path("evals/suites") / suite, Path(), out_dir, refresh=refresh, base_url=base_url
+        )
+    except (ValueError, LookupError, OSError) as refused:
+        typer.echo(f"evalgate eval run: {refused}", err=True)
+        raise typer.Exit(code=2) from None
+    for metric in report["metrics"]:
+        typer.echo(f"{metric['id']:24} {metric['value']:.4f}  n={metric['n']}")
+    typer.echo(
+        f"caché de jueces: {stats.hits} aciertos, {stats.misses} fallos · "
+        f"coste marginal {stats.marginal_cost_ratio:.4f} · informe {out_dir / (suite + '.json')}"
+    )
+
+
+cache_app = typer.Typer(no_args_is_help=True, help="The recorded cache of model calls.")
+app.add_typer(cache_app, name="cache")
+
+
+@cache_app.command("stats")
+def cache_stats_command(
+    suite: Annotated[str, typer.Option(help="Suite name.")] = "rag-app",
+    out: Annotated[Path, typer.Option(help="Artefact of G-CACHE-HIT.")] = Path(
+        "evals/reports/cache-stats.json"
+    ),
+    fmt: Annotated[str, typer.Option("--format", help="json or text.")] = "text",
+) -> None:
+    """G-CACHE-HIT: what the last two runs of a suite cost. Needs two runs (`make eval && make eval`)."""
+    try:
+        document = eval_run.cache_stats(suite, Path(), out)
+    except ValueError as refused:
+        typer.echo(f"evalgate cache stats: {refused}", err=True)
+        raise typer.Exit(code=2) from None
+    if fmt == "json":
+        typer.echo(json.dumps(document, ensure_ascii=False))
+    else:
+        second = document["second_run"]
+        typer.echo(
+            f"G-CACHE-HIT marginal_cost_ratio={second['marginal_cost_ratio']:g} "
+            f"hit_rate={second['hit_rate']:g} hits={second['hits']} misses={second['misses']}"
+        )

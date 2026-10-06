@@ -68,11 +68,11 @@ test-e2e: ## nivel 5. `make test-e2e -k adoption` = G-ADOPTION (make -k sigue tr
 	$(PYTEST) tests/e2e -q
 adoption: ## G-ADOPTION: líneas de diff de examples/rag-app con y sin proxy. Tiene que dar 0
 	$(PYTEST) tests/e2e/test_adoption.py -q -s
-eval: ## nivel 4 desde caché grabada. `make eval SUITE=pricing-repro` = G-PRICE-REPRO; la suite de evals llega en F5
-	@test "$(SUITE)" = "pricing-repro" || { echo "make eval: de momento solo SUITE=pricing-repro (la suite de evals llega en F5)" >&2; exit 2; }
-	$(RUN) evalgate eval pricing-repro
-eval-refresh: ## nivel 4 recalculando; nunca en el gate
-	$(call not_yet,F5)
+eval: ## nivel 4 desde caché grabada: no llama a ningún modelo. SUITE=rag-app (defecto) | pricing-repro
+	@if [ "$(SUITE)" = "pricing-repro" ]; then $(RUN) evalgate eval pricing-repro; \
+	else $(RUN) evalgate eval run --suite $(or $(SUITE),rag-app); fi
+eval-refresh: ## nivel 4 recalculando contra los modelos locales (Ollama en el host); nunca en el gate
+	$(RUN) evalgate eval run --suite $(or $(SUITE),rag-app) --refresh
 eval-compare-twice: ## G-DETERMINISM: `eval compare` dos veces, en dos procesos, sobre los mismos informes
 	$(RUN) python scripts/eval_compare_twice.py
 bench: ## protocolo de docs/bench/protocol.md. PROFILE=proxy|stream. Con la máquina sin otra carga

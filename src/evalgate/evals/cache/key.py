@@ -10,7 +10,8 @@ Two ways of getting this wrong, both silent, both tested in tests/unit/judges/te
 - concatenating components: ("ab", "c") and ("a", "bc") become the same key. Canonical JSON keeps each
   value in its own field, so there is nothing to bleed.
 
-The key is a sha256 of that canonical form. It is not reversible and holds nothing of the text.
+The key is a sha256 of that canonical form, written `sha256:<hex>`: it is not reversible and holds nothing
+of the text, and the prefix keeps secret scanners from taking a file full of them for a file full of keys.
 """
 
 import hashlib
@@ -59,4 +60,4 @@ def cache_key(call: ModelCall) -> str:
         separators=(",", ":"),
         ensure_ascii=False,
     )
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()

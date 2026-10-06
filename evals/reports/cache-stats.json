@@ -1,0 +1,33 @@
+{
+  "suite": "rag-app",
+  "first_run": {
+    "suite": "rag-app",
+    "at": "2026-10-06T21:53:30+00:00",
+    "hits": 200,
+    "misses": 0,
+    "spent_tokens": 0,
+    "saved_tokens": 107120,
+    "hit_rate": 1.0,
+    "marginal_cost_ratio": 0.0
+  },
+  "second_run": {
+    "suite": "rag-app",
+    "at": "2026-10-06T21:53:30+00:00",
+    "hits": 200,
+    "misses": 0,
+    "spent_tokens": 0,
+    "saved_tokens": 107120,
+    "hit_rate": 1.0,
+    "marginal_cost_ratio": 0.0
+  },
+  "cold_run": {
+    "suite": "rag-app",
+    "at": "2026-10-06T21:50:50+00:00",
+    "hits": 0,
+    "misses": 200,
+    "spent_tokens": 107120,
+    "saved_tokens": 0,
+    "hit_rate": 0.0,
+    "marginal_cost_ratio": 1.0
+  }
+}
