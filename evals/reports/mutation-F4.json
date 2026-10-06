@@ -1,0 +1,399 @@
+{
+  "milestone": 4,
+  "at": "2026-10-06T19:20:21+00:00",
+  "tool": "mutmut==3.7.0",
+  "only_mutate": [
+    "src/evalgate/gate/*",
+    "src/evalgate/stats/*",
+    "src/evalgate/pricing/*",
+    "src/evalgate/accounting/*",
+    "src/evalgate/proxy/streaming.py"
+  ],
+  "killing_suites": [
+    "tests/unit",
+    "tests/property",
+    "tests/contract"
+  ],
+  "killed": 505,
+  "survived": 71,
+  "total": 579,
+  "no_tests": 0,
+  "skipped": 0,
+  "suspicious": 0,
+  "timeout": 3,
+  "check_was_interrupted_by_user": 0,
+  "segfault": 0,
+  "killed_pct": 87.22,
+  "not_killed": [
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ__init____mutmut_17",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ__init____mutmut_17: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -17,5 +17,5 @@\n     self._malformed = 0\n     self._finish_reason: str | None = None\n     self._provider_usage: tuple[int, int] | None = None\n-    self._done = False\n+    self._done = None\n     self._error = False"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ__init____mutmut_19",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ__init____mutmut_19: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -18,4 +18,4 @@\n     self._finish_reason: str | None = None\n     self._provider_usage: tuple[int, int] | None = None\n     self._done = False\n-    self._error = False\n+    self._error = None"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_8",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_8: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -9,7 +9,7 @@\n         # Stamped on ARRIVAL, before framing: a frame split across two writes arrived with the second.\n         self._arrived = self._clock()\n     self._pending += data\n-    while (cut := self._pending.find(_FRAME_END)) != -1:\n+    while (cut := self._pending.rfind(_FRAME_END)) != -1:\n         frame = bytes(self._pending[:cut])\n         del self._pending[: cut + len(_FRAME_END)]\n         self._read(frame)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_10",
+      "status": "timeout",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_10: timeout\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -9,7 +9,7 @@\n         # Stamped on ARRIVAL, before framing: a frame split across two writes arrived with the second.\n         self._arrived = self._clock()\n     self._pending += data\n-    while (cut := self._pending.find(_FRAME_END)) != -1:\n+    while (cut := self._pending.find(_FRAME_END)) != +1:\n         frame = bytes(self._pending[:cut])\n         del self._pending[: cut + len(_FRAME_END)]\n         self._read(frame)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_11",
+      "status": "timeout",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_11: timeout\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -9,7 +9,7 @@\n         # Stamped on ARRIVAL, before framing: a frame split across two writes arrived with the second.\n         self._arrived = self._clock()\n     self._pending += data\n-    while (cut := self._pending.find(_FRAME_END)) != -1:\n+    while (cut := self._pending.find(_FRAME_END)) != -2:\n         frame = bytes(self._pending[:cut])\n         del self._pending[: cut + len(_FRAME_END)]\n         self._read(frame)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_14",
+      "status": "timeout",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁfeed__mutmut_14: timeout\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -11,5 +11,5 @@\n     self._pending += data\n     while (cut := self._pending.find(_FRAME_END)) != -1:\n         frame = bytes(self._pending[:cut])\n-        del self._pending[: cut + len(_FRAME_END)]\n+        del self._pending[: cut - len(_FRAME_END)]\n         self._read(frame)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_3",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_3: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -1,6 +1,6 @@\n def _read(self, frame: bytes) -> None:\n     for line in frame.split(b\"\\n\"):\n-        if not line or line.startswith(b\":\"):\n+        if not line and line.startswith(b\":\"):\n             continue  # `: ping` keep-alive comment\n         if not line.startswith(_DATA):\n             continue  # event:/id:/retry: carry no payload to account for"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_6",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_6: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -1,6 +1,6 @@\n def _read(self, frame: bytes) -> None:\n     for line in frame.split(b\"\\n\"):\n-        if not line or line.startswith(b\":\"):\n+        if not line or line.startswith(b\"XX:XX\"):\n             continue  # `: ping` keep-alive comment\n         if not line.startswith(_DATA):\n             continue  # event:/id:/retry: carry no payload to account for"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_13",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_13: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -6,7 +6,7 @@\n             continue  # event:/id:/retry: carry no payload to account for\n         payload = line[len(_DATA) :].strip()\n         if not payload:\n-            continue  # `data:` with nothing in it: keep-alive too, not a malformed frame\n+            break  # `data:` with nothing in it: keep-alive too, not a malformed frame\n         if payload == _DONE:\n             self._done = True\n             continue"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_17",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_17: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -9,7 +9,7 @@\n             continue  # `data:` with nothing in it: keep-alive too, not a malformed frame\n         if payload == _DONE:\n             self._done = True\n-            continue\n+            break\n         try:\n             event = json.loads(payload)\n         except (UnicodeDecodeError, json.JSONDecodeError):"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_23",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_23: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -14,7 +14,7 @@\n             event = json.loads(payload)\n         except (UnicodeDecodeError, json.JSONDecodeError):\n             self._malformed += 1\n-            continue\n+            break\n         if not isinstance(event, dict):\n             self._malformed += 1\n             continue"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_25",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_25: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -16,6 +16,6 @@\n             self._malformed += 1\n             continue\n         if not isinstance(event, dict):\n-            self._malformed += 1\n+            self._malformed = 1\n             continue\n         self._account(event)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_26",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_26: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -16,6 +16,6 @@\n             self._malformed += 1\n             continue\n         if not isinstance(event, dict):\n-            self._malformed += 1\n+            self._malformed -= 1\n             continue\n         self._account(event)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_27",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_27: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -16,6 +16,6 @@\n             self._malformed += 1\n             continue\n         if not isinstance(event, dict):\n-            self._malformed += 1\n+            self._malformed += 2\n             continue\n         self._account(event)"
+    },
+    {
+      "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_28",
+      "status": "survived",
+      "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_28: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -17,5 +17,5 @@\n             continue\n         if not isinstance(event, dict):\n             self._malformed += 1\n-            continue\n+            break\n         self._account(event)"
+    },
+    {
+      "mutant": "evalgate.pricing.lookup.x_price_at__mutmut_1",
+      "status": "survived",
+      "diff": "# evalgate.pricing.lookup.x_price_at__mutmut_1: survived\n--- src/evalgate/pricing/lookup.py\n+++ src/evalgate/pricing/lookup.py\n@@ -9,7 +9,7 @@\n     Raises ValueError if `at` has no timezone (the instant would be ambiguous) or if two tables share an\n     `effective_from` (one file per date: the contract makes it impossible, so it is corrupt input).\n     \"\"\"\n-    if at.tzinfo is None or at.utcoffset() is None:\n+    if at.tzinfo is None and at.utcoffset() is None:\n         raise ValueError(\"price_at needs a timezone-aware instant\")\n     starts = [t.effective_from for t in tables]\n     if len(starts) != len(set(starts)):"
+    },
+    {
+      "mutant": "evalgate.pricing.lookup.x_price_at__mutmut_5",
+      "status": "survived",
+      "diff": "# evalgate.pricing.lookup.x_price_at__mutmut_5: survived\n--- src/evalgate/pricing/lookup.py\n+++ src/evalgate/pricing/lookup.py\n@@ -10,7 +10,7 @@\n     `effective_from` (one file per date: the contract makes it impossible, so it is corrupt input).\n     \"\"\"\n     if at.tzinfo is None or at.utcoffset() is None:\n-        raise ValueError(\"price_at needs a timezone-aware instant\")\n+        raise ValueError(\"XXprice_at needs a timezone-aware instantXX\")\n     starts = [t.effective_from for t in tables]\n     if len(starts) != len(set(starts)):\n         raise ValueError(\"two price tables share the same effective_from\")"
+    },
+    {
+      "mutant": "evalgate.pricing.lookup.x_price_at__mutmut_10",
+      "status": "survived",
+      "diff": "# evalgate.pricing.lookup.x_price_at__mutmut_10: survived\n--- src/evalgate/pricing/lookup.py\n+++ src/evalgate/pricing/lookup.py\n@@ -13,7 +13,7 @@\n         raise ValueError(\"price_at needs a timezone-aware instant\")\n     starts = [t.effective_from for t in tables]\n     if len(starts) != len(set(starts)):\n-        raise ValueError(\"two price tables share the same effective_from\")\n+        raise ValueError(\"XXtwo price tables share the same effective_fromXX\")\n     in_force = [t for t in tables if datetime.combine(t.effective_from, time.min, UTC) <= at]\n     if not in_force:\n         return None"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__fields__mutmut_7",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__fields__mutmut_7: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -2,7 +2,7 @@\n     if not isinstance(node, dict):\n         raise TableError(f\"{where}: se esperaba un mapping\")\n     if missing := sorted(required - node.keys()):\n-        raise TableError(f\"{where}: falta {', '.join(missing)}\")\n+        raise TableError(f\"{where}: falta {'XX, XX'.join(missing)}\")\n     if extra := sorted(node.keys() - required - optional):\n         raise TableError(f\"{where}: campo no admitido {', '.join(extra)}\")\n     return node"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__fields__mutmut_13",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__fields__mutmut_13: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -4,5 +4,5 @@\n     if missing := sorted(required - node.keys()):\n         raise TableError(f\"{where}: falta {', '.join(missing)}\")\n     if extra := sorted(node.keys() - required - optional):\n-        raise TableError(f\"{where}: campo no admitido {', '.join(extra)}\")\n+        raise TableError(f\"{where}: campo no admitido {'XX, XX'.join(extra)}\")\n     return node"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__text__mutmut_1",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__text__mutmut_1: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,4 +1,4 @@\n def _text(value: Any, field: str, where: str) -> str:\n-    if not isinstance(value, str) or not value:\n+    if not isinstance(value, str) and not value:\n         raise TableError(f\"{where}: {field} vacío o no es texto\")\n     return value"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__text__mutmut_4",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__text__mutmut_4: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,4 +1,4 @@\n def _text(value: Any, field: str, where: str) -> str:\n     if not isinstance(value, str) or not value:\n-        raise TableError(f\"{where}: {field} vacío o no es texto\")\n+        raise TableError(None)\n     return value"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_5",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_5: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,5 +1,5 @@\n def _model(node: Any, where: str) -> tuple[str, ModelPrice]:\n-    fields = _fields(node, _MODEL_REQUIRED, _MODEL_OPTIONAL, where)\n+    fields = _fields(node, _MODEL_REQUIRED, _MODEL_OPTIONAL, None)\n     model_id = _text(fields[\"id\"], \"id\", where)\n     where = f\"{where} ({model_id})\""
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_12",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_12: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,6 +1,6 @@\n def _model(node: Any, where: str) -> tuple[str, ModelPrice]:\n     fields = _fields(node, _MODEL_REQUIRED, _MODEL_OPTIONAL, where)\n-    model_id = _text(fields[\"id\"], \"id\", where)\n+    model_id = _text(fields[\"id\"], None, where)\n     where = f\"{where} ({model_id})\"\n \n     def optional(field: str) -> Decimal | None:"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_13",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_13: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,6 +1,6 @@\n def _model(node: Any, where: str) -> tuple[str, ModelPrice]:\n     fields = _fields(node, _MODEL_REQUIRED, _MODEL_OPTIONAL, where)\n-    model_id = _text(fields[\"id\"], \"id\", where)\n+    model_id = _text(fields[\"id\"], \"id\", None)\n     where = f\"{where} ({model_id})\"\n \n     def optional(field: str) -> Decimal | None:"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_19",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_19: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,6 +1,6 @@\n def _model(node: Any, where: str) -> tuple[str, ModelPrice]:\n     fields = _fields(node, _MODEL_REQUIRED, _MODEL_OPTIONAL, where)\n-    model_id = _text(fields[\"id\"], \"id\", where)\n+    model_id = _text(fields[\"id\"], \"XXidXX\", where)\n     where = f\"{where} ({model_id})\"\n \n     def optional(field: str) -> Decimal | None:"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_20",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_20: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,6 +1,6 @@\n def _model(node: Any, where: str) -> tuple[str, ModelPrice]:\n     fields = _fields(node, _MODEL_REQUIRED, _MODEL_OPTIONAL, where)\n-    model_id = _text(fields[\"id\"], \"id\", where)\n+    model_id = _text(fields[\"id\"], \"ID\", where)\n     where = f\"{where} ({model_id})\"\n \n     def optional(field: str) -> Decimal | None:"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_21",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_21: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,7 +1,7 @@\n def _model(node: Any, where: str) -> tuple[str, ModelPrice]:\n     fields = _fields(node, _MODEL_REQUIRED, _MODEL_OPTIONAL, where)\n     model_id = _text(fields[\"id\"], \"id\", where)\n-    where = f\"{where} ({model_id})\"\n+    where = None\n \n     def optional(field: str) -> Decimal | None:\n         return _amount(fields[field], field, where) if field in fields else None"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_23",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_23: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -4,7 +4,7 @@\n     where = f\"{where} ({model_id})\"\n \n     def optional(field: str) -> Decimal | None:\n-        return _amount(fields[field], field, where) if field in fields else None\n+        return _amount(fields[field], None, where) if field in fields else None\n \n     return model_id, ModelPrice(\n         _amount(fields[\"input_per_1k\"], \"input_per_1k\", where),"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_24",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_24: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -4,7 +4,7 @@\n     where = f\"{where} ({model_id})\"\n \n     def optional(field: str) -> Decimal | None:\n-        return _amount(fields[field], field, where) if field in fields else None\n+        return _amount(fields[field], field, None) if field in fields else None\n \n     return model_id, ModelPrice(\n         _amount(fields[\"input_per_1k\"], \"input_per_1k\", where),"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_43",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_43: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -7,7 +7,7 @@\n         return _amount(fields[field], field, where) if field in fields else None\n \n     return model_id, ModelPrice(\n-        _amount(fields[\"input_per_1k\"], \"input_per_1k\", where),\n+        _amount(fields[\"input_per_1k\"], \"input_per_1k\", None),\n         _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_49",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_49: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -7,7 +7,7 @@\n         return _amount(fields[field], field, where) if field in fields else None\n \n     return model_id, ModelPrice(\n-        _amount(fields[\"input_per_1k\"], \"input_per_1k\", where),\n+        _amount(fields[\"input_per_1k\"], \"XXinput_per_1kXX\", where),\n         _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_52",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_52: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -8,7 +8,7 @@\n \n     return model_id, ModelPrice(\n         _amount(fields[\"input_per_1k\"], \"input_per_1k\", where),\n-        _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n+        _amount(fields[\"output_per_1k\"], None, where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n         _text(fields[\"provider\"], \"provider\", where),"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_53",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_53: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -8,7 +8,7 @@\n \n     return model_id, ModelPrice(\n         _amount(fields[\"input_per_1k\"], \"input_per_1k\", where),\n-        _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n+        _amount(fields[\"output_per_1k\"], \"output_per_1k\", None),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n         _text(fields[\"provider\"], \"provider\", where),"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_59",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_59: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -8,7 +8,7 @@\n \n     return model_id, ModelPrice(\n         _amount(fields[\"input_per_1k\"], \"input_per_1k\", where),\n-        _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n+        _amount(fields[\"output_per_1k\"], \"XXoutput_per_1kXX\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n         _text(fields[\"provider\"], \"provider\", where),"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_60",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_60: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -8,7 +8,7 @@\n \n     return model_id, ModelPrice(\n         _amount(fields[\"input_per_1k\"], \"input_per_1k\", where),\n-        _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n+        _amount(fields[\"output_per_1k\"], \"OUTPUT_PER_1K\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n         _text(fields[\"provider\"], \"provider\", where),"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_68",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_68: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -11,6 +11,6 @@\n         _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n-        _text(fields[\"provider\"], \"provider\", where),\n+        _text(fields[\"provider\"], None, where),\n         _text(fields[\"region\"], \"region\", where),\n     )"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_69",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_69: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -11,6 +11,6 @@\n         _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n-        _text(fields[\"provider\"], \"provider\", where),\n+        _text(fields[\"provider\"], \"provider\", None),\n         _text(fields[\"region\"], \"region\", where),\n     )"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_75",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_75: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -11,6 +11,6 @@\n         _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n-        _text(fields[\"provider\"], \"provider\", where),\n+        _text(fields[\"provider\"], \"XXproviderXX\", where),\n         _text(fields[\"region\"], \"region\", where),\n     )"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_76",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_76: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -11,6 +11,6 @@\n         _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n-        _text(fields[\"provider\"], \"provider\", where),\n+        _text(fields[\"provider\"], \"PROVIDER\", where),\n         _text(fields[\"region\"], \"region\", where),\n     )"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_78",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_78: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -12,5 +12,5 @@\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n         _text(fields[\"provider\"], \"provider\", where),\n-        _text(fields[\"region\"], \"region\", where),\n+        _text(fields[\"region\"], None, where),\n     )"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_79",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_79: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -12,5 +12,5 @@\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n         _text(fields[\"provider\"], \"provider\", where),\n-        _text(fields[\"region\"], \"region\", where),\n+        _text(fields[\"region\"], \"region\", None),\n     )"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_85",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_85: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -12,5 +12,5 @@\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n         _text(fields[\"provider\"], \"provider\", where),\n-        _text(fields[\"region\"], \"region\", where),\n+        _text(fields[\"region\"], \"XXregionXX\", where),\n     )"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__model__mutmut_86",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__model__mutmut_86: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -12,5 +12,5 @@\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n         _text(fields[\"provider\"], \"provider\", where),\n-        _text(fields[\"region\"], \"region\", where),\n+        _text(fields[\"region\"], \"REGION\", where),\n     )"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_5",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_5: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -9,7 +9,7 @@\n         finally:\n             loader.dispose()\n     except yaml.YAMLError as exc:\n-        raise TableError(f\"{filename}: YAML ilegible ({type(exc).__name__})\") from None\n+        raise TableError(f\"{filename}: YAML ilegible ({type(None).__name__})\") from None\n     fields = _fields(document, _TABLE_KEYS, set(), filename)\n \n     effective_from = _day(fields[\"effective_from\"], \"effective_from\", filename)"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_10",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_10: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -10,7 +10,7 @@\n             loader.dispose()\n     except yaml.YAMLError as exc:\n         raise TableError(f\"{filename}: YAML ilegible ({type(exc).__name__})\") from None\n-    fields = _fields(document, _TABLE_KEYS, set(), filename)\n+    fields = _fields(document, _TABLE_KEYS, set(), None)\n \n     effective_from = _day(fields[\"effective_from\"], \"effective_from\", filename)\n     if filename != f\"{effective_from.isoformat()}.yaml\":"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_18",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_18: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -12,7 +12,7 @@\n         raise TableError(f\"{filename}: YAML ilegible ({type(exc).__name__})\") from None\n     fields = _fields(document, _TABLE_KEYS, set(), filename)\n \n-    effective_from = _day(fields[\"effective_from\"], \"effective_from\", filename)\n+    effective_from = _day(fields[\"effective_from\"], \"effective_from\", None)\n     if filename != f\"{effective_from.isoformat()}.yaml\":\n         raise TableError(f\"{filename}: el nombre no coincide con effective_from ({effective_from.isoformat()})\")\n     _day(fields[\"retrieved_at\"], \"retrieved_at\", filename)"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_24",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_24: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -12,7 +12,7 @@\n         raise TableError(f\"{filename}: YAML ilegible ({type(exc).__name__})\") from None\n     fields = _fields(document, _TABLE_KEYS, set(), filename)\n \n-    effective_from = _day(fields[\"effective_from\"], \"effective_from\", filename)\n+    effective_from = _day(fields[\"effective_from\"], \"XXeffective_fromXX\", filename)\n     if filename != f\"{effective_from.isoformat()}.yaml\":\n         raise TableError(f\"{filename}: el nombre no coincide con effective_from ({effective_from.isoformat()})\")\n     _day(fields[\"retrieved_at\"], \"retrieved_at\", filename)"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_29",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_29: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -15,7 +15,7 @@\n     effective_from = _day(fields[\"effective_from\"], \"effective_from\", filename)\n     if filename != f\"{effective_from.isoformat()}.yaml\":\n         raise TableError(f\"{filename}: el nombre no coincide con effective_from ({effective_from.isoformat()})\")\n-    _day(fields[\"retrieved_at\"], \"retrieved_at\", filename)\n+    _day(fields[\"retrieved_at\"], None, filename)\n     if not str(fields[\"source\"]).startswith((\"https://\", \"http://\")):\n         raise TableError(f\"{filename}: source no es una URL pública ({fields['source']!r})\")\n     if fields[\"currency\"] not in _CURRENCIES:"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_30",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_30: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -15,7 +15,7 @@\n     effective_from = _day(fields[\"effective_from\"], \"effective_from\", filename)\n     if filename != f\"{effective_from.isoformat()}.yaml\":\n         raise TableError(f\"{filename}: el nombre no coincide con effective_from ({effective_from.isoformat()})\")\n-    _day(fields[\"retrieved_at\"], \"retrieved_at\", filename)\n+    _day(fields[\"retrieved_at\"], \"retrieved_at\", None)\n     if not str(fields[\"source\"]).startswith((\"https://\", \"http://\")):\n         raise TableError(f\"{filename}: source no es una URL pública ({fields['source']!r})\")\n     if fields[\"currency\"] not in _CURRENCIES:"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_36",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_36: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -15,7 +15,7 @@\n     effective_from = _day(fields[\"effective_from\"], \"effective_from\", filename)\n     if filename != f\"{effective_from.isoformat()}.yaml\":\n         raise TableError(f\"{filename}: el nombre no coincide con effective_from ({effective_from.isoformat()})\")\n-    _day(fields[\"retrieved_at\"], \"retrieved_at\", filename)\n+    _day(fields[\"retrieved_at\"], \"XXretrieved_atXX\", filename)\n     if not str(fields[\"source\"]).startswith((\"https://\", \"http://\")):\n         raise TableError(f\"{filename}: source no es una URL pública ({fields['source']!r})\")\n     if fields[\"currency\"] not in _CURRENCIES:"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_37",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_37: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -15,7 +15,7 @@\n     effective_from = _day(fields[\"effective_from\"], \"effective_from\", filename)\n     if filename != f\"{effective_from.isoformat()}.yaml\":\n         raise TableError(f\"{filename}: el nombre no coincide con effective_from ({effective_from.isoformat()})\")\n-    _day(fields[\"retrieved_at\"], \"retrieved_at\", filename)\n+    _day(fields[\"retrieved_at\"], \"RETRIEVED_AT\", filename)\n     if not str(fields[\"source\"]).startswith((\"https://\", \"http://\")):\n         raise TableError(f\"{filename}: source no es una URL pública ({fields['source']!r})\")\n     if fields[\"currency\"] not in _CURRENCIES:"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_45",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_45: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -16,7 +16,7 @@\n     if filename != f\"{effective_from.isoformat()}.yaml\":\n         raise TableError(f\"{filename}: el nombre no coincide con effective_from ({effective_from.isoformat()})\")\n     _day(fields[\"retrieved_at\"], \"retrieved_at\", filename)\n-    if not str(fields[\"source\"]).startswith((\"https://\", \"http://\")):\n+    if not str(fields[\"source\"]).startswith((\"https://\", \"XXhttp://XX\")):\n         raise TableError(f\"{filename}: source no es una URL pública ({fields['source']!r})\")\n     if fields[\"currency\"] not in _CURRENCIES:\n         raise TableError(f\"{filename}: currency debe ser USD o EUR ({fields['currency']!r})\")"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_46",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_46: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -16,7 +16,7 @@\n     if filename != f\"{effective_from.isoformat()}.yaml\":\n         raise TableError(f\"{filename}: el nombre no coincide con effective_from ({effective_from.isoformat()})\")\n     _day(fields[\"retrieved_at\"], \"retrieved_at\", filename)\n-    if not str(fields[\"source\"]).startswith((\"https://\", \"http://\")):\n+    if not str(fields[\"source\"]).startswith((\"https://\", \"HTTP://\")):\n         raise TableError(f\"{filename}: source no es una URL pública ({fields['source']!r})\")\n     if fields[\"currency\"] not in _CURRENCIES:\n         raise TableError(f\"{filename}: currency debe ser USD o EUR ({fields['currency']!r})\")"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_60",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_60: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -20,7 +20,7 @@\n         raise TableError(f\"{filename}: source no es una URL pública ({fields['source']!r})\")\n     if fields[\"currency\"] not in _CURRENCIES:\n         raise TableError(f\"{filename}: currency debe ser USD o EUR ({fields['currency']!r})\")\n-    fx = _fields(fields[\"fx\"], _FX_KEYS, set(), f\"{filename} fx\")\n+    fx = _fields(fields[\"fx\"], _FX_KEYS, set(), None)\n     rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", filename, positive=True), _day(fx[\"fx_date\"], \"fx_date\", filename))\n \n     if not isinstance(fields[\"models\"], list) or not fields[\"models\"]:"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_74",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_74: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -21,7 +21,7 @@\n     if fields[\"currency\"] not in _CURRENCIES:\n         raise TableError(f\"{filename}: currency debe ser USD o EUR ({fields['currency']!r})\")\n     fx = _fields(fields[\"fx\"], _FX_KEYS, set(), f\"{filename} fx\")\n-    rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", filename, positive=True), _day(fx[\"fx_date\"], \"fx_date\", filename))\n+    rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", None, positive=True), _day(fx[\"fx_date\"], \"fx_date\", filename))\n \n     if not isinstance(fields[\"models\"], list) or not fields[\"models\"]:\n         raise TableError(f\"{filename}: models vacío: una tabla sin modelos no pone precio a nada\")"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_82",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_82: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -21,7 +21,7 @@\n     if fields[\"currency\"] not in _CURRENCIES:\n         raise TableError(f\"{filename}: currency debe ser USD o EUR ({fields['currency']!r})\")\n     fx = _fields(fields[\"fx\"], _FX_KEYS, set(), f\"{filename} fx\")\n-    rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", filename, positive=True), _day(fx[\"fx_date\"], \"fx_date\", filename))\n+    rate = Fx(_amount(fx[\"USD_EUR\"], \"XXUSD_EURXX\", filename, positive=True), _day(fx[\"fx_date\"], \"fx_date\", filename))\n \n     if not isinstance(fields[\"models\"], list) or not fields[\"models\"]:\n         raise TableError(f\"{filename}: models vacío: una tabla sin modelos no pone precio a nada\")"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_86",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_86: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -21,7 +21,7 @@\n     if fields[\"currency\"] not in _CURRENCIES:\n         raise TableError(f\"{filename}: currency debe ser USD o EUR ({fields['currency']!r})\")\n     fx = _fields(fields[\"fx\"], _FX_KEYS, set(), f\"{filename} fx\")\n-    rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", filename, positive=True), _day(fx[\"fx_date\"], \"fx_date\", filename))\n+    rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", filename, positive=True), _day(fx[\"fx_date\"], None, filename))\n \n     if not isinstance(fields[\"models\"], list) or not fields[\"models\"]:\n         raise TableError(f\"{filename}: models vacío: una tabla sin modelos no pone precio a nada\")"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_87",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_87: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -21,7 +21,7 @@\n     if fields[\"currency\"] not in _CURRENCIES:\n         raise TableError(f\"{filename}: currency debe ser USD o EUR ({fields['currency']!r})\")\n     fx = _fields(fields[\"fx\"], _FX_KEYS, set(), f\"{filename} fx\")\n-    rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", filename, positive=True), _day(fx[\"fx_date\"], \"fx_date\", filename))\n+    rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", filename, positive=True), _day(fx[\"fx_date\"], \"fx_date\", None))\n \n     if not isinstance(fields[\"models\"], list) or not fields[\"models\"]:\n         raise TableError(f\"{filename}: models vacío: una tabla sin modelos no pone precio a nada\")"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_93",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_93: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -21,7 +21,7 @@\n     if fields[\"currency\"] not in _CURRENCIES:\n         raise TableError(f\"{filename}: currency debe ser USD o EUR ({fields['currency']!r})\")\n     fx = _fields(fields[\"fx\"], _FX_KEYS, set(), f\"{filename} fx\")\n-    rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", filename, positive=True), _day(fx[\"fx_date\"], \"fx_date\", filename))\n+    rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", filename, positive=True), _day(fx[\"fx_date\"], \"XXfx_dateXX\", filename))\n \n     if not isinstance(fields[\"models\"], list) or not fields[\"models\"]:\n         raise TableError(f\"{filename}: models vacío: una tabla sin modelos no pone precio a nada\")"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_94",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_94: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -21,7 +21,7 @@\n     if fields[\"currency\"] not in _CURRENCIES:\n         raise TableError(f\"{filename}: currency debe ser USD o EUR ({fields['currency']!r})\")\n     fx = _fields(fields[\"fx\"], _FX_KEYS, set(), f\"{filename} fx\")\n-    rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", filename, positive=True), _day(fx[\"fx_date\"], \"fx_date\", filename))\n+    rate = Fx(_amount(fx[\"USD_EUR\"], \"USD_EUR\", filename, positive=True), _day(fx[\"fx_date\"], \"FX_DATE\", filename))\n \n     if not isinstance(fields[\"models\"], list) or not fields[\"models\"]:\n         raise TableError(f\"{filename}: models vacío: una tabla sin modelos no pone precio a nada\")"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_parse_table__mutmut_107",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_parse_table__mutmut_107: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -27,7 +27,7 @@\n         raise TableError(f\"{filename}: models vacío: una tabla sin modelos no pone precio a nada\")\n     models: dict[str, ModelPrice] = {}\n     for position, node in enumerate(fields[\"models\"]):\n-        model_id, price = _model(node, f\"{filename} models[{position}]\")\n+        model_id, price = _model(node, None)\n         if model_id in models:\n             # Also refuses the same id under another provider or region, which the schema allows: `price_at`\n             # resolves by id alone and would silently pick one of the two (ADR-013)."
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__sealed__mutmut_2",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__sealed__mutmut_2: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,7 +1,7 @@\n def _sealed(lock: Path) -> dict[str, str]:\n     \"\"\"`<sha256>  pricing/<name>` per line, the format of `shasum -a 256`. Keyed by bare file name.\"\"\"\n     entries: dict[str, str] = {}\n-    for line in lock.read_text(encoding=\"utf-8\").splitlines():\n+    for line in lock.read_text(encoding=None).splitlines():\n         if line.strip() and not line.startswith(\"#\"):\n             digest, name = line.split(maxsplit=1)\n             entries[Path(name.strip()).name] = digest"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__sealed__mutmut_4",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__sealed__mutmut_4: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,7 +1,7 @@\n def _sealed(lock: Path) -> dict[str, str]:\n     \"\"\"`<sha256>  pricing/<name>` per line, the format of `shasum -a 256`. Keyed by bare file name.\"\"\"\n     entries: dict[str, str] = {}\n-    for line in lock.read_text(encoding=\"utf-8\").splitlines():\n+    for line in lock.read_text(encoding=\"UTF-8\").splitlines():\n         if line.strip() and not line.startswith(\"#\"):\n             digest, name = line.split(maxsplit=1)\n             entries[Path(name.strip()).name] = digest"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__sealed__mutmut_5",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__sealed__mutmut_5: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -2,7 +2,7 @@\n     \"\"\"`<sha256>  pricing/<name>` per line, the format of `shasum -a 256`. Keyed by bare file name.\"\"\"\n     entries: dict[str, str] = {}\n     for line in lock.read_text(encoding=\"utf-8\").splitlines():\n-        if line.strip() and not line.startswith(\"#\"):\n+        if line.strip() or not line.startswith(\"#\"):\n             digest, name = line.split(maxsplit=1)\n             entries[Path(name.strip()).name] = digest\n     return entries"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__sealed__mutmut_8",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__sealed__mutmut_8: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -2,7 +2,7 @@\n     \"\"\"`<sha256>  pricing/<name>` per line, the format of `shasum -a 256`. Keyed by bare file name.\"\"\"\n     entries: dict[str, str] = {}\n     for line in lock.read_text(encoding=\"utf-8\").splitlines():\n-        if line.strip() and not line.startswith(\"#\"):\n+        if line.strip() and not line.startswith(\"XX#XX\"):\n             digest, name = line.split(maxsplit=1)\n             entries[Path(name.strip()).name] = digest\n     return entries"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__sealed__mutmut_11",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__sealed__mutmut_11: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -3,6 +3,6 @@\n     entries: dict[str, str] = {}\n     for line in lock.read_text(encoding=\"utf-8\").splitlines():\n         if line.strip() and not line.startswith(\"#\"):\n-            digest, name = line.split(maxsplit=1)\n+            digest, name = line.rsplit(maxsplit=1)\n             entries[Path(name.strip()).name] = digest\n     return entries"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x__sealed__mutmut_12",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x__sealed__mutmut_12: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -3,6 +3,6 @@\n     entries: dict[str, str] = {}\n     for line in lock.read_text(encoding=\"utf-8\").splitlines():\n         if line.strip() and not line.startswith(\"#\"):\n-            digest, name = line.split(maxsplit=1)\n+            digest, name = line.split(maxsplit=2)\n             entries[Path(name.strip()).name] = digest\n     return entries"
+    },
+    {
+      "mutant": "evalgate.pricing.loader.x_load_tables__mutmut_26",
+      "status": "survived",
+      "diff": "# evalgate.pricing.loader.x_load_tables__mutmut_26: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -15,5 +15,5 @@\n             raise TableError(f\"{name} no está sellada en {lock.name}: no está publicada\")\n         if hashlib.sha256(content).hexdigest() != sealed[name]:\n             raise TableError(f\"{name} cambió tras publicarse: una tabla publicada no se edita (R4)\")\n-        tables.append(parse_table(content.decode(\"utf-8\"), name))\n+        tables.append(parse_table(content.decode(\"UTF-8\"), name))\n     return sorted(tables, key=lambda table: table.effective_from)"
+    },
+    {
+      "mutant": "evalgate.pricing.cost.x_cost_of__mutmut_40",
+      "status": "survived",
+      "diff": "# evalgate.pricing.cost.x_cost_of__mutmut_40: survived\n--- src/evalgate/pricing/cost.py\n+++ src/evalgate/pricing/cost.py\n@@ -27,7 +27,7 @@\n         if price is None:\n             raise ValueError(\n                 f\"{model_id} has no {component.value} price in table {table.effective_from}: \"\n-                \"cache tokens are not free\"\n+                \"XXcache tokens are not freeXX\"\n             )\n         amount += price * count / _PER\n     return CallCost(amount, table.currency or \"\", _to_eur(amount, table), table.effective_from.isoformat())"
+    },
+    {
+      "mutant": "evalgate.pricing.cost.x_cost_of__mutmut_41",
+      "status": "survived",
+      "diff": "# evalgate.pricing.cost.x_cost_of__mutmut_41: survived\n--- src/evalgate/pricing/cost.py\n+++ src/evalgate/pricing/cost.py\n@@ -27,7 +27,7 @@\n         if price is None:\n             raise ValueError(\n                 f\"{model_id} has no {component.value} price in table {table.effective_from}: \"\n-                \"cache tokens are not free\"\n+                \"CACHE TOKENS ARE NOT FREE\"\n             )\n         amount += price * count / _PER\n     return CallCost(amount, table.currency or \"\", _to_eur(amount, table), table.effective_from.isoformat())"
+    },
+    {
+      "mutant": "evalgate.pricing.cost.x_cost_of__mutmut_55",
+      "status": "survived",
+      "diff": "# evalgate.pricing.cost.x_cost_of__mutmut_55: survived\n--- src/evalgate/pricing/cost.py\n+++ src/evalgate/pricing/cost.py\n@@ -30,4 +30,4 @@\n                 \"cache tokens are not free\"\n             )\n         amount += price * count / _PER\n-    return CallCost(amount, table.currency or \"\", _to_eur(amount, table), table.effective_from.isoformat())\n+    return CallCost(amount, table.currency or \"XXXX\", _to_eur(amount, table), table.effective_from.isoformat())"
+    },
+    {
+      "mutant": "evalgate.pricing.cost.x_total_eur__mutmut_4",
+      "status": "survived",
+      "diff": "# evalgate.pricing.cost.x_total_eur__mutmut_4: survived\n--- src/evalgate/pricing/cost.py\n+++ src/evalgate/pricing/cost.py\n@@ -1,3 +1,3 @@\n def total_eur(costs: Iterable[CallCost]) -> Decimal:\n     \"\"\"Exact sum in euros. Each cost keeps the exchange rate of its own table (contract §3.2).\"\"\"\n-    return sum((cost.eur for cost in costs), Decimal(0))\n+    return sum((cost.eur for cost in costs), )"
+    },
+    {
+      "mutant": "evalgate.pricing.cost.x_presented__mutmut_8",
+      "status": "survived",
+      "diff": "# evalgate.pricing.cost.x_presented__mutmut_8: survived\n--- src/evalgate/pricing/cost.py\n+++ src/evalgate/pricing/cost.py\n@@ -1,3 +1,3 @@\n def presented(amount: Decimal, places: int = 2) -> Decimal:\n     \"\"\"Round ONCE, to show it: half up, to `places` decimals. The only rounding in the package (§3.5).\"\"\"\n-    return amount.quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_UP)\n+    return amount.quantize(Decimal(2).scaleb(-places), rounding=ROUND_HALF_UP)"
+    }
+  ]
+}

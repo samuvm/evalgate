@@ -1,7 +1,11 @@
 import json
+from dataclasses import replace
+from datetime import date
+from decimal import Decimal
 
 import pytest
 
+from evalgate.pricing.model import Fx, ModelPrice, PriceTable
 from evalgate.proxy.streaming import (
     END_CLIENT_DISCONNECT,
     END_DONE,
@@ -22,11 +26,12 @@ from evalgate.proxy.translate import (
     is_stream_request,
     llm_call,
     normalize_chat_completion,
+    priced_call,
     record_of_completion,
     request_facts,
     upstream_url,
 )
-from evalgate.telemetry.model import LlmCall
+from evalgate.telemetry.model import Cost, LlmCall
 
 OLLAMA_RESPONSE = (
     b'{"id":"chatcmpl-557","object":"chat.completion","created":1789045001,"model":"qwen3.5:4b-mlx",'
@@ -348,3 +353,70 @@ def test_a_request_that_named_no_model_is_traced_with_an_empty_request_model() -
     call = llm_call(record, RequestFacts(None, None, None), ORIGIN, 0, 1)
 
     assert (call.request_model, call.response_model) == ("", "m")
+
+
+# F4 · el coste de la llamada, con la tabla vigente en SU instante. La traza lleva el coste y la versión.
+
+_PRICED = PriceTable(
+    date(2026, 8, 1),
+    {
+        "qwen3.5:4b-mlx": ModelPrice(Decimal("0.0008"), Decimal("0.004")),
+        "local": ModelPrice(Decimal("0"), Decimal("0")),
+    },
+    "USD",
+    Fx(Decimal("0.92"), date(2026, 8, 8)),
+)
+_AUG_15_NS = 1_786_795_200_000_000_000  # 2026-08-15T12:00:00Z
+
+
+def _call(**changes: object) -> LlmCall:
+    base = LlmCall(
+        "chat",
+        "ollama",
+        "h",
+        "qwen3.5:4b-mlx",
+        "qwen3.5:4b-mlx",
+        1500,
+        500,
+        SOURCE_PROVIDER,
+        ("stop",),
+        _AUG_15_NS,
+        _AUG_15_NS + 1,
+    )
+    return replace(base, **changes)  # type: ignore[arg-type]
+
+
+def test_a_priced_call_carries_its_cost_and_the_table_that_priced_it() -> None:
+    priced = priced_call(_call(), [_PRICED])
+
+    # 1.5 x 0.0008 + 0.5 x 0.004 = 0.0032 USD; x 0.92 = 0.002944 EUR
+    assert priced.cost == Cost(eur=Decimal("0.002944"), pricing_version="2026-08-01")
+    assert replace(priced, cost=None) == _call()  # nothing else of the call changes
+
+
+def test_the_model_that_answered_is_the_one_that_is_billed() -> None:
+    """Providers alias and reroute: the request said one model, another one did the work and sent the bill."""
+    assert priced_call(_call(response_model="local"), [_PRICED]).cost == Cost(Decimal("0"), "2026-08-01")
+
+
+def test_without_a_response_model_the_requested_one_prices_the_call() -> None:
+    assert priced_call(_call(response_model=None), [_PRICED]).cost == Cost(Decimal("0.002944"), "2026-08-01")
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        _call(response_model="nobody-priced-this"),
+        _call(started_ns=1_700_000_000_000_000_000, ended_ns=1_700_000_000_000_000_001),  # before any table
+    ],
+)
+def test_a_call_no_table_prices_stays_unpriced_instead_of_free(call: LlmCall) -> None:
+    assert priced_call(call, [_PRICED]).cost is None
+    assert priced_call(call, []).cost is None
+
+
+def test_a_table_that_cannot_price_never_costs_the_trace() -> None:
+    """R1: a broken table (USD with no exchange rate) loses the cost, not the span and not the request."""
+    broken = PriceTable(date(2026, 8, 1), {"qwen3.5:4b-mlx": ModelPrice(Decimal("1"), Decimal("1"))}, "USD")
+
+    assert priced_call(_call(), [broken]) == _call()

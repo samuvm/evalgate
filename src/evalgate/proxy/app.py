@@ -7,7 +7,7 @@ the provider emitted. This file only moves bytes and chooses who to hand them to
 import contextlib
 import os
 import time
-from collections.abc import AsyncGenerator, AsyncIterator, Callable
+from collections.abc import AsyncGenerator, AsyncIterator, Callable, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 
@@ -16,6 +16,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from starlette.types import Receive, Scope, Send
 
+from evalgate.pricing.model import PriceTable
 from evalgate.proxy.streaming import StreamAccountant, UsageRecord, relay
 from evalgate.proxy.translate import (
     NORMALIZED_HEADER,
@@ -26,6 +27,7 @@ from evalgate.proxy.translate import (
     is_stream_request,
     llm_call,
     normalize_chat_completion,
+    priced_call,
     record_of_completion,
     request_facts,
     upstream_url,
@@ -61,6 +63,9 @@ class ProxySettings:
     on_call: Callable[[LlmCall], None] | None = None
     count_tokens: Callable[[str], int] = whitespace_tokens
     provider: str = DEFAULT_PROVIDER
+    # Published price tables (pricing/, sealed in TABLES.lock), loaded by whoever mounts the proxy. Empty: the
+    # traces carry no cost, which says "unpriced" and never "free".
+    price_tables: Sequence[PriceTable] = ()
     clock: Callable[[], int] = time.time_ns  # epoch ns, OpenTelemetry's clock; injected so tests can pin it
 
     @property
@@ -98,7 +103,8 @@ def emit(config: ProxySettings, record: UsageRecord | None, request: RequestFact
             config.on_usage(record)
     if config.on_call is not None:
         with contextlib.suppress(Exception):
-            config.on_call(llm_call(record, request, config.origin, started_ns, config.clock()))
+            call = llm_call(record, request, config.origin, started_ns, config.clock())
+            config.on_call(priced_call(call, config.price_tables))
 
 
 def raw(headers: list[tuple[str, str]]) -> list[tuple[bytes, bytes]]:

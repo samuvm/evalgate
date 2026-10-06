@@ -15,6 +15,7 @@ import uvicorn
 from opentelemetry import metrics
 
 from evalgate.cli import pricing_repro
+from evalgate.pricing.loader import load_tables
 from evalgate.proxy.app import DEFAULT_PROVIDER, DEFAULT_UPSTREAM, ProxySettings, create_app
 from evalgate.telemetry.exporters import StoreClient
 from evalgate.telemetry.exporters.clickhouse import ClickHouseSpanExporter
@@ -87,12 +88,19 @@ def serve(  # noqa: PLR0913, PLR0917 - in typer each flag IS a parameter
         typer.Option(envvar="EVALGATE_PROVIDER", help="Provider name the traces report (ollama, openai…)."),
     ] = DEFAULT_PROVIDER,
     clickhouse: ClickHouseUrl = None,
+    pricing_dir: Annotated[
+        Path,
+        typer.Option(envvar="EVALGATE_PRICING_DIR", help="Published price tables and their TABLES.lock."),
+    ] = Path("pricing"),
 ) -> None:
     """Run the proxy. Point a client's OPENAI_BASE_URL at http://HOST:PORT/v1."""
     settings = ProxySettings(
         upstream_base_url=upstream,
         normalize=normalize,
         provider=provider,
+        # Fails here, at start-up and loudly, if a published table was edited, deleted or never sealed (R4):
+        # better no proxy than a proxy pricing with a table nobody can vouch for.
+        price_tables=load_tables(pricing_dir, pricing_dir / "TABLES.lock"),
         on_call=trace_sink(clickhouse) if clickhouse else None,
     )
     uvicorn.run(create_app(settings), host=host, port=port, log_level="warning")

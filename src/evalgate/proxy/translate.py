@@ -4,11 +4,14 @@ No I/O here: proxy/app.py does the network part and calls these functions.
 """
 
 import json
-from collections.abc import Callable, Iterable
-from dataclasses import dataclass
+from collections.abc import Callable, Iterable, Sequence
+from dataclasses import dataclass, replace
+from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import urlsplit
 
+from evalgate.pricing.cost import Tokens, cost_of
+from evalgate.pricing.model import PriceTable
 from evalgate.proxy.streaming import (
     END_CLIENT_DISCONNECT,
     END_DONE,
@@ -20,9 +23,10 @@ from evalgate.proxy.streaming import (
     Usage,
     UsageRecord,
 )
-from evalgate.telemetry.model import LlmCall
+from evalgate.telemetry.model import Cost, LlmCall
 
 NORMALIZED_HEADER = "x-evalgate-normalized"
+_NS_PER_S = 1_000_000_000
 
 # RFC 9110 §7.6.1 hop-by-hop headers, plus the ones the proxy recomputes itself. It is not the whole rule:
 # `Connection` names further fields that die at this hop, and `_dropped()` adds them per message.
@@ -250,3 +254,22 @@ def llm_call(
         error_type=_ERROR_OF_END.get(record.end),
         ttft_ms=ttft_ms,
     )
+
+
+def priced_call(call: LlmCall, tables: Sequence[PriceTable]) -> LlmCall:
+    """The same call with what it cost, priced with the table in force when it STARTED.
+
+    Billed to the model that answered (providers alias and reroute), or to the requested one when the stream
+    never named it. Total by design: a call no table prices, or a table that cannot price, leaves the call
+    as it was, without a cost. Unpriced is visible in the trace; a pricing error must never cost the span,
+    let alone the request (R1).
+    """
+    started = datetime.fromtimestamp(call.started_ns / _NS_PER_S, UTC)
+    billed = call.response_model or call.request_model
+    try:
+        cost = cost_of(tables, billed, Tokens(call.input_tokens, call.output_tokens), started)
+    except ValueError:
+        return call
+    if cost is None:
+        return call
+    return replace(call, cost=Cost(cost.eur, cost.pricing_version))
