@@ -1,0 +1,56 @@
+# Tabla de precios de Evalgate · vigente desde el 2026-10-06 · contrato docs/CONTRACTS/pricing-table.md v1
+#
+# Ningún precio de aquí está inventado. Cada bloque dice de dónde sale:
+#
+# - Claude Haiku 4.5: precios de lista de la API de Anthropic, en USD por MILLÓN de tokens, leídos el
+#   2026-10-06 de la URL de `source` (tabla "Model pricing"): entrada 1 $, salida 5 $, escritura de caché
+#   de 5 minutos 1,25 $, lectura de caché ("cache hits and refreshes") 0,10 $. Aquí van por 1k tokens, que
+#   es la unidad del contrato: se dividen entre 1000, sin redondear nada.
+#   `cache_write_per_1k` es la escritura de 5 MINUTOS. La de 1 hora cuesta 2 $/MTok y esta tabla no la
+#   cubre: el contrato tiene un solo campo de escritura.
+#   Es el modelo de pago de referencia para la columna "coste declarado" (contrato §4). El proxy NO lo ha
+#   llamado nunca: solo modelos locales.
+# - Modelos locales (Ollama en esta máquina): 0, que es un precio y no una ausencia. Coste real incurrido
+#   = 0 € (contrato §4). Son los tres que `ollama list` mostraba el 2026-09-10.
+# - Tipo de cambio: referencia del BCE del 2026-10-06, 1 EUR = 1,1269 USD
+#   (https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml). USD_EUR es su inverso,
+#   1 / 1,1269 = 0,887390185…, truncado a 6 decimales. La séptima cifra ya no cambia un céntimo hasta
+#   pasar del millón de dólares.
+effective_from: 2026-10-06
+source: https://platform.claude.com/docs/en/about-claude/pricing
+retrieved_at: 2026-10-06
+currency: USD
+fx:
+  USD_EUR: 0.887390
+  fx_date: 2026-10-06
+
+models:
+  - id: claude-haiku-4-5
+    provider: anthropic
+    region: global
+    input_per_1k: 0.001
+    output_per_1k: 0.005
+    cache_write_per_1k: 0.00125
+    cache_read_per_1k: 0.0001
+    note: "Precio de lista de la API, endpoint global. Escritura de caché de 5 minutos."
+
+  - id: qwen3.5:4b-mlx
+    provider: ollama
+    region: local
+    input_per_1k: 0.0
+    output_per_1k: 0.0
+    note: "Modelo local. Coste real incurrido = 0 (contrato §4)."
+
+  - id: qwen3.5:9b-mlx
+    provider: ollama
+    region: local
+    input_per_1k: 0.0
+    output_per_1k: 0.0
+    note: "Modelo local. Coste real incurrido = 0 (contrato §4)."
+
+  - id: gemma4:12b-mlx
+    provider: ollama
+    region: local
+    input_per_1k: 0.0
+    output_per_1k: 0.0
+    note: "Modelo local. Coste real incurrido = 0 (contrato §4)."

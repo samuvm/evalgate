@@ -43,6 +43,19 @@ class CallCost:
     pricing_version: str  # `effective_from` of the table that priced it, ISO date
 
 
+@dataclass(frozen=True, slots=True)
+class Call:
+    """One billed call of a period: when, which model, how many tokens."""
+
+    at: datetime
+    model_id: str
+    tokens: Tokens
+
+
+class Unpriced(ValueError):
+    """A period holds a call no table prices. Its total does not exist, and zero would be a lie."""
+
+
 def _in_force(tables: Sequence[PriceTable], at: datetime) -> PriceTable | None:
     started = [t for t in tables if datetime.combine(t.effective_from, time.min, UTC) <= at]
     return max(started, key=lambda t: t.effective_from) if started else None
@@ -103,3 +116,19 @@ def total_eur(costs: Iterable[CallCost]) -> Decimal:
 def presented(amount: Decimal, places: int = 2) -> Decimal:
     """Round ONCE, to show it: half up, to `places` decimals. The only rounding in the package (§3.5)."""
     return amount.quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_UP)
+
+
+def period_total_eur(tables: Sequence[PriceTable], calls: Iterable[Call]) -> Decimal:
+    """Exact cost in euros of every call of a period, each priced with the table in force at ITS instant.
+
+    A monthly report that crosses a price change uses each stretch's table (contract §3.2), which falls out of
+    pricing call by call. Raises `Unpriced` if any call has no price: a total that silently skips a call
+    looks complete and is not.
+    """
+    costs = []
+    for call in calls:
+        cost = cost_of(tables, call.model_id, call.tokens, call.at)
+        if cost is None:
+            raise Unpriced(f"no table in force prices {call.model_id} at {call.at.isoformat()}")
+        costs.append(cost)
+    return total_eur(costs)

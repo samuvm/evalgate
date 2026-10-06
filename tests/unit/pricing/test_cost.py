@@ -10,7 +10,7 @@ from decimal import Decimal
 
 import pytest
 
-from evalgate.pricing.cost import CallCost, Tokens, cost_of, presented, total_eur
+from evalgate.pricing.cost import Call, CallCost, Tokens, Unpriced, cost_of, period_total_eur, presented, total_eur
 from evalgate.pricing.model import Fx, ModelPrice, PriceTable
 
 HAIKU = ModelPrice(
@@ -150,3 +150,32 @@ def test_negative_tokens_are_corrupt_input(tokens: Tokens) -> None:
 
 def test_total_of_nothing_is_zero() -> None:
     assert total_eur([]) == Decimal("0")
+
+
+# --- a whole period: each call with the table of ITS date (contract §3.2) -------------------------------
+
+
+def test_a_period_across_a_price_change_prices_each_call_with_its_own_table() -> None:
+    same = Tokens(input=1000, output=1000)
+    calls = [
+        Call(datetime(2026, 8, 31, 23, 59, 59, tzinfo=UTC), "haiku", same),  # 0.0048 USD x 0.92 = 0.004416
+        Call(datetime(2026, 9, 1, tzinfo=UTC), "haiku", same),  # 0.0060 USD x 0.90 = 0.005400
+        Call(datetime(2026, 8, 20, tzinfo=UTC), "qwen", Tokens(50_000, 50_000)),  # local: 0
+    ]
+
+    assert period_total_eur([AUGUST, SEPTEMBER], calls) == Decimal("0.009816")
+
+
+def test_a_period_with_one_call_nobody_can_price_has_no_total() -> None:
+    """September's table does not list qwen. Skipping the call would publish a total that looks complete."""
+    calls = [
+        Call(MID_AUGUST, "haiku", Tokens(1000, 0)),
+        Call(datetime(2026, 9, 2, tzinfo=UTC), "qwen", Tokens(1000, 0)),
+    ]
+
+    with pytest.raises(Unpriced, match="qwen"):
+        period_total_eur([AUGUST, SEPTEMBER], calls)
+
+
+def test_an_empty_period_costs_zero() -> None:
+    assert period_total_eur([AUGUST], []) == Decimal("0")

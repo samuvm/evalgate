@@ -12,7 +12,7 @@ from decimal import Decimal
 from hypothesis import given
 from hypothesis import strategies as st
 
-from evalgate.pricing.cost import CallCost, Tokens, cost_of, presented, total_eur
+from evalgate.pricing.cost import Call, CallCost, Tokens, cost_of, period_total_eur, presented, total_eur
 from evalgate.pricing.model import Fx, ModelPrice, PriceTable
 
 PRICES = st.integers(min_value=0, max_value=10**6).map(lambda n: Decimal(n) / Decimal(10**6))
@@ -65,3 +65,18 @@ def test_presenting_moves_an_amount_by_at_most_half_a_unit(amount: Decimal, plac
     unit = Decimal(1).scaleb(-places)
 
     assert abs(presented(amount, places) - amount) <= unit / 2
+
+
+@given(tables(), st.lists(TOKENS, min_size=1, max_size=8), st.randoms(use_true_random=False))
+def test_a_period_total_is_the_sum_of_its_calls_in_any_order(
+    history: list[PriceTable], batch: list[Tokens], shuffler: object
+) -> None:
+    calls = [Call(AT, "m", tokens) for tokens in batch]
+    shuffled = list(calls)
+    shuffler.shuffle(shuffled)  # type: ignore[attr-defined]
+
+    total = period_total_eur(history, calls)
+
+    assert total == sum((priced(history, call.tokens).eur for call in calls), Decimal(0))
+    assert total == period_total_eur(history, shuffled)
+    assert total >= 0
