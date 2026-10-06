@@ -22,8 +22,8 @@ found = sorted(
 )
 if not found:
     print(
-        "G-COST-RECONCILE sin_conciliacion=1 · no existe docs/reconciliation-<fecha>.md: coste real incurrido "
-        "0 EUR, solo modelos locales. No bloquea.",
+        "G-COST-RECONCILE sin_conciliacion=1 · no existe docs/reconciliation-<fecha>.md: coste real "
+        "incurrido 0 EUR, solo modelos locales. No bloquea.",
         file=sys.stderr,
     )
     sys.exit(1)
