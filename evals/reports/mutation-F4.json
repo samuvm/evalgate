@@ -1,6 +1,6 @@
 {
   "milestone": 4,
-  "at": "2026-10-06T19:20:21+00:00",
+  "at": "2026-10-06T21:32:53+00:00",
   "tool": "mutmut==3.7.0",
   "only_mutate": [
     "src/evalgate/gate/*",
@@ -14,16 +14,16 @@
     "tests/property",
     "tests/contract"
   ],
-  "killed": 505,
-  "survived": 71,
-  "total": 579,
+  "killed": 1032,
+  "survived": 130,
+  "total": 1165,
   "no_tests": 0,
   "skipped": 0,
   "suspicious": 0,
   "timeout": 3,
   "check_was_interrupted_by_user": 0,
   "segfault": 0,
-  "killed_pct": 87.22,
+  "killed_pct": 88.58,
   "not_killed": [
     {
       "mutant": "evalgate.proxy.streaming.xǁStreamAccountantǁ__init____mutmut_17",
@@ -101,6 +101,261 @@
       "diff": "# evalgate.proxy.streaming.xǁStreamAccountantǁ_read__mutmut_28: survived\n--- src/evalgate/proxy/streaming.py\n+++ src/evalgate/proxy/streaming.py\n@@ -17,5 +17,5 @@\n             continue\n         if not isinstance(event, dict):\n             self._malformed += 1\n-            continue\n+            break\n         self._account(event)"
     },
     {
+      "mutant": "evalgate.gate.config.x__integer__mutmut_4",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x__integer__mutmut_4: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -1,4 +1,4 @@\n def _integer(value: Any, name: str, minimum: int) -> int:\n-    if not isinstance(value, int) or isinstance(value, bool) or value < minimum:\n+    if not isinstance(value, int) or isinstance(value, bool) or value <= minimum:\n         raise GateConfigError(f\"{name} debe ser un entero >= {minimum}, no {value!r}\")\n     return value"
+    },
+    {
+      "mutant": "evalgate.gate.config.x__rule__mutmut_5",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x__rule__mutmut_5: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -1,6 +1,6 @@\n def _rule(node: Mapping[str, Any]) -> MetricRule:\n     if extra := sorted(node.keys() - _RULE_KEYS):\n-        raise GateConfigError(f\"regla de métrica con campo no admitido: {', '.join(extra)}\")\n+        raise GateConfigError(f\"regla de métrica con campo no admitido: {'XX, XX'.join(extra)}\")\n     if not isinstance(node.get(\"id\"), str) or not node[\"id\"]:\n         raise GateConfigError(f\"regla de métrica sin id: {dict(node)!r}\")\n     name = node[\"id\"]"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_22",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_22: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -3,7 +3,7 @@\n     if _required(comparacion, \"metodo\") != \"bootstrap\":\n         raise GateConfigError(f\"comparacion.metodo debe ser bootstrap, no {comparacion['metodo']!r}\")\n     if _required(comparacion, \"pareado\") is not True:\n-        raise GateConfigError(\"comparacion.pareado debe ser true: no existe bootstrap no pareado (R8)\")\n+        raise GateConfigError(\"XXcomparacion.pareado debe ser true: no existe bootstrap no pareado (R8)XX\")\n     replicates = _integer(_required(comparacion, \"n_resamples\"), \"comparacion.n_resamples\", MIN_REPLICATES)\n     seed = _integer(_required(comparacion, \"semilla\"), \"comparacion.semilla\", 0)\n     correction = comparacion.get(\"correccion_multiple\", HOLM)"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_23",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_23: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -3,7 +3,7 @@\n     if _required(comparacion, \"metodo\") != \"bootstrap\":\n         raise GateConfigError(f\"comparacion.metodo debe ser bootstrap, no {comparacion['metodo']!r}\")\n     if _required(comparacion, \"pareado\") is not True:\n-        raise GateConfigError(\"comparacion.pareado debe ser true: no existe bootstrap no pareado (R8)\")\n+        raise GateConfigError(\"comparacion.pareado debe ser true: no existe bootstrap no pareado (r8)\")\n     replicates = _integer(_required(comparacion, \"n_resamples\"), \"comparacion.n_resamples\", MIN_REPLICATES)\n     seed = _integer(_required(comparacion, \"semilla\"), \"comparacion.semilla\", 0)\n     correction = comparacion.get(\"correccion_multiple\", HOLM)"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_38",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_38: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -4,7 +4,7 @@\n         raise GateConfigError(f\"comparacion.metodo debe ser bootstrap, no {comparacion['metodo']!r}\")\n     if _required(comparacion, \"pareado\") is not True:\n         raise GateConfigError(\"comparacion.pareado debe ser true: no existe bootstrap no pareado (R8)\")\n-    replicates = _integer(_required(comparacion, \"n_resamples\"), \"comparacion.n_resamples\", MIN_REPLICATES)\n+    replicates = _integer(_required(comparacion, \"n_resamples\"), \"XXcomparacion.n_resamplesXX\", MIN_REPLICATES)\n     seed = _integer(_required(comparacion, \"semilla\"), \"comparacion.semilla\", 0)\n     correction = comparacion.get(\"correccion_multiple\", HOLM)\n     if correction not in {HOLM, None}:"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_53",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_53: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -5,7 +5,7 @@\n     if _required(comparacion, \"pareado\") is not True:\n         raise GateConfigError(\"comparacion.pareado debe ser true: no existe bootstrap no pareado (R8)\")\n     replicates = _integer(_required(comparacion, \"n_resamples\"), \"comparacion.n_resamples\", MIN_REPLICATES)\n-    seed = _integer(_required(comparacion, \"semilla\"), \"comparacion.semilla\", 0)\n+    seed = _integer(_required(comparacion, \"semilla\"), \"XXcomparacion.semillaXX\", 0)\n     correction = comparacion.get(\"correccion_multiple\", HOLM)\n     if correction not in {HOLM, None}:\n         raise GateConfigError("
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_55",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_55: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -5,7 +5,7 @@\n     if _required(comparacion, \"pareado\") is not True:\n         raise GateConfigError(\"comparacion.pareado debe ser true: no existe bootstrap no pareado (R8)\")\n     replicates = _integer(_required(comparacion, \"n_resamples\"), \"comparacion.n_resamples\", MIN_REPLICATES)\n-    seed = _integer(_required(comparacion, \"semilla\"), \"comparacion.semilla\", 0)\n+    seed = _integer(_required(comparacion, \"semilla\"), \"comparacion.semilla\", 1)\n     correction = comparacion.get(\"correccion_multiple\", HOLM)\n     if correction not in {HOLM, None}:\n         raise GateConfigError("
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_58",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_58: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -6,7 +6,7 @@\n         raise GateConfigError(\"comparacion.pareado debe ser true: no existe bootstrap no pareado (R8)\")\n     replicates = _integer(_required(comparacion, \"n_resamples\"), \"comparacion.n_resamples\", MIN_REPLICATES)\n     seed = _integer(_required(comparacion, \"semilla\"), \"comparacion.semilla\", 0)\n-    correction = comparacion.get(\"correccion_multiple\", HOLM)\n+    correction = comparacion.get(\"correccion_multiple\", None)\n     if correction not in {HOLM, None}:\n         raise GateConfigError(\n             f\"comparacion.correccion_multiple {correction!r}: la puerta solo implementa {HOLM!r}\""
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_60",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_60: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -6,7 +6,7 @@\n         raise GateConfigError(\"comparacion.pareado debe ser true: no existe bootstrap no pareado (R8)\")\n     replicates = _integer(_required(comparacion, \"n_resamples\"), \"comparacion.n_resamples\", MIN_REPLICATES)\n     seed = _integer(_required(comparacion, \"semilla\"), \"comparacion.semilla\", 0)\n-    correction = comparacion.get(\"correccion_multiple\", HOLM)\n+    correction = comparacion.get(\"correccion_multiple\", )\n     if correction not in {HOLM, None}:\n         raise GateConfigError(\n             f\"comparacion.correccion_multiple {correction!r}: la puerta solo implementa {HOLM!r}\""
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_73",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_73: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -15,7 +15,7 @@\n     level = CONTRACT_LEVEL\n     if \"nivel_confianza\" in comparacion:\n         raw = comparacion[\"nivel_confianza\"]\n-        if isinstance(raw, bool) or not isinstance(raw, int | float) or not 0 < raw < 1:\n+        if isinstance(raw, bool) and not isinstance(raw, int | float) or not 0 < raw < 1:\n             raise GateConfigError(f\"comparacion.nivel_confianza debe estar entre 0 y 1 exclusive, no {raw!r}\")\n         level = Fraction(str(raw))\n     above = CONTRACT_CORRECTION_ABOVE"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_97",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_97: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -20,7 +20,7 @@\n         level = Fraction(str(raw))\n     above = CONTRACT_CORRECTION_ABOVE\n     if \"correccion_desde\" in comparacion:\n-        above = _integer(comparacion[\"correccion_desde\"], \"comparacion.correccion_desde\", 0)\n+        above = _integer(comparacion[\"correccion_desde\"], \"XXcomparacion.correccion_desdeXX\", 0)\n \n     if not rules:\n         raise GateConfigError(\"rules vacío: una puerta sin métricas que juzgar lo aprobaría todo\")"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_99",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_99: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -20,7 +20,7 @@\n         level = Fraction(str(raw))\n     above = CONTRACT_CORRECTION_ABOVE\n     if \"correccion_desde\" in comparacion:\n-        above = _integer(comparacion[\"correccion_desde\"], \"comparacion.correccion_desde\", 0)\n+        above = _integer(comparacion[\"correccion_desde\"], \"comparacion.correccion_desde\", 1)\n \n     if not rules:\n         raise GateConfigError(\"rules vacío: una puerta sin métricas que juzgar lo aprobaría todo\")"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_102",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_102: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -23,7 +23,7 @@\n         above = _integer(comparacion[\"correccion_desde\"], \"comparacion.correccion_desde\", 0)\n \n     if not rules:\n-        raise GateConfigError(\"rules vacío: una puerta sin métricas que juzgar lo aprobaría todo\")\n+        raise GateConfigError(\"XXrules vacío: una puerta sin métricas que juzgar lo aprobaría todoXX\")\n     parsed = tuple(_rule(node) for node in rules)\n     names = [rule.metric for rule in parsed]\n     if repeated := sorted({name for name in names if names.count(name) > 1}):"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_gate_config__mutmut_114",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_gate_config__mutmut_114: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -27,5 +27,5 @@\n     parsed = tuple(_rule(node) for node in rules)\n     names = [rule.metric for rule in parsed]\n     if repeated := sorted({name for name in names if names.count(name) > 1}):\n-        raise GateConfigError(f\"métrica con dos reglas: {', '.join(repeated)}\")\n+        raise GateConfigError(f\"métrica con dos reglas: {'XX, XX'.join(repeated)}\")\n     return GateConfig(replicates, seed, Policy(level, correction, above), parsed)"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_report_digest__mutmut_23",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_report_digest__mutmut_23: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -15,5 +15,5 @@\n             node = node.get(key) if isinstance(node, dict) else None\n         if isinstance(node, dict):\n             node.pop(leaf, None)\n-    canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False)\n+    canonical = json.dumps(kept, sort_keys=True, separators=None, ensure_ascii=False)\n     return hashlib.sha256(canonical.encode(\"utf-8\")).hexdigest()"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_report_digest__mutmut_24",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_report_digest__mutmut_24: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -15,5 +15,5 @@\n             node = node.get(key) if isinstance(node, dict) else None\n         if isinstance(node, dict):\n             node.pop(leaf, None)\n-    canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False)\n+    canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=None)\n     return hashlib.sha256(canonical.encode(\"utf-8\")).hexdigest()"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_report_digest__mutmut_27",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_report_digest__mutmut_27: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -15,5 +15,5 @@\n             node = node.get(key) if isinstance(node, dict) else None\n         if isinstance(node, dict):\n             node.pop(leaf, None)\n-    canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False)\n+    canonical = json.dumps(kept, sort_keys=True, ensure_ascii=False)\n     return hashlib.sha256(canonical.encode(\"utf-8\")).hexdigest()"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_report_digest__mutmut_28",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_report_digest__mutmut_28: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -15,5 +15,5 @@\n             node = node.get(key) if isinstance(node, dict) else None\n         if isinstance(node, dict):\n             node.pop(leaf, None)\n-    canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False)\n+    canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \":\"), )\n     return hashlib.sha256(canonical.encode(\"utf-8\")).hexdigest()"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_report_digest__mutmut_30",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_report_digest__mutmut_30: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -15,5 +15,5 @@\n             node = node.get(key) if isinstance(node, dict) else None\n         if isinstance(node, dict):\n             node.pop(leaf, None)\n-    canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False)\n+    canonical = json.dumps(kept, sort_keys=True, separators=(\"XX,XX\", \":\"), ensure_ascii=False)\n     return hashlib.sha256(canonical.encode(\"utf-8\")).hexdigest()"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_report_digest__mutmut_31",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_report_digest__mutmut_31: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -15,5 +15,5 @@\n             node = node.get(key) if isinstance(node, dict) else None\n         if isinstance(node, dict):\n             node.pop(leaf, None)\n-    canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False)\n+    canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \"XX:XX\"), ensure_ascii=False)\n     return hashlib.sha256(canonical.encode(\"utf-8\")).hexdigest()"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_report_digest__mutmut_32",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_report_digest__mutmut_32: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -15,5 +15,5 @@\n             node = node.get(key) if isinstance(node, dict) else None\n         if isinstance(node, dict):\n             node.pop(leaf, None)\n-    canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False)\n+    canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=True)\n     return hashlib.sha256(canonical.encode(\"utf-8\")).hexdigest()"
+    },
+    {
+      "mutant": "evalgate.gate.config.x_report_digest__mutmut_36",
+      "status": "survived",
+      "diff": "# evalgate.gate.config.x_report_digest__mutmut_36: survived\n--- src/evalgate/gate/config.py\n+++ src/evalgate/gate/config.py\n@@ -16,4 +16,4 @@\n         if isinstance(node, dict):\n             node.pop(leaf, None)\n     canonical = json.dumps(kept, sort_keys=True, separators=(\",\", \":\"), ensure_ascii=False)\n-    return hashlib.sha256(canonical.encode(\"utf-8\")).hexdigest()\n+    return hashlib.sha256(canonical.encode(\"UTF-8\")).hexdigest()"
+    },
+    {
+      "mutant": "evalgate.gate.decision.x_decide__mutmut_14",
+      "status": "survived",
+      "diff": "# evalgate.gate.decision.x_decide__mutmut_14: survived\n--- src/evalgate/gate/decision.py\n+++ src/evalgate/gate/decision.py\n@@ -8,7 +8,7 @@\n \n     family = [item for item in evidence if item.blocking]\n     adjusted, applied = _corrected([item.improvement.not_worse for item in family], policy)\n-    p_of = {item.metric: p for item, p in zip(family, adjusted, strict=True)}\n+    p_of = {item.metric: p for item, p in zip(family, adjusted, strict=None)}\n     alpha = tail(policy.level)\n \n     verdicts = []"
+    },
+    {
+      "mutant": "evalgate.gate.decision.x_decide__mutmut_17",
+      "status": "survived",
+      "diff": "# evalgate.gate.decision.x_decide__mutmut_17: survived\n--- src/evalgate/gate/decision.py\n+++ src/evalgate/gate/decision.py\n@@ -8,7 +8,7 @@\n \n     family = [item for item in evidence if item.blocking]\n     adjusted, applied = _corrected([item.improvement.not_worse for item in family], policy)\n-    p_of = {item.metric: p for item, p in zip(family, adjusted, strict=True)}\n+    p_of = {item.metric: p for item, p in zip(family, adjusted, )}\n     alpha = tail(policy.level)\n \n     verdicts = []"
+    },
+    {
+      "mutant": "evalgate.gate.decision.x_decide__mutmut_18",
+      "status": "survived",
+      "diff": "# evalgate.gate.decision.x_decide__mutmut_18: survived\n--- src/evalgate/gate/decision.py\n+++ src/evalgate/gate/decision.py\n@@ -8,7 +8,7 @@\n \n     family = [item for item in evidence if item.blocking]\n     adjusted, applied = _corrected([item.improvement.not_worse for item in family], policy)\n-    p_of = {item.metric: p for item, p in zip(family, adjusted, strict=True)}\n+    p_of = {item.metric: p for item, p in zip(family, adjusted, strict=False)}\n     alpha = tail(policy.level)\n \n     verdicts = []"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x_metric_seed__mutmut_4",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x_metric_seed__mutmut_4: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -1,3 +1,3 @@\n def metric_seed(seed: int, metric: str) -> int:\n     \"\"\"The seed of one metric's resampling: stable across runs and machines, different per metric.\"\"\"\n-    return int.from_bytes(hashlib.sha256(f\"{seed}:{metric}\".encode()).digest()[:8], \"big\")\n+    return int.from_bytes(hashlib.sha256(f\"{seed}:{metric}\".encode()).digest()[:8], )"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x_metric_seed__mutmut_6",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x_metric_seed__mutmut_6: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -1,3 +1,3 @@\n def metric_seed(seed: int, metric: str) -> int:\n     \"\"\"The seed of one metric's resampling: stable across runs and machines, different per metric.\"\"\"\n-    return int.from_bytes(hashlib.sha256(f\"{seed}:{metric}\".encode()).digest()[:8], \"big\")\n+    return int.from_bytes(hashlib.sha256(f\"{seed}:{metric}\".encode()).digest()[:9], \"big\")"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_4",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_4: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -1,5 +1,5 @@\n def _one(rule: MetricRule, base: Run, head: Run, config: GateConfig) -> tuple[MetricComparison, Evidence]:\n-    base_cases, head_cases = _values(base, rule.metric, \"base\"), _values(head, rule.metric, \"head\")\n+    base_cases, head_cases = _values(base, rule.metric, None), _values(head, rule.metric, \"head\")\n     seed = metric_seed(config.seed, rule.metric)\n     level = config.policy.level\n     if rule.higher_is_better:"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_8",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_8: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -1,5 +1,5 @@\n def _one(rule: MetricRule, base: Run, head: Run, config: GateConfig) -> tuple[MetricComparison, Evidence]:\n-    base_cases, head_cases = _values(base, rule.metric, \"base\"), _values(head, rule.metric, \"head\")\n+    base_cases, head_cases = _values(base, rule.metric, \"XXbaseXX\"), _values(head, rule.metric, \"head\")\n     seed = metric_seed(config.seed, rule.metric)\n     level = config.policy.level\n     if rule.higher_is_better:"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_9",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_9: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -1,5 +1,5 @@\n def _one(rule: MetricRule, base: Run, head: Run, config: GateConfig) -> tuple[MetricComparison, Evidence]:\n-    base_cases, head_cases = _values(base, rule.metric, \"base\"), _values(head, rule.metric, \"head\")\n+    base_cases, head_cases = _values(base, rule.metric, \"BASE\"), _values(head, rule.metric, \"head\")\n     seed = metric_seed(config.seed, rule.metric)\n     level = config.policy.level\n     if rule.higher_is_better:"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_12",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_12: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -1,5 +1,5 @@\n def _one(rule: MetricRule, base: Run, head: Run, config: GateConfig) -> tuple[MetricComparison, Evidence]:\n-    base_cases, head_cases = _values(base, rule.metric, \"base\"), _values(head, rule.metric, \"head\")\n+    base_cases, head_cases = _values(base, rule.metric, \"base\"), _values(head, rule.metric, None)\n     seed = metric_seed(config.seed, rule.metric)\n     level = config.policy.level\n     if rule.higher_is_better:"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_16",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_16: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -1,5 +1,5 @@\n def _one(rule: MetricRule, base: Run, head: Run, config: GateConfig) -> tuple[MetricComparison, Evidence]:\n-    base_cases, head_cases = _values(base, rule.metric, \"base\"), _values(head, rule.metric, \"head\")\n+    base_cases, head_cases = _values(base, rule.metric, \"base\"), _values(head, rule.metric, \"XXheadXX\")\n     seed = metric_seed(config.seed, rule.metric)\n     level = config.policy.level\n     if rule.higher_is_better:"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_17",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_17: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -1,5 +1,5 @@\n def _one(rule: MetricRule, base: Run, head: Run, config: GateConfig) -> tuple[MetricComparison, Evidence]:\n-    base_cases, head_cases = _values(base, rule.metric, \"base\"), _values(head, rule.metric, \"head\")\n+    base_cases, head_cases = _values(base, rule.metric, \"base\"), _values(head, rule.metric, \"HEAD\")\n     seed = metric_seed(config.seed, rule.metric)\n     level = config.policy.level\n     if rule.higher_is_better:"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_19",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_19: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -1,6 +1,6 @@\n def _one(rule: MetricRule, base: Run, head: Run, config: GateConfig) -> tuple[MetricComparison, Evidence]:\n     base_cases, head_cases = _values(base, rule.metric, \"base\"), _values(head, rule.metric, \"head\")\n-    seed = metric_seed(config.seed, rule.metric)\n+    seed = metric_seed(None, rule.metric)\n     level = config.policy.level\n     if rule.higher_is_better:\n         improvement = paired_bootstrap("
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_20",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_20: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -1,6 +1,6 @@\n def _one(rule: MetricRule, base: Run, head: Run, config: GateConfig) -> tuple[MetricComparison, Evidence]:\n     base_cases, head_cases = _values(base, rule.metric, \"base\"), _values(head, rule.metric, \"head\")\n-    seed = metric_seed(config.seed, rule.metric)\n+    seed = metric_seed(config.seed, None)\n     level = config.policy.level\n     if rule.higher_is_better:\n         improvement = paired_bootstrap("
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_57",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_57: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -15,7 +15,7 @@\n         delta, low, high = _flip(improvement.delta), _flip(improvement.ci_high), _flip(improvement.ci_low)\n     head_value = _mean(head_cases)\n     breaches = rule.absolute is not None and (\n-        head_value < rule.absolute if rule.higher_is_better else head_value > rule.absolute\n+        head_value < rule.absolute if rule.higher_is_better else head_value >= rule.absolute\n     )\n     evidence = Evidence(rule.metric, rule.blocking, improvement, breaches)\n     # The verdict is filled in by `compare`, once the whole family has been judged together."
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_67",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_67: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -19,13 +19,7 @@\n     )\n     evidence = Evidence(rule.metric, rule.blocking, improvement, breaches)\n     # The verdict is filled in by `compare`, once the whole family has been judged together.\n-    pending = Verdict(\n-        rule.metric,\n-        blocking=False,\n-        p_value=improvement.not_worse,\n-        significant=False,\n-        fell_below_absolute=False,\n-    )\n+    pending = None\n     return MetricComparison(\n         rule, _mean(base_cases), head_value, delta, low, high, breaches, pending\n     ), evidence"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_68",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_68: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -20,7 +20,7 @@\n     evidence = Evidence(rule.metric, rule.blocking, improvement, breaches)\n     # The verdict is filled in by `compare`, once the whole family has been judged together.\n     pending = Verdict(\n-        rule.metric,\n+        None,\n         blocking=False,\n         p_value=improvement.not_worse,\n         significant=False,"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_69",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_69: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -21,7 +21,7 @@\n     # The verdict is filled in by `compare`, once the whole family has been judged together.\n     pending = Verdict(\n         rule.metric,\n-        blocking=False,\n+        blocking=None,\n         p_value=improvement.not_worse,\n         significant=False,\n         fell_below_absolute=False,"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_70",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_70: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -22,7 +22,7 @@\n     pending = Verdict(\n         rule.metric,\n         blocking=False,\n-        p_value=improvement.not_worse,\n+        p_value=None,\n         significant=False,\n         fell_below_absolute=False,\n     )"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_71",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_71: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -23,7 +23,7 @@\n         rule.metric,\n         blocking=False,\n         p_value=improvement.not_worse,\n-        significant=False,\n+        significant=None,\n         fell_below_absolute=False,\n     )\n     return MetricComparison("
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_72",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_72: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -24,7 +24,7 @@\n         blocking=False,\n         p_value=improvement.not_worse,\n         significant=False,\n-        fell_below_absolute=False,\n+        fell_below_absolute=None,\n     )\n     return MetricComparison(\n         rule, _mean(base_cases), head_value, delta, low, high, breaches, pending"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_78",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_78: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -21,7 +21,7 @@\n     # The verdict is filled in by `compare`, once the whole family has been judged together.\n     pending = Verdict(\n         rule.metric,\n-        blocking=False,\n+        blocking=True,\n         p_value=improvement.not_worse,\n         significant=False,\n         fell_below_absolute=False,"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_79",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_79: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -23,7 +23,7 @@\n         rule.metric,\n         blocking=False,\n         p_value=improvement.not_worse,\n-        significant=False,\n+        significant=True,\n         fell_below_absolute=False,\n     )\n     return MetricComparison("
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_80",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_80: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -24,7 +24,7 @@\n         blocking=False,\n         p_value=improvement.not_worse,\n         significant=False,\n-        fell_below_absolute=False,\n+        fell_below_absolute=True,\n     )\n     return MetricComparison(\n         rule, _mean(base_cases), head_value, delta, low, high, breaches, pending"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x__one__mutmut_88",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x__one__mutmut_88: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -27,5 +27,5 @@\n         fell_below_absolute=False,\n     )\n     return MetricComparison(\n-        rule, _mean(base_cases), head_value, delta, low, high, breaches, pending\n+        rule, _mean(base_cases), head_value, delta, low, high, breaches, None\n     ), evidence"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x_compare__mutmut_3",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x_compare__mutmut_3: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -1,7 +1,7 @@\n def compare(base: Run, head: Run, config: GateConfig) -> Comparison:\n     \"\"\"Judge `head` against `base` under `config`. Raises instead of comparing what cannot be compared.\"\"\"\n     if not config.rules:\n-        raise ValueError(\"the gate has no rules: with nothing to judge it would pass anything\")\n+        raise ValueError(\"XXthe gate has no rules: with nothing to judge it would pass anythingXX\")\n     measured = [_one(rule, base, head, config) for rule in config.rules]\n     decision = decide([evidence for _, evidence in measured], config.policy)\n     metrics = tuple("
+    },
+    {
+      "mutant": "evalgate.gate.compare.x_compare__mutmut_27",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x_compare__mutmut_27: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -6,6 +6,6 @@\n     decision = decide([evidence for _, evidence in measured], config.policy)\n     metrics = tuple(\n         replace(metric, verdict=verdict)\n-        for (metric, _), verdict in zip(measured, decision.verdicts, strict=True)\n+        for (metric, _), verdict in zip(measured, decision.verdicts, strict=None)\n     )\n     return Comparison(decision.outcome, decision.correction, config.replicates, config.seed, metrics)"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x_compare__mutmut_30",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x_compare__mutmut_30: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -6,6 +6,6 @@\n     decision = decide([evidence for _, evidence in measured], config.policy)\n     metrics = tuple(\n         replace(metric, verdict=verdict)\n-        for (metric, _), verdict in zip(measured, decision.verdicts, strict=True)\n+        for (metric, _), verdict in zip(measured, decision.verdicts, )\n     )\n     return Comparison(decision.outcome, decision.correction, config.replicates, config.seed, metrics)"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x_compare__mutmut_31",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x_compare__mutmut_31: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -6,6 +6,6 @@\n     decision = decide([evidence for _, evidence in measured], config.policy)\n     metrics = tuple(\n         replace(metric, verdict=verdict)\n-        for (metric, _), verdict in zip(measured, decision.verdicts, strict=True)\n+        for (metric, _), verdict in zip(measured, decision.verdicts, strict=False)\n     )\n     return Comparison(decision.outcome, decision.correction, config.replicates, config.seed, metrics)"
+    },
+    {
+      "mutant": "evalgate.gate.compare.x_compare__mutmut_35",
+      "status": "survived",
+      "diff": "# evalgate.gate.compare.x_compare__mutmut_35: survived\n--- src/evalgate/gate/compare.py\n+++ src/evalgate/gate/compare.py\n@@ -8,4 +8,4 @@\n         replace(metric, verdict=verdict)\n         for (metric, _), verdict in zip(measured, decision.verdicts, strict=True)\n     )\n-    return Comparison(decision.outcome, decision.correction, config.replicates, config.seed, metrics)\n+    return Comparison(decision.outcome, decision.correction, config.replicates, None, metrics)"
+    },
+    {
       "mutant": "evalgate.pricing.lookup.x_price_at__mutmut_1",
       "status": "survived",
       "diff": "# evalgate.pricing.lookup.x_price_at__mutmut_1: survived\n--- src/evalgate/pricing/lookup.py\n+++ src/evalgate/pricing/lookup.py\n@@ -9,7 +9,7 @@\n     Raises ValueError if `at` has no timezone (the instant would be ambiguous) or if two tables share an\n     `effective_from` (one file per date: the contract makes it impossible, so it is corrupt input).\n     \"\"\"\n-    if at.tzinfo is None or at.utcoffset() is None:\n+    if at.tzinfo is None and at.utcoffset() is None:\n         raise ValueError(\"price_at needs a timezone-aware instant\")\n     starts = [t.effective_from for t in tables]\n     if len(starts) != len(set(starts)):"
@@ -124,16 +379,6 @@
       "mutant": "evalgate.pricing.loader.x__fields__mutmut_13",
       "status": "survived",
       "diff": "# evalgate.pricing.loader.x__fields__mutmut_13: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -4,5 +4,5 @@\n     if missing := sorted(required - node.keys()):\n         raise TableError(f\"{where}: falta {', '.join(missing)}\")\n     if extra := sorted(node.keys() - required - optional):\n-        raise TableError(f\"{where}: campo no admitido {', '.join(extra)}\")\n+        raise TableError(f\"{where}: campo no admitido {'XX, XX'.join(extra)}\")\n     return node"
-    },
-    {
-      "mutant": "evalgate.pricing.loader.x__text__mutmut_1",
-      "status": "survived",
-      "diff": "# evalgate.pricing.loader.x__text__mutmut_1: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,4 +1,4 @@\n def _text(value: Any, field: str, where: str) -> str:\n-    if not isinstance(value, str) or not value:\n+    if not isinstance(value, str) and not value:\n         raise TableError(f\"{where}: {field} vacío o no es texto\")\n     return value"
-    },
-    {
-      "mutant": "evalgate.pricing.loader.x__text__mutmut_4",
-      "status": "survived",
-      "diff": "# evalgate.pricing.loader.x__text__mutmut_4: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -1,4 +1,4 @@\n def _text(value: Any, field: str, where: str) -> str:\n     if not isinstance(value, str) or not value:\n-        raise TableError(f\"{where}: {field} vacío o no es texto\")\n+        raise TableError(None)\n     return value"
     },
     {
       "mutant": "evalgate.pricing.loader.x__model__mutmut_5",
@@ -206,11 +451,6 @@
       "diff": "# evalgate.pricing.loader.x__model__mutmut_60: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -8,7 +8,7 @@\n \n     return model_id, ModelPrice(\n         _amount(fields[\"input_per_1k\"], \"input_per_1k\", where),\n-        _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n+        _amount(fields[\"output_per_1k\"], \"OUTPUT_PER_1K\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n         _text(fields[\"provider\"], \"provider\", where),"
     },
     {
-      "mutant": "evalgate.pricing.loader.x__model__mutmut_68",
-      "status": "survived",
-      "diff": "# evalgate.pricing.loader.x__model__mutmut_68: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -11,6 +11,6 @@\n         _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n-        _text(fields[\"provider\"], \"provider\", where),\n+        _text(fields[\"provider\"], None, where),\n         _text(fields[\"region\"], \"region\", where),\n     )"
-    },
-    {
       "mutant": "evalgate.pricing.loader.x__model__mutmut_69",
       "status": "survived",
       "diff": "# evalgate.pricing.loader.x__model__mutmut_69: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -11,6 +11,6 @@\n         _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n-        _text(fields[\"provider\"], \"provider\", where),\n+        _text(fields[\"provider\"], \"provider\", None),\n         _text(fields[\"region\"], \"region\", where),\n     )"
@@ -219,11 +459,6 @@
       "mutant": "evalgate.pricing.loader.x__model__mutmut_75",
       "status": "survived",
       "diff": "# evalgate.pricing.loader.x__model__mutmut_75: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -11,6 +11,6 @@\n         _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n-        _text(fields[\"provider\"], \"provider\", where),\n+        _text(fields[\"provider\"], \"XXproviderXX\", where),\n         _text(fields[\"region\"], \"region\", where),\n     )"
-    },
-    {
-      "mutant": "evalgate.pricing.loader.x__model__mutmut_76",
-      "status": "survived",
-      "diff": "# evalgate.pricing.loader.x__model__mutmut_76: survived\n--- src/evalgate/pricing/loader.py\n+++ src/evalgate/pricing/loader.py\n@@ -11,6 +11,6 @@\n         _amount(fields[\"output_per_1k\"], \"output_per_1k\", where),\n         optional(\"cache_write_per_1k\"),\n         optional(\"cache_read_per_1k\"),\n-        _text(fields[\"provider\"], \"provider\", where),\n+        _text(fields[\"provider\"], \"PROVIDER\", where),\n         _text(fields[\"region\"], \"region\", where),\n     )"
     },
     {
       "mutant": "evalgate.pricing.loader.x__model__mutmut_78",
@@ -394,6 +629,66 @@
       "mutant": "evalgate.pricing.cost.x_presented__mutmut_8",
       "status": "survived",
       "diff": "# evalgate.pricing.cost.x_presented__mutmut_8: survived\n--- src/evalgate/pricing/cost.py\n+++ src/evalgate/pricing/cost.py\n@@ -1,3 +1,3 @@\n def presented(amount: Decimal, places: int = 2) -> Decimal:\n     \"\"\"Round ONCE, to show it: half up, to `places` decimals. The only rounding in the package (§3.5).\"\"\"\n-    return amount.quantize(Decimal(1).scaleb(-places), rounding=ROUND_HALF_UP)\n+    return amount.quantize(Decimal(2).scaleb(-places), rounding=ROUND_HALF_UP)"
+    },
+    {
+      "mutant": "evalgate.stats.paired_bootstrap.x__named__mutmut_5",
+      "status": "survived",
+      "diff": "# evalgate.stats.paired_bootstrap.x__named__mutmut_5: survived\n--- src/evalgate/stats/paired_bootstrap.py\n+++ src/evalgate/stats/paired_bootstrap.py\n@@ -1,3 +1,3 @@\n def _named(cases: set[str]) -> str:\n     listed = sorted(cases)\n-    return \", \".join(listed[:5]) + (f\" y {len(listed) - 5} más\" if len(listed) > 5 else \"\")\n+    return \"XX, XX\".join(listed[:5]) + (f\" y {len(listed) - 5} más\" if len(listed) > 5 else \"\")"
+    },
+    {
+      "mutant": "evalgate.stats.paired_bootstrap.x__named__mutmut_6",
+      "status": "survived",
+      "diff": "# evalgate.stats.paired_bootstrap.x__named__mutmut_6: survived\n--- src/evalgate/stats/paired_bootstrap.py\n+++ src/evalgate/stats/paired_bootstrap.py\n@@ -1,3 +1,3 @@\n def _named(cases: set[str]) -> str:\n     listed = sorted(cases)\n-    return \", \".join(listed[:5]) + (f\" y {len(listed) - 5} más\" if len(listed) > 5 else \"\")\n+    return \", \".join(listed[:6]) + (f\" y {len(listed) - 5} más\" if len(listed) > 5 else \"\")"
+    },
+    {
+      "mutant": "evalgate.stats.paired_bootstrap.x__named__mutmut_7",
+      "status": "survived",
+      "diff": "# evalgate.stats.paired_bootstrap.x__named__mutmut_7: survived\n--- src/evalgate/stats/paired_bootstrap.py\n+++ src/evalgate/stats/paired_bootstrap.py\n@@ -1,3 +1,3 @@\n def _named(cases: set[str]) -> str:\n     listed = sorted(cases)\n-    return \", \".join(listed[:5]) + (f\" y {len(listed) - 5} más\" if len(listed) > 5 else \"\")\n+    return \", \".join(listed[:5]) + (f\" y {len(listed) + 5} más\" if len(listed) > 5 else \"\")"
+    },
+    {
+      "mutant": "evalgate.stats.paired_bootstrap.x__named__mutmut_8",
+      "status": "survived",
+      "diff": "# evalgate.stats.paired_bootstrap.x__named__mutmut_8: survived\n--- src/evalgate/stats/paired_bootstrap.py\n+++ src/evalgate/stats/paired_bootstrap.py\n@@ -1,3 +1,3 @@\n def _named(cases: set[str]) -> str:\n     listed = sorted(cases)\n-    return \", \".join(listed[:5]) + (f\" y {len(listed) - 5} más\" if len(listed) > 5 else \"\")\n+    return \", \".join(listed[:5]) + (f\" y {len(listed) - 6} más\" if len(listed) > 5 else \"\")"
+    },
+    {
+      "mutant": "evalgate.stats.paired_bootstrap.x__named__mutmut_9",
+      "status": "survived",
+      "diff": "# evalgate.stats.paired_bootstrap.x__named__mutmut_9: survived\n--- src/evalgate/stats/paired_bootstrap.py\n+++ src/evalgate/stats/paired_bootstrap.py\n@@ -1,3 +1,3 @@\n def _named(cases: set[str]) -> str:\n     listed = sorted(cases)\n-    return \", \".join(listed[:5]) + (f\" y {len(listed) - 5} más\" if len(listed) > 5 else \"\")\n+    return \", \".join(listed[:5]) + (f\" y {len(listed) - 5} más\" if len(listed) >= 5 else \"\")"
+    },
+    {
+      "mutant": "evalgate.stats.paired_bootstrap.x__named__mutmut_10",
+      "status": "survived",
+      "diff": "# evalgate.stats.paired_bootstrap.x__named__mutmut_10: survived\n--- src/evalgate/stats/paired_bootstrap.py\n+++ src/evalgate/stats/paired_bootstrap.py\n@@ -1,3 +1,3 @@\n def _named(cases: set[str]) -> str:\n     listed = sorted(cases)\n-    return \", \".join(listed[:5]) + (f\" y {len(listed) - 5} más\" if len(listed) > 5 else \"\")\n+    return \", \".join(listed[:5]) + (f\" y {len(listed) - 5} más\" if len(listed) > 6 else \"\")"
+    },
+    {
+      "mutant": "evalgate.stats.paired_bootstrap.x__named__mutmut_11",
+      "status": "survived",
+      "diff": "# evalgate.stats.paired_bootstrap.x__named__mutmut_11: survived\n--- src/evalgate/stats/paired_bootstrap.py\n+++ src/evalgate/stats/paired_bootstrap.py\n@@ -1,3 +1,3 @@\n def _named(cases: set[str]) -> str:\n     listed = sorted(cases)\n-    return \", \".join(listed[:5]) + (f\" y {len(listed) - 5} más\" if len(listed) > 5 else \"\")\n+    return \", \".join(listed[:5]) + (f\" y {len(listed) - 5} más\" if len(listed) > 5 else \"XXXX\")"
+    },
+    {
+      "mutant": "evalgate.stats.paired_bootstrap.x_paired_bootstrap__mutmut_1",
+      "status": "survived",
+      "diff": "# evalgate.stats.paired_bootstrap.x_paired_bootstrap__mutmut_1: survived\n--- src/evalgate/stats/paired_bootstrap.py\n+++ src/evalgate/stats/paired_bootstrap.py\n@@ -8,7 +8,7 @@\n     two can never tell different stories. The ranks are also symmetric, so swapping the runs mirrors the\n     result to the last bit.\n     \"\"\"\n-    if replicates < 1:\n+    if replicates <= 1:\n         raise ValueError(f\"replicates must be at least 1, not {replicates}\")\n     alpha = tail(level)\n     if base.keys() != head.keys():"
+    },
+    {
+      "mutant": "evalgate.stats.paired_bootstrap.x_paired_bootstrap__mutmut_2",
+      "status": "survived",
+      "diff": "# evalgate.stats.paired_bootstrap.x_paired_bootstrap__mutmut_2: survived\n--- src/evalgate/stats/paired_bootstrap.py\n+++ src/evalgate/stats/paired_bootstrap.py\n@@ -8,7 +8,7 @@\n     two can never tell different stories. The ranks are also symmetric, so swapping the runs mirrors the\n     result to the last bit.\n     \"\"\"\n-    if replicates < 1:\n+    if replicates < 2:\n         raise ValueError(f\"replicates must be at least 1, not {replicates}\")\n     alpha = tail(level)\n     if base.keys() != head.keys():"
+    },
+    {
+      "mutant": "evalgate.stats.paired_bootstrap.x_paired_bootstrap__mutmut_19",
+      "status": "survived",
+      "diff": "# evalgate.stats.paired_bootstrap.x_paired_bootstrap__mutmut_19: survived\n--- src/evalgate/stats/paired_bootstrap.py\n+++ src/evalgate/stats/paired_bootstrap.py\n@@ -18,7 +18,7 @@\n             f\"only in head [{_named(only_head)}]\"\n         )\n     if not base:\n-        raise ValueError(\"no cases to compare\")\n+        raise ValueError(\"XXno cases to compareXX\")\n \n     diffs = [head[case] - base[case] for case in sorted(base)]\n     n = len(diffs)"
+    },
+    {
+      "mutant": "evalgate.stats.holm.x_holm_adjust__mutmut_8",
+      "status": "survived",
+      "diff": "# evalgate.stats.holm.x_holm_adjust__mutmut_8: survived\n--- src/evalgate/stats/holm.py\n+++ src/evalgate/stats/holm.py\n@@ -6,7 +6,7 @@\n     is <= alpha is exactly Holm's step-down procedure.\n     \"\"\"\n     if any(p < 0 or p > 1 for p in p_values):\n-        raise ValueError(f\"p-value outside [0, 1]: {[str(p) for p in p_values]}\")\n+        raise ValueError(f\"p-value outside [0, 1]: {[str(None) for p in p_values]}\")\n     m = len(p_values)\n     adjusted = [Fraction(0)] * m\n     running = Fraction(0)"
+    },
+    {
+      "mutant": "evalgate.stats.holm.x_holm_adjust__mutmut_13",
+      "status": "survived",
+      "diff": "# evalgate.stats.holm.x_holm_adjust__mutmut_13: survived\n--- src/evalgate/stats/holm.py\n+++ src/evalgate/stats/holm.py\n@@ -8,7 +8,7 @@\n     if any(p < 0 or p > 1 for p in p_values):\n         raise ValueError(f\"p-value outside [0, 1]: {[str(p) for p in p_values]}\")\n     m = len(p_values)\n-    adjusted = [Fraction(0)] * m\n+    adjusted = [Fraction(1)] * m\n     running = Fraction(0)\n     for rank, index in enumerate(sorted(range(m), key=lambda i: p_values[i])):\n         running = max(running, min(Fraction(1), p_values[index] * (m - rank)))"
     }
   ]
 }

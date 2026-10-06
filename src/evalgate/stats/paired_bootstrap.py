@@ -19,6 +19,9 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from fractions import Fraction
 
+# The whole public surface. One bootstrap, the paired one (R8).
+__all__ = ["Bootstrap", "CaseMismatch", "paired_bootstrap", "tail"]
+
 
 class CaseMismatch(ValueError):
     """The two runs were not measured over the same cases. Nothing is compared: there is no pair."""

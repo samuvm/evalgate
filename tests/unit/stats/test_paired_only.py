@@ -45,8 +45,10 @@ def test_different_case_sets_raise_instead_of_degrading_to_something_unpaired() 
 
 
 def test_the_module_offers_one_bootstrap_and_it_is_the_paired_one() -> None:
-    functions = [name for name, thing in vars(module).items() if inspect.isfunction(thing)]
-    bootstraps = [name for name in functions if "bootstrap" in name.lower()]
+    """Checked on what the module EXPORTS. The shape of the source is `scripts/rules/no_unpaired_bootstrap.py`
+    (AST); listing every function object here broke under mutation testing, which injects its own."""
+    exported = set(module.__all__)
+    callables = {name for name in exported if inspect.isfunction(getattr(module, name))}
 
-    assert bootstraps == ["paired_bootstrap"]
-    assert not [name for name in functions if "unpaired" in name.lower() or "independent" in name.lower()]
+    assert {name for name in callables if "bootstrap" in name.lower()} == {"paired_bootstrap"}
+    assert not [name for name in exported if "unpaired" in name.lower() or "independent" in name.lower()]
