@@ -114,6 +114,12 @@ strict = true
 mypy_path = "src"
 explicit_package_bases = true
 
+# PyYAML no trae tipos y `types-PyYAML` no está en la lista de dependencias autorizadas: pedido, no
+# instalado. Mientras, `yaml` se trata como sin tipar SOLO aquí; el cargador valida a mano cada valor que lee.
+[[tool.mypy.overrides]]
+module = "yaml"
+ignore_missing_imports = true
+
 # Solo por `make mutation` (scripts/mutation.py), nunca en la raíz: mutmut copia tests/ entero, con la reservada.
 # Las cinco rutas deterministas van en `only_mutate`: mutmut 3.x copia a mutants/ solo `source_paths`, y copiar
 # medio paquete deja `evalgate` sin __init__.py y los tests importan el original, no el mutado.

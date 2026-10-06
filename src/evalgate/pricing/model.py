@@ -24,6 +24,8 @@ class ModelPrice:
     output_per_1k: Decimal
     cache_write_per_1k: Decimal | None = None
     cache_read_per_1k: Decimal | None = None
+    provider: str | None = None  # the value of the provider-name attribute of the trace (ollama, aws.bedrock…)
+    region: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
