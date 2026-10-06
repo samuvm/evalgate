@@ -34,6 +34,22 @@ class Bootstrap:
     # Share of the replicates in which head was NOT worse than base (delta* >= 0). Exact: a count over B.
     not_worse: Fraction
 
+    @property
+    def worse(self) -> bool:
+        """The point estimate went the wrong way. Not evidence by itself: that is what the interval is for."""
+        return self.delta < 0
+
+
+def tail(level: Fraction) -> Fraction:
+    """The share of replicates left outside EACH end of a two-sided interval at `level`: (1 - level) / 2.
+
+    One definition, used by the ranks below and by the gate's decision, so "the interval lies entirely
+    below zero" and "at most this share of replicates was not worse" stay the same statement.
+    """
+    if not 0 < level < 1:
+        raise ValueError(f"level must be strictly between 0 and 1, not {level}")
+    return (1 - level) / 2
+
 
 def _named(cases: set[str]) -> str:
     listed = sorted(cases)
@@ -52,8 +68,7 @@ def paired_bootstrap(
     """
     if replicates < 1:
         raise ValueError(f"replicates must be at least 1, not {replicates}")
-    if not 0 < level < 1:
-        raise ValueError(f"level must be strictly between 0 and 1, not {level}")
+    alpha = tail(level)
     if base.keys() != head.keys():
         only_base, only_head = set(base) - set(head), set(head) - set(base)
         raise CaseMismatch(
@@ -68,7 +83,6 @@ def paired_bootstrap(
     rng = random.Random(seed)  # noqa: S311  # nosec B311 - resampling for statistics, not cryptography
     means = sorted(math.fsum(rng.choices(diffs, k=n)) / n for _ in range(replicates))
 
-    alpha = (1 - level) / 2
     low_rank = math.floor(replicates * alpha) + 1  # 1-based, and low_rank + high_rank == replicates + 1
     high_rank = math.ceil(replicates * (1 - alpha))
     return Bootstrap(

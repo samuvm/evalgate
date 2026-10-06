@@ -6,7 +6,7 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from evalgate.stats.paired_bootstrap import paired_bootstrap
+from evalgate.stats.paired_bootstrap import paired_bootstrap, tail
 
 LEVEL = Fraction(95, 100)
 B = 300
@@ -97,3 +97,14 @@ def test_shifting_every_case_of_head_shifts_the_whole_result(
     assert after.delta == pytest.approx(before.delta + shift, abs=1e-9)
     assert after.ci_low == pytest.approx(before.ci_low + shift, abs=1e-9)
     assert after.ci_high == pytest.approx(before.ci_high + shift, abs=1e-9)
+
+
+LEVELS = st.fractions(min_value=Fraction(1, 100), max_value=Fraction(999, 1000))
+
+
+@given(LEVELS, LEVELS)
+def test_more_confidence_always_leaves_a_smaller_tail(one: Fraction, other: Fraction) -> None:
+    low, high = sorted((one, other))
+
+    assert 0 < tail(high) <= tail(low) < Fraction(1, 2)
+    assert tail(low) * 2 + low == 1

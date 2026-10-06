@@ -12,7 +12,7 @@ from fractions import Fraction as F
 
 import pytest
 
-from evalgate.stats.paired_bootstrap import Bootstrap, CaseMismatch, paired_bootstrap
+from evalgate.stats.paired_bootstrap import Bootstrap, CaseMismatch, paired_bootstrap, tail
 
 LEVEL = F(95, 100)
 
@@ -120,3 +120,19 @@ def test_parameters_that_make_no_interval_are_refused(replicates: int, level: F,
 def test_no_cases_no_comparison() -> None:
     with pytest.raises(ValueError, match="no cases"):
         paired_bootstrap({}, {}, replicates=1000, seed=1, level=LEVEL)
+
+
+def test_the_tail_of_a_95_percent_interval_is_two_and_a_half_percent_each_side() -> None:
+    assert tail(F(95, 100)) == F(25, 1000)
+    assert tail(F(99, 100)) == F(5, 1000)
+
+
+@pytest.mark.parametrize("level", [F(0), F(1), F(-1, 2), F(3, 2)])
+def test_a_level_that_is_not_a_confidence_has_no_tail(level: F) -> None:
+    with pytest.raises(ValueError, match="level"):
+        tail(level)
+
+
+@pytest.mark.parametrize(("delta", "worse"), [(-0.01, True), (0.0, False), (0.01, False)])
+def test_worse_is_the_sign_of_the_point_estimate_and_zero_is_not_worse(delta: float, worse: bool) -> None:
+    assert Bootstrap(10, 100, delta, delta, delta, F(1, 2)).worse is worse
