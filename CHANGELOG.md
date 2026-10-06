@@ -35,6 +35,85 @@ Versionado: [SemVer](https://semver.org/lang/es/).
 ### Pendiente
 - F0. Nada medido todavía: ninguna meta de `docs/GOALS.yaml` tiene número.
 
+## [0.7.0] · F6 · la puerta · 2026-10-07
+
+> Construida y medida adelantando carril (PLAN §2, carril C). **`make done MILESTONE=6` pendiente**: exige
+> antes los cierres de F4 y F5, y los tres esperan ventana de máquina.
+
+### Añadido
+- `stats/holm.py`: corrección de Holm-Bonferroni con p-valores ajustados exactos (`Fraction`).
+- `stats/paired_bootstrap.py`: bootstrap pareado, determinista y solo con la librería estándar. Remuestrea
+  casos, nunca ejecuciones; casos distintos lanzan `CaseMismatch`.
+- `gate/decision.py`: la decisión, sin un solo número. `gate/compare.py`: orientación por métrica, semilla
+  derivada por métrica y el bloque `comparison` del informe. `gate/config.py`: configuración desde
+  `GOALS.yaml`, sin valores por defecto.
+- `evalgate eval compare BASE HEAD`: tabla y código de salida 0 (pasa), 1 (bloquea) o 2 (no comparables).
+- `make eval-compare-twice` y `evals/suites/compare-fixture/` (sintético y declarado).
+- Reglas mecánicas, probadas en negativo: `rules/no_magic_thresholds.py` (R7) y
+  `rules/no_unpaired_bootstrap.py` (R8).
+
+### Números medidos
+| Meta | Umbral | Medido | n | Artefacto |
+|---|---|---|---|---|
+| G-DETERMINISM | == 1,0 | **1,0** | 3 parejas de informes, dos procesos separados | `make eval-compare-twice` |
+| G-MUTATION | >= 75 % | **88,58 %** | 1032 muertos de 1165, con `stats/` y `gate/` | `evals/reports/mutation-F4.json` |
+
+Sobre salidas reales de modelo (suite `rag-app`, 200 casos): la puerta **bloquea** el cambio a un modelo más
+pequeño (−3,0 puntos, IC95 [−5,5, −1,0]) y el 20 % de documentos aleatorios (−13,5 puntos), y **deja pasar**
+dos variantes que no cambian ninguna respuesta. No es la tasa de falsos positivos ni la potencia: eso es F7.
+
+### Decisiones
+- ADR-014 · Bootstrap pareado y Holm, decididos sobre una cuenta exacta y sin dependencias (58 ms por
+  métrica; numpy y scipy no entran).
+
+### Contratos
+- Sin cambios. El informe de comparación valida contra `eval-report.schema.json` y escribe literalmente
+  `"holm"` con más de tres métricas bloqueantes (R8).
+
+## [0.6.0] · F5 · motor de evals, jueces y caché · 2026-10-07
+
+> Construida y medida. **`make done MILESTONE=5` pendiente**: espera el cierre de F4 y ventana de máquina.
+
+### Añadido
+- `evals/metrics/answers.py`: métricas por caso, puras (R11): `answer_correct`, `context_recall`,
+  `abstained`, `faithful` y `unparseable` sobre el veredicto ya obtenido.
+- `evals/cache/`: clave de caché (R10), almacén JSONL grabado en el repositorio y lectura que nunca llama a
+  un modelo en una ejecución grabada.
+- `evals/prompts.py` y `prompts/judge_faithfulness.md` v1: prompts versionados con frontmatter obligatorio.
+- `evals/suite.py` (R12: el juez nunca es el que genera, tampoco por una variante), `evals/runner.py`,
+  `evals/report.py` y `evals/judges/client.py`.
+- `evalgate eval run` (grabado, o `--refresh` contra los modelos), `--variant`, y `evalgate cache stats`.
+- `evals/golden/rag-app-v1/`: 120 fichas y 200 casos sintéticos por construcción (30 negativos) y la
+  subsuite de calibración de 60. `evals/suites/rag-app/`: suite, reglas de la puerta, salidas grabadas de
+  la línea base y de las cuatro degradaciones canónicas, y la caché de veredictos.
+- `rules/prompts_frontmatter.py` en el gate. `scripts/prepare_labels.py` y `scripts/label_cases.py`
+  (etiquetado humano para la kappa del juez).
+
+### Corregido
+- La referencia del golden set es el dato y no su presentación: con la unidad dentro (`"433 €"`), la primera
+  tanda real puntuó 0,39 a un sistema que respondía bien `433`.
+- El juez `gemma4:12b-mlx` razona por defecto y gastaba `max_tokens` sin dar veredicto:
+  `reasoning_effort: none`, que entra en la clave de caché.
+
+### Números medidos
+| Meta | Umbral | Medido | n | Artefacto |
+|---|---|---|---|---|
+| G-CACHE-HIT | <= 0,05 | **0** | segunda ejecución: 0 de 107.120 tokens de la ejecución en frío | `evals/reports/cache-stats.json` |
+| G-CACHE-INVAL | == 1,0 | **1,0** | 2.013 comprobaciones (perfil nightly) | `.gate/gate-status.json` |
+
+Línea base de la suite `rag-app` (qwen3.5:9b-mlx, juez gemma4:12b-mlx, 200 casos): `answer_correct` 1,000,
+`context_recall` 1,000, `faithfulness` 1,000, abstención incorrecta 0,000. **El corpus es demasiado fácil**
+para medir kappa y potencia (ADR-017).
+
+### Decisiones
+- ADR-015 · Clave de caché: todo lo que puede cambiar la respuesta, y nada más. Almacén en JSONL; DuckDB no
+  entra.
+- ADR-016 · Corpus sintético autoverificable: de dónde sale y qué no mide.
+
+### Contratos
+- Desvío declarado respecto a `retrieval-metrics.md` §3, regla dura 3 (revisión humana de cada caso): no
+  aplica a este golden set, sintético por construcción (`provenance: sintetico_por_construccion`, ADR-016).
+
 ## [0.5.0] · F4 · precios versionados y contabilidad · 2026-10-06
 
 ### Añadido
