@@ -2,20 +2,23 @@
 #
 # Ningún precio de aquí está inventado. Cada bloque dice de dónde sale:
 #
-# - Claude Haiku 4.5: precios de lista de la API de Anthropic, en USD por MILLÓN de tokens, leídos el
-#   2026-10-06 de la URL de `source` (tabla "Model pricing"): entrada 1 $, salida 5 $, escritura de caché
-#   de 5 minutos 1,25 $, lectura de caché ("cache hits and refreshes") 0,10 $. Aquí van por 1k tokens, que
-#   es la unidad del contrato: se dividen entre 1000, sin redondear nada.
-#   `cache_write_per_1k` es la escritura de 5 MINUTOS. La de 1 hora cuesta 2 $/MTok y esta tabla no la
-#   cubre: el contrato tiene un solo campo de escritura.
-#   Es el modelo de pago de referencia para la columna "coste declarado" (contrato §4). El proxy NO lo ha
-#   llamado nunca: solo modelos locales.
+# - Modelos Claude: precios de lista de la API de Anthropic, tabla "Model pricing" de la URL de `source`,
+#   leída el 2026-10-06 y contrastada con una segunda copia de la misma tabla tomada ese día: las 19
+#   filas coinciden. La página da USD por MILLÓN de tokens; aquí van por 1k, que es la unidad del contrato:
+#   cada cifra se divide entre 1000 con aritmética exacta, sin redondear. La cifra original va en `note`.
+#   `cache_write_per_1k` es la escritura de caché de 5 MINUTOS. La de 1 hora cuesta más y esta tabla no la
+#   cubre: el contrato tiene un solo campo de escritura (ADR-013).
+#   `id` sigue el patrón de los identificadores de la API (claude-<familia>-<versión>). La página lista
+#   nombres comerciales, no identificadores: si un `id` no coincidiera con el `model` que devuelve la API,
+#   esa llamada quedaría SIN PRECIO (nunca con un precio equivocado). El proxy no ha llamado a ninguno de
+#   estos modelos: el proyecto usa solo modelos locales. Sirven para la columna "coste declarado" (contrato §4).
+#   No se incluyen los recargos de la página (endpoints regionales +10 %, inference_geo "us" x1,1, modo
+#   rápido) ni el descuento de lotes: son precio de lista, endpoint global.
 # - Modelos locales (Ollama en esta máquina): 0, que es un precio y no una ausencia. Coste real incurrido
-#   = 0 € (contrato §4). Son los tres que `ollama list` mostraba el 2026-09-10.
+#   = 0 EUR (contrato §4). Son los tres modelos locales que usa el proyecto.
 # - Tipo de cambio: referencia del BCE del 2026-10-06, 1 EUR = 1,1269 USD
 #   (https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml). USD_EUR es su inverso,
-#   1 / 1,1269 = 0,887390185…, truncado a 6 decimales. La séptima cifra ya no cambia un céntimo hasta
-#   pasar del millón de dólares.
+#   1 / 1,1269 = 0,887390185…, a 6 decimales.
 effective_from: 2026-10-06
 source: https://platform.claude.com/docs/en/about-claude/pricing
 retrieved_at: 2026-10-06
@@ -25,6 +28,159 @@ fx:
   fx_date: 2026-10-06
 
 models:
+  - id: claude-fable-5-1
+    provider: anthropic
+    region: global
+    input_per_1k: 0.01
+    output_per_1k: 0.05
+    cache_write_per_1k: 0.0125
+    cache_read_per_1k: 0.00025
+    note: "Claude Fable 5.1. Por millón de tokens: entrada 10 $, salida 50 $, escritura de caché 5 min 12.50 $, lectura 0.25 $."
+
+  - id: claude-mythos-5-1
+    provider: anthropic
+    region: global
+    input_per_1k: 0.01
+    output_per_1k: 0.05
+    cache_write_per_1k: 0.0125
+    cache_read_per_1k: 0.00025
+    note: "Claude Mythos 5.1. Por millón de tokens: entrada 10 $, salida 50 $, escritura de caché 5 min 12.50 $, lectura 0.25 $."
+
+  - id: claude-fable-5
+    provider: anthropic
+    region: global
+    input_per_1k: 0.01
+    output_per_1k: 0.05
+    cache_write_per_1k: 0.0125
+    cache_read_per_1k: 0.001
+    note: "Claude Fable 5. Por millón de tokens: entrada 10 $, salida 50 $, escritura de caché 5 min 12.50 $, lectura 1 $."
+
+  - id: claude-mythos-5
+    provider: anthropic
+    region: global
+    input_per_1k: 0.01
+    output_per_1k: 0.05
+    cache_write_per_1k: 0.0125
+    cache_read_per_1k: 0.001
+    note: "Claude Mythos 5. Por millón de tokens: entrada 10 $, salida 50 $, escritura de caché 5 min 12.50 $, lectura 1 $."
+
+  - id: claude-opus-5-5
+    provider: anthropic
+    region: global
+    input_per_1k: 0.004
+    output_per_1k: 0.02
+    cache_write_per_1k: 0.005
+    cache_read_per_1k: 0.0002
+    note: "Claude Opus 5.5. Por millón de tokens: entrada 4 $, salida 20 $, escritura de caché 5 min 5 $, lectura 0.20 $."
+
+  - id: claude-opus-5
+    provider: anthropic
+    region: global
+    input_per_1k: 0.005
+    output_per_1k: 0.025
+    cache_write_per_1k: 0.00625
+    cache_read_per_1k: 0.0005
+    note: "Claude Opus 5. Por millón de tokens: entrada 5 $, salida 25 $, escritura de caché 5 min 6.25 $, lectura 0.50 $."
+
+  - id: claude-opus-4-8
+    provider: anthropic
+    region: global
+    input_per_1k: 0.005
+    output_per_1k: 0.025
+    cache_write_per_1k: 0.00625
+    cache_read_per_1k: 0.0005
+    note: "Claude Opus 4.8. Por millón de tokens: entrada 5 $, salida 25 $, escritura de caché 5 min 6.25 $, lectura 0.50 $."
+
+  - id: claude-opus-4-7
+    provider: anthropic
+    region: global
+    input_per_1k: 0.005
+    output_per_1k: 0.025
+    cache_write_per_1k: 0.00625
+    cache_read_per_1k: 0.0005
+    note: "Claude Opus 4.7. Por millón de tokens: entrada 5 $, salida 25 $, escritura de caché 5 min 6.25 $, lectura 0.50 $."
+
+  - id: claude-opus-4-6
+    provider: anthropic
+    region: global
+    input_per_1k: 0.005
+    output_per_1k: 0.025
+    cache_write_per_1k: 0.00625
+    cache_read_per_1k: 0.0005
+    note: "Claude Opus 4.6. Por millón de tokens: entrada 5 $, salida 25 $, escritura de caché 5 min 6.25 $, lectura 0.50 $."
+
+  - id: claude-opus-4-5
+    provider: anthropic
+    region: global
+    input_per_1k: 0.005
+    output_per_1k: 0.025
+    cache_write_per_1k: 0.00625
+    cache_read_per_1k: 0.0005
+    note: "Claude Opus 4.5. Por millón de tokens: entrada 5 $, salida 25 $, escritura de caché 5 min 6.25 $, lectura 0.50 $."
+
+  - id: claude-opus-4-1
+    provider: anthropic
+    region: global
+    input_per_1k: 0.015
+    output_per_1k: 0.075
+    cache_write_per_1k: 0.01875
+    cache_read_per_1k: 0.0015
+    note: "Claude Opus 4.1. Por millón de tokens: entrada 15 $, salida 75 $, escritura de caché 5 min 18.75 $, lectura 1.50 $."
+
+  - id: claude-opus-4
+    provider: anthropic
+    region: global
+    input_per_1k: 0.015
+    output_per_1k: 0.075
+    cache_write_per_1k: 0.01875
+    cache_read_per_1k: 0.0015
+    note: "Claude Opus 4. Por millón de tokens: entrada 15 $, salida 75 $, escritura de caché 5 min 18.75 $, lectura 1.50 $."
+
+  - id: claude-sonnet-5-5
+    provider: anthropic
+    region: global
+    input_per_1k: 0.002
+    output_per_1k: 0.01
+    cache_write_per_1k: 0.0025
+    cache_read_per_1k: 0.0002
+    note: "Claude Sonnet 5.5. Por millón de tokens: entrada 2 $, salida 10 $, escritura de caché 5 min 2.50 $, lectura 0.20 $."
+
+  - id: claude-sonnet-5
+    provider: anthropic
+    region: global
+    input_per_1k: 0.002
+    output_per_1k: 0.01
+    cache_write_per_1k: 0.0025
+    cache_read_per_1k: 0.0002
+    note: "Claude Sonnet 5. Por millón de tokens: entrada 2 $, salida 10 $, escritura de caché 5 min 2.50 $, lectura 0.20 $."
+
+  - id: claude-sonnet-4-6
+    provider: anthropic
+    region: global
+    input_per_1k: 0.003
+    output_per_1k: 0.015
+    cache_write_per_1k: 0.00375
+    cache_read_per_1k: 0.0003
+    note: "Claude Sonnet 4.6. Por millón de tokens: entrada 3 $, salida 15 $, escritura de caché 5 min 3.75 $, lectura 0.30 $."
+
+  - id: claude-sonnet-4-5
+    provider: anthropic
+    region: global
+    input_per_1k: 0.003
+    output_per_1k: 0.015
+    cache_write_per_1k: 0.00375
+    cache_read_per_1k: 0.0003
+    note: "Claude Sonnet 4.5. Por millón de tokens: entrada 3 $, salida 15 $, escritura de caché 5 min 3.75 $, lectura 0.30 $."
+
+  - id: claude-sonnet-4
+    provider: anthropic
+    region: global
+    input_per_1k: 0.003
+    output_per_1k: 0.015
+    cache_write_per_1k: 0.00375
+    cache_read_per_1k: 0.0003
+    note: "Claude Sonnet 4. Por millón de tokens: entrada 3 $, salida 15 $, escritura de caché 5 min 3.75 $, lectura 0.30 $."
+
   - id: claude-haiku-4-5
     provider: anthropic
     region: global
@@ -32,7 +188,16 @@ models:
     output_per_1k: 0.005
     cache_write_per_1k: 0.00125
     cache_read_per_1k: 0.0001
-    note: "Precio de lista de la API, endpoint global. Escritura de caché de 5 minutos."
+    note: "Claude Haiku 4.5. Por millón de tokens: entrada 1 $, salida 5 $, escritura de caché 5 min 1.25 $, lectura 0.10 $."
+
+  - id: claude-haiku-3-5
+    provider: anthropic
+    region: global
+    input_per_1k: 0.0008
+    output_per_1k: 0.004
+    cache_write_per_1k: 0.001
+    cache_read_per_1k: 0.00008
+    note: "Claude Haiku 3.5. Por millón de tokens: entrada 0.80 $, salida 4 $, escritura de caché 5 min 1 $, lectura 0.08 $."
 
   - id: qwen3.5:4b-mlx
     provider: ollama
