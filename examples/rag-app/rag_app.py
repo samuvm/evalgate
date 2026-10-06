@@ -17,7 +17,8 @@ import unicodedata
 import urllib.request
 from pathlib import Path
 
-DATA = Path(__file__).parent / "data"
+# RAG_DATA points the app at another corpus (the eval suite uses the 200-case golden set). Default: its own.
+DATA = Path(os.environ.get("RAG_DATA", Path(__file__).parent / "data"))
 TOP_K = 3
 SYSTEM = (
     "Responde solo con el dato pedido, usando únicamente las fichas. "
