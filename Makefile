@@ -96,6 +96,7 @@ gate-fast: ## lint + typecheck + test-fast + reglas + anti-gaming
 	$(RUN) python scripts/rules/tables_lock.py
 	$(RUN) python scripts/rules/no_magic_thresholds.py
 	$(RUN) python scripts/rules/no_unpaired_bootstrap.py
+	$(RUN) python scripts/rules/prompts_frontmatter.py
 	$(RUN) python scripts/gen_semconv.py --check
 	$(RUN) python scripts/rules/sse_corpus_coverage.py
 	$(RUN) python scripts/debt.py
