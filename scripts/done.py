@@ -83,6 +83,8 @@ def static() -> Step:
         "python scripts/rules/stream_closed_in_request.py",  # R2 en el montaje, desde F2
         "python scripts/rules/no_genai_literals.py",  # R5, desde F3
         "python scripts/rules/no_blocking_export.py",  # R1, desde F3
+        "python scripts/rules/no_price_literals.py",  # R3, desde F4
+        "python scripts/rules/tables_lock.py",  # R4, desde F4
         "python scripts/gen_semconv.py --check",  # semconv generado, no escrito (mapa), desde F3
         "python scripts/rules/sse_corpus_coverage.py",  # RULES §4.2 punto 3, desde F2
     ]
