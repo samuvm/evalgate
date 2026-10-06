@@ -27,8 +27,23 @@ class ModelPrice:
 
 
 @dataclass(frozen=True, slots=True)
+class Fx:
+    """The exchange rate a table was priced with, and its date. Without both, euros are not reproducible."""
+
+    usd_eur: Decimal
+    fx_date: date
+
+
+@dataclass(frozen=True, slots=True)
 class PriceTable:
-    """One pricing/<YYYY-MM-DD>.yaml file. Never edited once published (R4)."""
+    """One pricing/<YYYY-MM-DD>.yaml file. Never edited once published (R4).
+
+    `currency` and `fx` have no default VALUE on purpose: a table that does not say its currency cannot be
+    turned into euros, and `cost_of` refuses it rather than assume one (R3: no price lives in the code, and an
+    assumed exchange rate would be exactly that).
+    """
 
     effective_from: date
     models: Mapping[str, ModelPrice]
+    currency: str | None = None  # "USD" | "EUR"
+    fx: Fx | None = None
