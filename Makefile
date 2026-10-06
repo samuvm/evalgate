@@ -73,8 +73,8 @@ eval: ## nivel 4 desde caché grabada. `make eval SUITE=pricing-repro` = G-PRICE
 	$(RUN) evalgate eval pricing-repro
 eval-refresh: ## nivel 4 recalculando; nunca en el gate
 	$(call not_yet,F5)
-eval-compare-twice: ## G-DETERMINISM
-	$(call not_yet,F6)
+eval-compare-twice: ## G-DETERMINISM: `eval compare` dos veces, en dos procesos, sobre los mismos informes
+	$(RUN) python scripts/eval_compare_twice.py
 bench: ## protocolo de docs/bench/protocol.md. PROFILE=proxy|stream. Con la máquina sin otra carga
 	@test -n "$(PROFILE)" || { echo "uso: make bench PROFILE=proxy|stream" >&2; exit 2; }
 	$(RUN) python scripts/bench.py --profile $(PROFILE)

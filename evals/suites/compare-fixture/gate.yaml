@@ -1,0 +1,9 @@
+# Reglas de la puerta para la suite sintética compare-fixture. Cinco métricas bloqueantes (más de
+# tres: la corrección de Holm es obligatoria) y una que solo informa.
+metrics:
+  - { id: faithfulness, blocking: true, absolute: 0.80 }
+  - { id: answer_relevancy, blocking: true }
+  - { id: context_recall, blocking: true }
+  - { id: citation_precision, blocking: true }
+  - { id: alucinacion, blocking: true, higher_is_better: false, absolute: 0.05 }
+  - { id: respuesta_corta, blocking: false }

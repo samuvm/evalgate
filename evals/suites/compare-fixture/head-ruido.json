@@ -1,0 +1,64 @@
+{
+  "contract_version": 1,
+  "run_id": "compare-fixture-head-ruido",
+  "project": "evalgate",
+  "suite": "compare-fixture",
+  "created_at": "2026-10-06T00:00:00+00:00",
+  "environment": {
+    "hardware": "sintetico",
+    "python": "3.12",
+    "deterministic": true,
+    "seed": 20261006
+  },
+  "dataset": {
+    "name": "compare-fixture",
+    "version": 1,
+    "n_cases": 200,
+    "sha256": "sha256:adb90368e7c3f33d4ed59c1c280e0d8b83ddd0bcd9845d3025f4e90cf5a4a3d8"
+  },
+  "metrics": [
+    {
+      "id": "faithfulness",
+      "value": 0.875,
+      "n": 200,
+      "unit": "ratio",
+      "raw_path": "head-ruido/faithfulness.json"
+    },
+    {
+      "id": "answer_relevancy",
+      "value": 0.895,
+      "n": 200,
+      "unit": "ratio",
+      "raw_path": "head-ruido/answer_relevancy.json"
+    },
+    {
+      "id": "context_recall",
+      "value": 0.825,
+      "n": 200,
+      "unit": "ratio",
+      "raw_path": "head-ruido/context_recall.json"
+    },
+    {
+      "id": "citation_precision",
+      "value": 0.94,
+      "n": 200,
+      "unit": "ratio",
+      "raw_path": "head-ruido/citation_precision.json"
+    },
+    {
+      "id": "alucinacion",
+      "value": 0.015,
+      "n": 200,
+      "unit": "ratio",
+      "raw_path": "head-ruido/alucinacion.json"
+    },
+    {
+      "id": "respuesta_corta",
+      "value": 0.5,
+      "n": 200,
+      "unit": "ratio",
+      "raw_path": "head-ruido/respuesta_corta.json"
+    }
+  ],
+  "notes": "Informe sintético y declarado (scripts/gen_compare_fixture.py). Sin modelo detrás."
+}

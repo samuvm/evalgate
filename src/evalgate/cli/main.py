@@ -14,7 +14,9 @@ import typer
 import uvicorn
 from opentelemetry import metrics
 
+from evalgate.cli import compare as compare_cli
 from evalgate.cli import pricing_repro
+from evalgate.gate.decision import BLOCK
 from evalgate.pricing.loader import load_tables
 from evalgate.proxy.app import DEFAULT_PROVIDER, DEFAULT_UPSTREAM, ProxySettings, create_app
 from evalgate.telemetry.exporters import StoreClient
@@ -128,4 +130,23 @@ def eval_pricing_repro(
     worst = pricing_repro.run(suite_dir, out)
     typer.echo(f"{pricing_repro.GOAL} diff_max_eur={format(worst.normalize(), 'f')} informe={out}")
     if worst != 0:
+        raise typer.Exit(code=1)
+
+
+@eval_app.command("compare")
+def eval_compare(
+    base: Annotated[Path, typer.Argument(help="Eval report of the baseline.")],
+    head: Annotated[Path, typer.Argument(help="Eval report of the change.")],
+    gate: Annotated[Path, typer.Option(help="Metric rules of the suite (gate.yaml).")],
+    out: Annotated[Path, typer.Option(help="Comparison report to write.")],
+    goals: Annotated[Path, typer.Option(help="Where `comparacion` lives.")] = Path("docs/GOALS.yaml"),
+) -> None:
+    """The gate: exit 0 if HEAD may merge, 1 if it is blocked, 2 if the reports cannot be compared."""
+    try:
+        comparison = compare_cli.run(base, head, gate, goals, out)
+    except ValueError as refused:
+        typer.echo(f"evalgate eval compare: {refused}", err=True)
+        raise typer.Exit(code=2) from None
+    typer.echo(compare_cli.table(comparison))
+    if comparison.outcome == BLOCK:
         raise typer.Exit(code=1)

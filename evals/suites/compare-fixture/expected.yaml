@@ -1,0 +1,4 @@
+# Lo que la puerta DEBE decidir sobre cada informe, escrito antes de ejecutarla.
+head-igual: pass
+head-ruido: pass
+head-regresion: block
