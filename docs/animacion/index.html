@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>html,body{margin:0;height:100%;background:#0c0e11;overflow:hidden}a{color:#f2b441}a:hover{color:#ffd27a}</style>
+<script>window.OM_SCENES = '[{"name":"Adopcion","dur":6,"desc":"La app habla directo con el proveedor; aparece Evalgate y la línea se redirige al cambiar OPENAI_BASE_URL"},{"name":"Contabilidad","dur":10,"desc":"Una petición cruza el proxy y los tokens vuelven en ráfaga; cada token deja una copia ámbar en el contador"},{"name":"Desconexion","dur":10,"desc":"La app se desconecta a mitad; los tokens blancos se pierden pero el contador sigue y emite un registro de uso"},{"name":"Telemetria","dur":10,"desc":"Un punto azul por llamada va a una cola limitada y luego a ClickHouse; el tráfico blanco no espera"},{"name":"Degradacion","dur":8,"desc":"ClickHouse cae, la cola se llena y las trazas sobrantes se descartan; el tráfico blanco sigue igual"},{"name":"Precios","dur":8,"desc":"Zoom al registro de uso: se cruza con la tabla de precios fechada y sale un coste; tablas anteriores con candado"},{"name":"Emparejado","dur":10,"desc":"CI: casos emparejados uno a uno entre línea base y rama; un caso sin pareja da error; un juez distinto puntúa con caché"},{"name":"Estadistica","dur":10,"desc":"Las parejas forman una distribución bootstrap; aparece la banda de ruido, el umbral viene de GOALS.yaml y cae la diferencia medida"},{"name":"Puerta","dur":6,"desc":"La puerta se abre en verde (exit 0) o se cierra en rojo (exit 1); tres medidores sin medir; el cambio vuelve a ser tu app"}]';</script>
+<script>window.OM_PLAYBACK = '{"mode":"loop"}';</script>
+<script>window.TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{"theme":"oscuro","gate":"verde","captions":true,"motionEditor":true}/*EDITMODE-END*/;</script>
+<script src="rotulos.es.js"></script>
+</helmet>
+<div style="position:fixed;inset:0;background:#0c0e11">
+<x-import component-from-global-scope="EvalgateApp" from="./animations-v3.jsx ./tweaks-panel.jsx ./evalgate.jsx" hint-size="100%,100%" style="position:absolute;inset:0;width:100%;height:100%"></x-import>
+</div>
+</x-dc>
+</body>
+</html>
