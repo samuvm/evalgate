@@ -1,0 +1,41 @@
+{
+  "milestone": 3,
+  "at": "2026-10-06T18:49:41+00:00",
+  "numbers": {
+    "G-FUNC-COV": 0,
+    "G-LINE-COV": 99.34,
+    "G-OPENAI-CONTRACT": {
+      "ratio": 1.0,
+      "n": 7
+    },
+    "G-ADOPTION": {
+      "lineas_de_diff": 0,
+      "n_lineas": 8
+    },
+    "G-TOKENS-EXACT": {
+      "ratio": 1,
+      "n": 5
+    },
+    "G-TOKENS-STREAM": {
+      "delta_con_usage": 0
+    },
+    "G-DISCONNECT": {
+      "ratio": 1,
+      "n": 198
+    },
+    "G-OTEL-CONTRACT": {
+      "ratio": 1,
+      "n": 25
+    },
+    "G-TRACE-0": {
+      "perdidos": 0,
+      "rps": 50,
+      "servidas": 6000
+    },
+    "G-TRACE-DEGRADE": -0.084,
+    "G-LAT-PROXY": 5.287,
+    "G-LAT-TTFT": 3.511
+  },
+  "snapshot": ".snapshots/2026-10-06-fase3",
+  "source": ".gate/gate-status.json"
+}

@@ -71,8 +71,8 @@ def test_optional_attributes_appear_only_when_the_call_has_them() -> None:
 
 
 def test_a_model_the_provider_never_named_is_absent_not_guessed() -> None:
-    """Decided 2026-10-06: a zero-length stream never says who answered. The request's model
-    is right there and it would be a guess; the attribute is left out instead."""
+    """Decided 2026-10-06: a zero-length stream never says who answered. The
+    request's model is right there and it would be a guess; the attribute is left out instead."""
     out = attributes(replace(CALL, response_model=None))
 
     assert "gen_ai.response.model" not in out

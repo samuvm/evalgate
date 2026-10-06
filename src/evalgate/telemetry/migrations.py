@@ -20,6 +20,7 @@ _LEDGER_DDL = (
     "(version String, name String, sha256 String, applied_at DateTime64(3) DEFAULT now64(3)) "
     "ENGINE = MergeTree ORDER BY version"
 )
+_LEDGER_READ = "SELECT version, sha256 FROM schema_migrations"  # a constant: no query is ever built
 _FILE = re.compile(r"^(\d{4})_([a-z0-9_]+)\.sql$")
 
 
@@ -68,12 +69,7 @@ def statements(sql: str) -> list[str]:
 def apply(client: StoreClient, directory: Path = MIGRATIONS) -> list[Migration]:
     """Run the pending migrations in order and record each one. Idempotent: a second run does nothing."""
     client.command(_LEDGER_DDL)
-    applied = {
-        str(version): str(digest)
-        for version, digest in client.query(
-            f"SELECT version, sha256 FROM {LEDGER}"  # noqa: S608 - constant table name, no input
-        ).result_rows
-    }
+    applied = {str(version): str(digest) for version, digest in client.query(_LEDGER_READ).result_rows}
     todo = pending(applied, available(directory))
     for migration in todo:
         for statement in statements(migration.sql):

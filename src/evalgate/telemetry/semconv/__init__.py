@@ -10,7 +10,7 @@ Subir la versión es un cambio consciente: entrada en CHANGELOG y revisión del 
 
 SEMCONV_REPO = "open-telemetry/semantic-conventions"
 SEMCONV_VERSION = "v1.41.1"
-SEMCONV_COMMIT = "ead83b9b0fa36540c1642fce46e874f002ac23f1"
+SEMCONV_COMMIT = "ead83b9b0fa36540c1642fce46e874f002ac23f1"  # pragma: allowlist secret
 
 # --- Atributos ---
 ERROR_TYPE = "error.type"
@@ -50,7 +50,7 @@ RESPONSE_TIME_TO_FIRST_CHUNK = "gen_ai.response.time_to_first_chunk"
 RETRIEVAL_DOCUMENTS = "gen_ai.retrieval.documents"
 RETRIEVAL_QUERY_TEXT = "gen_ai.retrieval.query.text"
 SYSTEM_INSTRUCTIONS = "gen_ai.system_instructions"
-TOKEN_TYPE = "gen_ai.token.type"
+TOKEN_TYPE = "gen_ai.token.type"  # nosec B105
 TOOL_CALL_ARGUMENTS = "gen_ai.tool.call.arguments"
 TOOL_CALL_ID = "gen_ai.tool.call.id"
 TOOL_CALL_RESULT = "gen_ai.tool.call.result"
@@ -70,10 +70,10 @@ SERVER_ADDRESS = "server.address"
 OPERATION_DURATION = "gen_ai.client.operation.duration"
 OPERATION_TIME_PER_OUTPUT_CHUNK = "gen_ai.client.operation.time_per_output_chunk"
 OPERATION_TIME_TO_FIRST_CHUNK = "gen_ai.client.operation.time_to_first_chunk"
-TOKEN_USAGE = "gen_ai.client.token.usage"
+TOKEN_USAGE = "gen_ai.client.token.usage"  # nosec B105
 SERVER_REQUEST_DURATION = "gen_ai.server.request.duration"
-SERVER_TIME_PER_OUTPUT_TOKEN = "gen_ai.server.time_per_output_token"
-SERVER_TIME_TO_FIRST_TOKEN = "gen_ai.server.time_to_first_token"
+SERVER_TIME_PER_OUTPUT_TOKEN = "gen_ai.server.time_per_output_token"  # nosec B105
+SERVER_TIME_TO_FIRST_TOKEN = "gen_ai.server.time_to_first_token"  # nosec B105
 
 # Tipo declarado por el modelo, para que el traductor pueda validar lo que emite.
 ATTRIBUTE_TYPES: dict[str, str] = {
@@ -137,6 +137,6 @@ METRIC_UNITS: dict[str, str] = {
     "gen_ai.client.operation.time_to_first_chunk": "s",
     "gen_ai.client.token.usage": "{token}",
     "gen_ai.server.request.duration": "s",
-    "gen_ai.server.time_per_output_token": "s",
-    "gen_ai.server.time_to_first_token": "s",
+    "gen_ai.server.time_per_output_token": "s",  # nosec B105
+    "gen_ai.server.time_to_first_token": "s",  # nosec B105
 }

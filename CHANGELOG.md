@@ -35,6 +35,56 @@ Versionado: [SemVer](https://semver.org/lang/es/).
 ### Pendiente
 - F0. Nada medido todavía: ninguna meta de `docs/GOALS.yaml` tiene número.
 
+## [0.4.0] · F3 · telemetría, almacén y degradación · 2026-10-06
+
+### Añadido
+- `telemetry/model.py`: `LlmCall`, el modelo interno de una llamada. Nombres propios, ni uno `gen_ai.*`, y
+  ningún campo que pueda llevar el texto de un prompt o de una respuesta (R6 por construcción).
+- `telemetry/translate.py`: el único módulo que conoce los nombres externos, y los toma de
+  `telemetry/semconv/`, generado desde el commit de `otel-semconv.lock` (v1.41.1).
+- `telemetry/processor.py`: cola acotada propia. La petición solo hace `put_nowait`; cada span acaba
+  exportado o descartado **y contado** en `app.spans.dropped`. No hay una tercera salida.
+- `telemetry/rows.py`, `migrations.py`, `exporters/clickhouse.py`, `pipeline.py`: escritura directa en
+  ClickHouse sobre la tabla `otel_traces` del Collector, con migraciones propias numeradas e inmutables
+  (sha256 en `schema_migrations`), conexión perezosa y rehecha tras cada fallo.
+- `proxy/streaming.py`: el registro dice qué modelo respondió y cuándo llegó el primer chunk con texto
+  (reloj inyectado). `proxy/translate.py`: `request_facts` y `llm_call`, puras. `proxy/app.py`: sumidero
+  `on_call`, llamado y nunca esperado.
+- CLI: `evalgate serve --clickhouse` y `evalgate migrate`.
+- Nivel 2, el primero del repo: `tests/integration/` con ClickHouse 26.4 real fijado por digest.
+- `scripts/bench.py` y `bench_stub.py`: el protocolo de `docs/bench/protocol.md`, con tres procesos y las
+  trazas activas contra ClickHouse real.
+- Reglas mecánicas nuevas, probadas en negativo: `rules/no_genai_literals.py` (R5),
+  `rules/no_blocking_export.py` (R1) y `gen_semconv.py --check`.
+
+### Corregido
+- 8 tests del corpus SSE comparaban el registro entero y exigían sin decirlo `model=None`. Se amplió su
+  registro esperado con el modelo que declara cada fixture; ninguna aserción quitada.
+
+### Números medidos
+| Meta | Umbral | Medido | n | Artefacto |
+|---|---|---|---|---|
+| G-OTEL-CONTRACT | == 1,0 | **1,0** | 25 spans en el comando de la meta; 1000 en la suite (perfil nightly) | `.gate/gate-status.json` |
+| G-TRACE-0 | == 0 perdidos | **0** | 6000 peticiones, 50 rps durante 120 s, contadas como filas en ClickHouse | `.gate/gate-status.json` |
+| G-TRACE-DEGRADE | Δp95 <= 5 ms y 100 % servidas | **−0,084 ms**, 2000/2000 servidas, 1000 exportados + 1000 descartados y contados | 1000 + 1000 peticiones, `docker kill` en la 50 de la segunda fase | `evals/reports/degradation-2026-10-06.json` |
+| G-LAT-PROXY | p95 <= 30 ms | **5,29 ms** (p50 4,04 · p99 6,66) | 500 + 50 de calentamiento por brazo | `evals/reports/bench-proxy-2026-10-06.json` |
+| G-LAT-TTFT | p95 <= 15 ms | **3,51 ms** (p50 2,84 · p99 3,67) | 500 + 50 de calentamiento por brazo | `evals/reports/bench-stream-2026-10-06.json` |
+
+Latencias medidas con las trazas ACTIVAS contra ClickHouse real, con la máquina sin otra carga
+(`exclusive_window: true`), Apple M4 Max, macOS 27.0.1. Los tres últimos números son de la tanda que ejecuta
+el propio `make done MILESTONE=3`.
+También: G-LINE-COV 99,34 %, G-FUNC-COV 0, suite reservada 349/349, suite 256 passed (perfil nightly).
+
+### Decisiones
+- ADR-012 · ClickHouse como almacén, escrito desde el proxy con cola acotada propia. Se descartó el
+  Collector: con él en medio, el proxy recibe SUCCESS con ClickHouse caído y el contador no mide.
+- `gen_ai.response.model` se omite solo cuando el proveedor nunca lo dijo; nunca se copia del modelo pedido.
+- `otel-semconv.lock` declara las tres rutas (`gen-ai`, `error`, `server`) del mismo commit.
+
+### Contratos
+- Sin cambios en `docs/CONTRACTS/`. Desvío declarado respecto a otel-genai §4: `gen_ai.response.model` es
+  "obligatorio cuando el proveedor lo declara".
+
 ## [0.3.0] · F2 · streaming correcto · 2026-09-20
 
 ### Añadido

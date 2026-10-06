@@ -4,7 +4,7 @@
 > publica sus propias tasas de error: la concordancia de su juez con un humano, su tasa de falsos positivos y
 > el efecto mínimo que es capaz de detectar, los tres medidos.
 
-**Estado:** en construcción, F2 de 10 cerrada y F3 (telemetría, almacén y degradación) en curso
+**Estado:** en construcción, F3 de 10 cerrada (telemetría, almacén y degradación) y F4 (precios) en curso
 . El núcleo (F0-F7 y F9) todavía no está completo, y este README solo afirma lo que ya está
 medido: lo que no tiene fila en la tabla de [Números medidos](#números-medidos) no se da por hecho.
 
@@ -20,11 +20,20 @@ medido: lo que no tiene fila en la tabla de [Números medidos](#números-medidos
 
 ## Cómo encaja
 
+![Diagrama animado de Evalgate: la app, el proxy y el proveedor; contabilidad de tokens, telemetría, precios, evaluación emparejada y la puerta](docs/animacion/evalgate-flujo.gif)
+
+Nueve escenas en bucle, cada una marcada como hecha, en curso o pendiente. Las cifras que aparecen dentro
+(tokens, tarifas, coste) son valores de ejemplo para ilustrar el flujo, no mediciones: las mediciones están
+en [Números medidos](#números-medidos). El código de la animación está en `docs/animacion/`; se abre
+sirviendo esa carpeta (`python -m http.server -d docs/animacion`) y carga React desde un CDN.
+
+El mismo flujo, en estático:
+
 ```
   tu app ──► evalgate (proxy) ──► proveedor compatible con OpenAI (hoy: Ollama)
                   │
                   ├─► registro de uso: tokens y coste, también si el cliente corta   [F2, cerrada]
-                  ├─► traza OTel ──► cola acotada ──► ClickHouse                     [F3, en curso]
+                  ├─► traza OTel ──► cola acotada ──► ClickHouse                     [F3, cerrada] 
                   │
   informe A ─┐
              ├─► evalgate eval compare ──► exit 0 | 1 para CI                        [F5-F7, pendiente]
@@ -97,6 +106,18 @@ Hardware de referencia: MacBook Pro M4 Max, 36 GB de memoria unificada.
 | F2 | `G-OPENAI-CONTRACT` | ratio=1,00, n=7 | 2026-09-20 | `evals/reports/gate-F2.json` |
 | F2 | `G-TOKENS-EXACT` | ratio=1, n=5 | 2026-09-20 | `evals/reports/gate-F2.json` |
 | F2 | `G-TOKENS-STREAM` | delta_con_usage=0 | 2026-09-20 | `evals/reports/gate-F2.json` |
+| F3 | `G-ADOPTION` | lineas_de_diff=0, n_lineas=8 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F3 | `G-DISCONNECT` | ratio=1, n=198 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F3 | `G-FUNC-COV` | 0 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F3 | `G-LAT-PROXY` | 5,29 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F3 | `G-LAT-TTFT` | 3,51 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F3 | `G-LINE-COV` | 99,34 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F3 | `G-OPENAI-CONTRACT` | ratio=1,00, n=7 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F3 | `G-OTEL-CONTRACT` | ratio=1, n=25 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F3 | `G-TOKENS-EXACT` | ratio=1, n=5 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F3 | `G-TOKENS-STREAM` | delta_con_usage=0 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F3 | `G-TRACE-0` | perdidos=0, rps=50, servidas=6000 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F3 | `G-TRACE-DEGRADE` | -0,08 | 2026-10-06 | `evals/reports/gate-F3.json` |
 <!-- evalgate:numbers:end -->
 
 Qué significa cada meta, su umbral y el comando que la mide: `docs/GOALS.yaml`.

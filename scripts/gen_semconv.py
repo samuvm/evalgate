@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import io
+import re
 import sys
 import tarfile
 import urllib.request
@@ -94,6 +95,20 @@ def metrics() -> dict[str, str]:
     return found
 
 
+_LOOKS_LIKE_A_SECRET = re.compile(r"(^|_)token($|_)", re.IGNORECASE)
+
+
+def marked(name: str) -> str:
+    """`  # nosec B105` for the lines bandit takes for a hardcoded password.
+
+    OpenTelemetry names some attributes `..._token` and `token_...`, and bandit (B105) reads a string assigned
+    under such a name as a credential. They are metric and attribute NAMES. The generated file cannot be
+    annotated by hand, so the generator writes the marker, only on the lines that need it, and `--check`
+    keeps it from drifting. Same reason as the S105 per-file ignore of ruff in pyproject.toml.
+    """
+    return "  # nosec B105" if _LOOKS_LIKE_A_SECRET.search(name) else ""
+
+
 def render() -> str:
     pinned = lock()
     attrs = attributes("model/gen-ai")
@@ -118,23 +133,24 @@ def render() -> str:
     out.write('"""\n\n')
     out.write(f'SEMCONV_REPO = "{pinned["repo"]}"\n')
     out.write(f'SEMCONV_VERSION = "{pinned["version"]}"\n')
-    out.write(f'SEMCONV_COMMIT = "{pinned["sha"]}"\n\n')
+    # A git commit, public and pinned in otel-semconv.lock: detect-secrets reads 40 hex characters as a key.
+    out.write(f'SEMCONV_COMMIT = "{pinned["sha"]}"  # pragma: allowlist secret\n\n')
 
     out.write("# --- Atributos ---\n")
     for identifier in sorted(attrs):
-        out.write(f'{constant(identifier)} = "{identifier}"\n')
+        out.write(f'{constant(identifier)} = "{identifier}"{marked(constant(identifier))}\n')
     out.write("\n# --- Métricas ---\n")
     for identifier in sorted(found):
-        out.write(f'{constant(identifier)} = "{identifier}"\n')
+        out.write(f'{constant(identifier)} = "{identifier}"{marked(constant(identifier))}\n')
 
     out.write("\n# Tipo declarado por el modelo, para que el traductor pueda validar lo que emite.\n")
     out.write("ATTRIBUTE_TYPES: dict[str, str] = {\n")
     for identifier in sorted(attrs):
-        out.write(f'    "{identifier}": "{attrs[identifier]}",\n')
+        out.write(f'    "{identifier}": "{attrs[identifier]}",{marked(identifier)}\n')
     out.write("}\n\n")
     out.write("METRIC_UNITS: dict[str, str] = {\n")
     for identifier in sorted(found):
-        out.write(f'    "{identifier}": "{found[identifier]}",\n')
+        out.write(f'    "{identifier}": "{found[identifier]}",{marked(identifier)}\n')
     out.write("}\n")
     return out.getvalue()
 

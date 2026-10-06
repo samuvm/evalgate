@@ -165,7 +165,10 @@ def run(profile: str, n_warmup: int, n_measured: int) -> dict[str, Any]:
                     arms["proxy"].append(pair[1])
     key = "overhead_ms" if profile == "proxy" else "ttft_overhead_ms"
     paired = [p - d for d, p in zip(arms["direct"], arms["proxy"], strict=True)]
-    ours = [line for line in concurrent["docker_ps"].splitlines() if "clickhouse-server" not in line]
+    # The bench's own containers: the ClickHouse under test and testcontainers' reaper (ryuk), which exists
+    # only while this script runs. Everything else is foreign and breaks the exclusive window.
+    own = ("clickhouse-server", "testcontainers/ryuk")
+    ours = [line for line in concurrent["docker_ps"].splitlines() if not any(name in line for name in own)]
     return {
         "profile": profile,
         key: {
@@ -189,7 +192,9 @@ def run(profile: str, n_warmup: int, n_measured: int) -> dict[str, Any]:
         "concurrent_processes": concurrent,
         # Exclusivity: our own ClickHouse is part of the system under test; anything else is not.
         "exclusive_window": not ours and len(concurrent["ollama_ps"].splitlines()) <= 1,
-        "protocol_sha256": hashlib.sha256(PROTOCOL.read_bytes()).hexdigest(),
+        # Digest notation (`sha256:<hex>`), not a bare hex string: a bare one is what detect-secrets takes for
+        # a key, and this file is written fresh on every run, so it could never sit in the baseline.
+        "protocol_sha256": "sha256:" + hashlib.sha256(PROTOCOL.read_bytes()).hexdigest(),
         "measured_at": datetime.now(UTC).isoformat(timespec="seconds"),
     }
 

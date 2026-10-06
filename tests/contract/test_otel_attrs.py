@@ -30,7 +30,7 @@ from tests._meter import Meter
 
 GOAL = "G-OTEL-CONTRACT"
 
-# Contrato §4, span de invocación, las filas "sí": tienen que estar SIEMPRE. Con una excepción, provisional y
+# Contrato §4, span de invocación, las filas "sí": tienen que estar SIEMPRE. Con una excepción, decidida el
 # 2026-10-06: `gen_ai.response.model` se exige siempre que el proveedor dijo
 # qué modelo respondió, y falta solo cuando no lo dijo. Inventarlo sería peor que omitirlo.
 SIEMPRE = {
