@@ -56,6 +56,8 @@ comparacion:
   n_resamples: 10000
   semilla: 42
   correccion_multiple: holm
+  nivel_confianza: 0.95
+  correccion_desde: 3
   # `holm` es el valor por defecto documentado del contrato (retrieval-metrics.md §4 y
   # eval-report.schema.json). Motivo, que hay que saber decir: Holm controla la tasa de error POR
   # FAMILIA -la probabilidad de bloquear al menos una vez sin causa-, que es exactamente el riesgo
