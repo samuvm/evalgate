@@ -1,0 +1,42 @@
+{
+  "profile": "proxy",
+  "overhead_ms": {
+    "p50": 4.131,
+    "p95": 5.458,
+    "p99": 6.997
+  },
+  "direct_ms": {
+    "p50": 53.763,
+    "p95": 54.905,
+    "p99": 56.165
+  },
+  "proxy_ms": {
+    "p50": 57.894,
+    "p95": 60.363,
+    "p99": 63.162
+  },
+  "paired_diff_ms": {
+    "p50": 4.085,
+    "p95": 6.577,
+    "p99": 8.36
+  },
+  "n": 500,
+  "n_warmup": 50,
+  "tracing": "clickhouse (evalgate serve --clickhouse), mismo digest que el nivel 2",
+  "hardware": {
+    "model": "Mac16,6",
+    "chip": "Apple M4 Max",
+    "memory_bytes": 38654705664,
+    "cores": 14,
+    "macos": "27.0.1",
+    "machine": "arm64"
+  },
+  "python": "3.12.12",
+  "concurrent_processes": {
+    "docker_ps": "lucid_easley clickhouse/clickhouse-server\ntestcontainers-ryuk-c8df9b8b-f940-49b3-a048-26f23af3825b testcontainers/ryuk:0.8.1",
+    "ollama_ps": "NAME    ID    SIZE    PROCESSOR    CONTEXT    UNTIL"
+  },
+  "exclusive_window": true,
+  "protocol_sha256": "sha256:d857c9220907e5808e14380a8a58d365ff10226825f2b39a9ca4ff3c4bcde04b",
+  "measured_at": "2026-10-08T08:34:35+00:00"
+}

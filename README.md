@@ -118,6 +118,20 @@ Hardware de referencia: MacBook Pro M4 Max, 36 GB de memoria unificada.
 | F3 | `G-TOKENS-STREAM` | delta_con_usage=0 | 2026-10-06 | `evals/reports/gate-F3.json` |
 | F3 | `G-TRACE-0` | perdidos=0, rps=50, servidas=6000 | 2026-10-06 | `evals/reports/gate-F3.json` |
 | F3 | `G-TRACE-DEGRADE` | -0,08 | 2026-10-06 | `evals/reports/gate-F3.json` |
+| F4 | `G-ADOPTION` | lineas_de_diff=0, n_lineas=8 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-DISCONNECT` | ratio=1, n=209 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-FUNC-COV` | 0 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-LAT-PROXY` | 5,46 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-LAT-TTFT` | 3,45 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-LINE-COV` | 99,35 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-MUTATION` | 88,58 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-OPENAI-CONTRACT` | ratio=1,00, n=7 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-OTEL-CONTRACT` | ratio=1, n=25 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-PRICE-REPRO` | 0,00 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-TOKENS-EXACT` | ratio=1, n=5 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-TOKENS-STREAM` | delta_con_usage=0 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-TRACE-0` | perdidos=0, rps=50, servidas=6000 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F4 | `G-TRACE-DEGRADE` | -0,17 | 2026-10-08 | `evals/reports/gate-F4.json` |
 <!-- evalgate:numbers:end -->
 
 Qué significa cada meta, su umbral y el comando que la mide: `docs/GOALS.yaml`.

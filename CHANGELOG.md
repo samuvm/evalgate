@@ -143,6 +143,10 @@ para medir kappa y potencia (ADR-017).
 | G-MUTATION | >= 75 % | **87,22 %** | 505 muertos de 579 | `evals/reports/mutation-F4.json` |
 | G-COST-RECONCILE | no bloquea (solo modelos locales) | **no realizada** | — | no existe `docs/reconciliation-<fecha>.md`: solo modelos locales, coste real 0 EUR |
 
+`make done MILESTONE=4` en verde el 2026-10-08, 12 de 12: G-LAT-PROXY p95 5,46 ms, G-LAT-TTFT p95 3,45 ms,
+G-TRACE-0 0 perdidos de 6000, G-TRACE-DEGRADE −0,167 ms, G-LINE-COV 99,35 %, suite reservada 349/349.
+G-MUTATION en esa tanda: 88,58 % (1032 de 1165), ya con `stats/` y `gate/` de F6 dentro.
+
 ### Decisiones
 - ADR-013 · Tablas de precios inmutables y fechadas, coste exacto hasta presentar. Ante un dato que falta,
   el paquete se niega; nunca supone. LiteLLM no entra: con solo modelos locales no hace falta adaptador.
