@@ -135,8 +135,8 @@ only_mutate = [
 pytest_add_cli_args_test_selection = ["tests/unit", "tests/property", "tests/contract"]
 # Lo que leen los tests de contrato: docs/spec, docs/CONTRACTS, GOALS.yaml, evals/ y el pin OTel. Y scripts/:
 # desde F3 un test de contrato ejecuta `scripts/gen_semconv.py --check`, y sin él la línea base de mutmut
-# falla antes de mutar nada.
-also_copy = ["docs/", "evals/", "otel-semconv.lock", "scripts/"]
+# falla antes de mutar nada. Y prompts/: desde F5 un test unitario carga los prompts reales del repo.
+also_copy = ["docs/", "evals/", "otel-semconv.lock", "scripts/", "prompts/"]
 pytest_add_cli_args = ["-p", "no:cacheprovider"]
 
 [dependency-groups]
