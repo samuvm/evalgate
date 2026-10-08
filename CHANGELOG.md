@@ -72,7 +72,8 @@ dos variantes que no cambian ninguna respuesta. No es la tasa de falsos positivo
 
 ## [0.6.0] · F5 · motor de evals, jueces y caché · 2026-10-07
 
-> Construida y medida. **`make done MILESTONE=5` pendiente**: espera el cierre de F4 y ventana de máquina.
+> `make done MILESTONE=5` en verde el 2026-10-08, 12 de 12: G-CACHE-HIT 0, G-CACHE-INVAL 1,0,
+> G-LAT-PROXY p95 6,63 ms, G-LAT-TTFT p95 3,96 ms, G-TRACE-0 0 perdidos de 6000, cobertura 99,35 %.
 
 ### Añadido
 - `evals/metrics/answers.py`: métricas por caso, puras (R11): `answer_correct`, `context_recall`,

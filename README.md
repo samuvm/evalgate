@@ -132,6 +132,22 @@ Hardware de referencia: MacBook Pro M4 Max, 36 GB de memoria unificada.
 | F4 | `G-TOKENS-STREAM` | delta_con_usage=0 | 2026-10-08 | `evals/reports/gate-F4.json` |
 | F4 | `G-TRACE-0` | perdidos=0, rps=50, servidas=6000 | 2026-10-08 | `evals/reports/gate-F4.json` |
 | F4 | `G-TRACE-DEGRADE` | -0,17 | 2026-10-08 | `evals/reports/gate-F4.json` |
+| F5 | `G-ADOPTION` | lineas_de_diff=0, n_lineas=8 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-CACHE-HIT` | 0,00 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-CACHE-INVAL` | ratio=1, n=63 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-DISCONNECT` | ratio=1, n=212 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-FUNC-COV` | 0 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-LAT-PROXY` | 6,63 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-LAT-TTFT` | 3,96 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-LINE-COV` | 99,35 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-MUTATION` | 88,58 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-OPENAI-CONTRACT` | ratio=1,00, n=7 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-OTEL-CONTRACT` | ratio=1, n=25 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-PRICE-REPRO` | 0,00 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-TOKENS-EXACT` | ratio=1, n=5 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-TOKENS-STREAM` | delta_con_usage=0 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-TRACE-0` | perdidos=0, rps=50, servidas=6000 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F5 | `G-TRACE-DEGRADE` | -0,20 | 2026-10-08 | `evals/reports/gate-F5.json` |
 <!-- evalgate:numbers:end -->
 
 Qué significa cada meta, su umbral y el comando que la mide: `docs/GOALS.yaml`.

@@ -1,24 +1,24 @@
 {
   "profile": "proxy",
   "overhead_ms": {
-    "p50": 4.131,
-    "p95": 5.458,
-    "p99": 6.997
+    "p50": 5.098,
+    "p95": 6.631,
+    "p99": 7.726
   },
   "direct_ms": {
-    "p50": 53.763,
-    "p95": 54.905,
-    "p99": 56.165
+    "p50": 53.561,
+    "p95": 54.671,
+    "p99": 56.767
   },
   "proxy_ms": {
-    "p50": 57.894,
-    "p95": 60.363,
-    "p99": 63.162
+    "p50": 58.659,
+    "p95": 61.302,
+    "p99": 64.493
   },
   "paired_diff_ms": {
-    "p50": 4.085,
-    "p95": 6.577,
-    "p99": 8.36
+    "p50": 5.041,
+    "p95": 7.558,
+    "p99": 11.317
   },
   "n": 500,
   "n_warmup": 50,
@@ -33,10 +33,10 @@
   },
   "python": "3.12.12",
   "concurrent_processes": {
-    "docker_ps": "lucid_easley clickhouse/clickhouse-server\ntestcontainers-ryuk-c8df9b8b-f940-49b3-a048-26f23af3825b testcontainers/ryuk:0.8.1",
+    "docker_ps": "xenodochial_bell clickhouse/clickhouse-server\ntestcontainers-ryuk-98f4a40d-9615-47e8-b8cd-1a88b6335c98 testcontainers/ryuk:0.8.1",
     "ollama_ps": "NAME    ID    SIZE    PROCESSOR    CONTEXT    UNTIL"
   },
   "exclusive_window": true,
   "protocol_sha256": "sha256:d857c9220907e5808e14380a8a58d365ff10226825f2b39a9ca4ff3c4bcde04b",
-  "measured_at": "2026-10-08T08:34:35+00:00"
+  "measured_at": "2026-10-08T09:05:46+00:00"
 }
