@@ -2,7 +2,7 @@
   "suite": "rag-app",
   "first_run": {
     "suite": "rag-app",
-    "at": "2026-10-08T09:20:28+00:00",
+    "at": "2026-10-08T09:51:40+00:00",
     "hits": 200,
     "misses": 0,
     "spent_tokens": 0,
@@ -12,7 +12,7 @@
   },
   "second_run": {
     "suite": "rag-app",
-    "at": "2026-10-08T09:20:28+00:00",
+    "at": "2026-10-08T09:51:40+00:00",
     "hits": 200,
     "misses": 0,
     "spent_tokens": 0,

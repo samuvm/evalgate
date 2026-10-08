@@ -1,8 +1,8 @@
 {
   "goal": "G-TRACE-DEGRADE",
-  "p95_delta_ms": -0.203,
-  "p95_healthy_ms": 2.638,
-  "p95_killed_ms": 2.435,
+  "p95_delta_ms": 0.083,
+  "p95_healthy_ms": 2.718,
+  "p95_killed_ms": 2.801,
   "served_ratio": 1.0,
   "n_per_phase": 1000,
   "rps": 50,
@@ -21,5 +21,5 @@
     "system": "macOS-27.0.1-arm64-arm-64bit",
     "python": "3.12.12"
   },
-  "measured_at": "2026-10-08T09:04:37+00:00"
+  "measured_at": "2026-10-08T09:35:53+00:00"
 }

@@ -4,7 +4,7 @@
 > publica sus propias tasas de error: la concordancia de su juez con un humano, su tasa de falsos positivos y
 > el efecto mínimo que es capaz de detectar, los tres medidos.
 
-**Estado:** en construcción, F3 de 10 cerrada (telemetría, almacén y degradación) y F4 (precios) en curso
+**Estado:** en construcción, F6 de 10 cerrada (proxy, telemetría, precios, evals y la puerta); F7, la meta-evaluación, pendiente
 . El núcleo (F0-F7 y F9) todavía no está completo, y este README solo afirma lo que ya está
 medido: lo que no tiene fila en la tabla de [Números medidos](#números-medidos) no se da por hecho.
 
@@ -36,7 +36,7 @@ El mismo flujo, en estático:
                   ├─► traza OTel ──► cola acotada ──► ClickHouse                     [F3, cerrada] 
                   │
   informe A ─┐
-             ├─► evalgate eval compare ──► exit 0 | 1 para CI                        [F5-F7, pendiente]
+             ├─► evalgate eval compare ──► exit 0 | 1 para CI                        [F5-F6, cerradas]  
   informe B ─┘
 ```
 
@@ -148,6 +148,23 @@ Hardware de referencia: MacBook Pro M4 Max, 36 GB de memoria unificada.
 | F5 | `G-TOKENS-STREAM` | delta_con_usage=0 | 2026-10-08 | `evals/reports/gate-F5.json` |
 | F5 | `G-TRACE-0` | perdidos=0, rps=50, servidas=6000 | 2026-10-08 | `evals/reports/gate-F5.json` |
 | F5 | `G-TRACE-DEGRADE` | -0,20 | 2026-10-08 | `evals/reports/gate-F5.json` |
+| F6 | `G-ADOPTION` | lineas_de_diff=0, n_lineas=8 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-CACHE-HIT` | 0,00 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-CACHE-INVAL` | ratio=1, n=63 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-DETERMINISM` | ratio=1, n=3 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-DISCONNECT` | ratio=1, n=217 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-FUNC-COV` | 0 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-LAT-PROXY` | 6,97 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-LAT-TTFT` | 3,80 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-LINE-COV` | 99,35 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-MUTATION` | 88,58 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-OPENAI-CONTRACT` | ratio=1,00, n=7 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-OTEL-CONTRACT` | ratio=1, n=25 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-PRICE-REPRO` | 0,00 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-TOKENS-EXACT` | ratio=1, n=5 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-TOKENS-STREAM` | delta_con_usage=0 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-TRACE-0` | perdidos=0, rps=50, servidas=6000 | 2026-10-08 | `evals/reports/gate-F6.json` |
+| F6 | `G-TRACE-DEGRADE` | 0,08 | 2026-10-08 | `evals/reports/gate-F6.json` |
 <!-- evalgate:numbers:end -->
 
 Qué significa cada meta, su umbral y el comando que la mide: `docs/GOALS.yaml`.

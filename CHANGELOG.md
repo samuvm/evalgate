@@ -37,8 +37,9 @@ Versionado: [SemVer](https://semver.org/lang/es/).
 
 ## [0.7.0] · F6 · la puerta · 2026-10-07
 
-> Construida y medida adelantando carril (PLAN §2, carril C). **`make done MILESTONE=6` pendiente**: exige
-> antes los cierres de F4 y F5, y los tres esperan ventana de máquina.
+> Construida en paralelo a otras fases. `make done MILESTONE=6` en verde el 2026-10-08, 12 de 12:
+> 14 metas activas, G-DETERMINISM 1,0 (n=3), G-MUTATION 88,58 %, G-LAT-PROXY p95 6,97 ms, G-LAT-TTFT p95
+> 3,80 ms, G-TRACE-0 0 perdidos de 6000, G-TRACE-DEGRADE +0,083 ms, cobertura 99,35 %.
 
 ### Añadido
 - `stats/holm.py`: corrección de Holm-Bonferroni con p-valores ajustados exactos (`Fraction`).
