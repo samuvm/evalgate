@@ -7,8 +7,8 @@ contexto recortado), la pregunta y la respuesta.
 Dos reglas de diseño, las dos para que la kappa signifique algo:
 
 - **La mezcla es por variante, nunca por veredicto del juez.** Elegir los casos mirando qué dijo el juez
-  sesgaría la concordancia que se quiere medir. Se mezclan variantes porque en la línea base el juez dice
-  FIEL en los 200 casos, y con una sola clase la kappa no está definida.
+  sesgaría la concordancia que se quiere medir. Se usa el golden v2 (ADR-017): en el v1 el juez decía
+  FIEL en casi todo y con una sola clase la kappa no está definida.
 - **Lo que identifica el caso va aparte.** `tanda-N.items.jsonl` (lo que se enseña) no dice de qué variante
   ni de qué caso del golden sale cada respuesta; eso queda en `tanda-N.key.jsonl`, que el etiquetador no lee.
 
@@ -25,11 +25,13 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-GOLDEN = ROOT / "evals" / "golden" / "rag-app-v1"
-SUT = ROOT / "evals" / "suites" / "rag-app" / "sut"
+GOLDEN = ROOT / "evals" / "golden" / "rag-app-v2"
+SUT = ROOT / "evals" / "suites" / "rag-app-v2" / "sut"
 LABELS = GOLDEN / "labels"
 SEED = 20261007
-MIX = {"base": 20, "contexto-50": 15, "modelo-pequeno": 15}  # 50 casos por tanda
+# 50 casos por tanda. Fijada antes de mirar qué dice el juez de cada caso: la línea base y las cuatro
+# degradaciones canónicas, con más peso para la base porque es lo que la puerta ve más a menudo.
+MIX = {"base": 14, "contexto-50": 9, "modelo-pequeno": 9, "docs-aleatorios-20": 9, "temperatura-1.2": 9}
 
 
 def jsonl(path: Path) -> list[dict[str, object]]:

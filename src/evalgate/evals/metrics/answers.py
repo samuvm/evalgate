@@ -27,16 +27,23 @@ def _contains(haystack: list[str], needle: list[str]) -> bool:
     return any(haystack[i : i + len(needle)] == needle for i in range(len(haystack) - len(needle) + 1))
 
 
-def answer_correct(answer: str, reference: str) -> float:
-    """1.0 if the answer contains the reference as whole words in order, else 0.0.
+def answer_correct(answer: str, reference: str, excludes: Collection[str] = ()) -> float:
+    """1.0 if the answer contains the reference as whole words in order and none of `excludes`, else 0.0.
 
     For a case with no answer in the corpus the reference IS the abstention word, so the same rule scores
     it: the correct answer there is to say so.
+
+    `excludes` is for questions whose answer is one of several things named in the question ("which is
+    heavier, A or B?"): an answer that names both contains the reference and has answered nothing.
     """
     wanted = _words(reference)
     if not wanted:
         raise ValueError("empty reference: a case without a reference answer cannot be scored")
-    return float(_contains(_words(answer), wanted))
+    forbidden = [_words(text) for text in excludes]
+    if not all(forbidden):
+        raise ValueError("empty exclusion: a case cannot exclude nothing")
+    said = _words(answer)
+    return float(_contains(said, wanted) and not any(_contains(said, words) for words in forbidden))
 
 
 def context_recall(retrieved: Collection[str], relevant: Collection[str]) -> float:

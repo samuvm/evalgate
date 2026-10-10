@@ -110,3 +110,34 @@ def test_the_judges_verdict_is_read_strictly_and_what_cannot_be_read_is_counted_
     """A verdict nobody can read is NOT faithful (the metric must not be inflated by a rambling judge), and
     it is also reported on its own, so a judge that stops following its format shows up as that."""
     assert (faithful(verdict), unparseable(verdict)) == (is_faithful, is_unparseable)
+
+
+# --- answers that must NOT name something: comparisons (golden v2) -------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("answer", "correct"),
+    [
+        ("Xelote 179", 1.0),
+        ("El Xelote 179.", 1.0),
+        ("Lomimi 834", 0.0),
+        # Naming both is not answering: the reference is in there, and so is the wrong one.
+        ("Xelote 179 pesa más que Lomimi 834", 0.0),
+        ("Lomimi 834 pesa más que Xelote 179", 0.0),
+        ("Xelote 197", 0.0),  # the sibling: same family, another product
+        ("", 0.0),
+    ],
+)
+def test_an_answer_that_also_names_what_it_was_told_to_exclude_is_not_correct(answer: str, correct: float) -> None:
+    """In "which is heavier, A or B?" the right answer is one name. Whole-word containment alone would
+    accept "B is heavier than A" for a reference of A."""
+    assert answer_correct(answer, "Xelote 179", excludes=("Lomimi 834",)) == correct
+
+
+def test_excluding_nothing_is_the_plain_rule() -> None:
+    assert answer_correct("Tiene 6 meses.", "6 meses", excludes=()) == answer_correct("Tiene 6 meses.", "6 meses")
+
+
+def test_an_empty_exclusion_is_a_broken_case() -> None:
+    with pytest.raises(ValueError, match="exclu"):
+        answer_correct("Xelote 179", "Xelote 179", excludes=("  ",))

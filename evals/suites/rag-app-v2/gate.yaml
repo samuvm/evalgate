@@ -1,0 +1,9 @@
+# Reglas de la puerta para la suite rag-app-v2. Cuatro métricas bloqueantes (más de tres: Holm es obligatorio)
+# y una que solo informa. Sin umbrales absolutos todavía: se fijan con la línea base medida y con la kappa
+# del juez (F7), no a ojo.
+metrics:
+  - { id: answer_correct, blocking: true }
+  - { id: context_recall, blocking: true }
+  - { id: faithfulness, blocking: true }
+  - { id: abstencion_incorrecta, blocking: true, higher_is_better: false }
+  - { id: juez_ilegible, blocking: false, higher_is_better: false }

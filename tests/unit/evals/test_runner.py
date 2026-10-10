@@ -169,3 +169,21 @@ def test_when_the_system_says_what_the_model_saw_the_judge_reads_that_and_not_th
 
 def test_an_output_without_a_context_is_judged_against_the_fichas_it_retrieved() -> None:
     assert sut_outputs(OUTPUTS)["gs-1"].context is None
+
+
+# --- golden v2: a case may say what a right answer must not name ----------------------------------------
+
+
+def test_a_comparison_case_carries_the_name_a_right_answer_must_not_contain() -> None:
+    row = {"id": "gs-c", "pregunta": "¿Cuál pesa más, el Alfa 1 o el Beta 2?", "respuesta_referencia": "Alfa 1",
+           "refs": ["f-1", "f-2"], "tipo": "positivo", "excluye": ["Beta 2"]}
+    (case,) = golden_cases([row])
+    outputs = lambda answer: sut_outputs([{"id": "gs-c", "retrieved": ["f-1", "f-2"], "answer": answer}])  # noqa: E731
+
+    assert case.excludes == ("Beta 2",)
+    assert evaluate([case], outputs("Alfa 1"), always("FIEL"))["answer_correct"] == {"gs-c": 1.0}
+    assert evaluate([case], outputs("Beta 2 pesa más que Alfa 1"), always("FIEL"))["answer_correct"] == {"gs-c": 0.0}
+
+
+def test_a_case_without_exclusions_has_none() -> None:
+    assert golden_cases(ROWS)[0].excludes == ()

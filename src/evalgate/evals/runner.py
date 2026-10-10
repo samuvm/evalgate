@@ -36,6 +36,8 @@ class GoldenCase:
     reference: str
     refs: tuple[str, ...]
     positive: bool
+    # What a right answer must NOT name (`excluye` in the golden row): the other option of a comparison.
+    excludes: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +64,7 @@ def golden_cases(rows: Sequence[Mapping[str, Any]]) -> list[GoldenCase]:
             str(row["respuesta_referencia"]),
             tuple(row["refs"]),
             row["tipo"] == "positivo",
+            tuple(row.get("excluye", ())),
         )
         if case.id in seen:
             raise RunError(f"caso {case.id} repetido en el golden set")
@@ -103,7 +106,7 @@ def evaluate(golden: Sequence[GoldenCase], outputs: Mapping[str, SutOutput], jud
     }
     for case in golden:
         output = outputs[case.id]
-        scores["answer_correct"][case.id] = answer_correct(output.answer, case.reference)
+        scores["answer_correct"][case.id] = answer_correct(output.answer, case.reference, case.excludes)
         if case.positive:
             scores["context_recall"][case.id] = context_recall(output.retrieved, case.refs)
             scores["abstencion_incorrecta"][case.id] = abstained(output.answer)

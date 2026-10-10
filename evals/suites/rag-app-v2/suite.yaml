@@ -1,0 +1,20 @@
+# Suite `rag-app-v2`: la misma app de ejemplo sobre el golden set v2, más difícil (ADR-017).
+# Misma app, mismo juez y mismas cuatro degradaciones canónicas que `rag-app`; cambia el corpus. La suite
+# `rag-app` (v1) se queda como está: respalda los números de F5.
+suite: rag-app-v2
+golden: evals/golden/rag-app-v2
+sut:
+  model: qwen3.5:9b-mlx
+  outputs: evals/suites/rag-app-v2/sut/base.jsonl
+judge:
+  id: faithfulness
+  sampling: { seed: 7, max_tokens: 8, reasoning_effort: none }
+cache: evals/suites/rag-app-v2/cache.jsonl
+
+# Las cuatro degradaciones canónicas de RULES §5, idénticas a las de `rag-app`. No se retocan.
+variants:
+  base: {}
+  contexto-50: { RAG_CONTEXT_KEEP: "0.5" }
+  modelo-pequeno: { RAG_MODEL: "qwen3.5:4b-mlx" }
+  docs-aleatorios-20: { RAG_RANDOM_DOCS: "0.2" }
+  temperatura-1.2: { RAG_TEMPERATURE: "1.2" }

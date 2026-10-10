@@ -125,3 +125,57 @@ def test_the_report_of_a_run_is_what_the_gate_reads_and_a_run_against_itself_pas
 
     assert result.outcome == "pass"
     assert {metric.rule.metric for metric in result.metrics} == METRICS
+
+
+# --- golden v2 (ADR-017): every recorded variant replays without a model ----------------
+
+V2_VARIANTS = ["base", "contexto-50", "modelo-pequeno", "docs-aleatorios-20", "temperatura-1.2"]
+
+
+@pytest.fixture
+def root_v2(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    for relative in ("prompts", "evals/golden/rag-app-v2", "evals/suites/rag-app-v2"):
+        shutil.copytree(ROOT / relative, tmp_path / relative)
+
+    def unreachable(*_args: Any, **_kwargs: Any) -> Any:
+        raise AssertionError("a recorded run called a model")
+
+    monkeypatch.setattr(client, "chat", unreachable)
+    return tmp_path
+
+
+@pytest.mark.parametrize("variant", V2_VARIANTS)
+def test_every_recorded_variant_of_the_harder_suite_replays_from_the_cache(
+    root_v2: Path, variant: str
+) -> None:
+    out = root_v2 / "reports"
+    out.mkdir(exist_ok=True)
+
+    report, stats = eval_run.run(
+        root_v2 / "evals/suites/rag-app-v2",
+        root_v2,
+        out,
+        refresh=False,
+        base_url="http://no.such.host/v1",
+        variant=variant,
+    )
+
+    assert [
+        e.message for e in Draft202012Validator(SCHEMA, format_checker=FormatChecker()).iter_errors(report)
+    ] == []
+    assert (stats.misses, report["dataset"]["n_cases"], report["dataset"]["n_negative_cases"]) == (0, 200, 40)
+    assert report["dataset"]["name"] == "rag-app-v2"
+
+
+def test_the_harder_suite_leaves_room_to_measure(root_v2: Path) -> None:
+    """Why v2 exists. On v1 the base scored 1.000 and the judge almost never said NO_FIEL: nothing to measure
+    a judge or a gate against. Not thresholds on quality: the two conditions F7 needs to mean anything."""
+    out = root_v2 / "reports"
+    out.mkdir(exist_ok=True)
+    report, _ = eval_run.run(
+        root_v2 / "evals/suites/rag-app-v2", root_v2, out, refresh=False, base_url="http://no.such.host/v1"
+    )
+    value = {metric["id"]: metric["value"] for metric in report["metrics"]}
+
+    assert 0.0 < value["answer_correct"] < 1.0, "a base that is always right has no variance"
+    assert 0.0 < value["faithfulness"] < 1.0, "a judge that always says FIEL has no kappa"

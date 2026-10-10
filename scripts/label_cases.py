@@ -15,7 +15,7 @@ Criterio, que es literalmente el del prompt del juez (prompts/judge_faithfulness
 - NO_FIEL si afirma algún dato que no está en las fichas, o que las contradice.
 - Si la respuesta dice NO_CONSTA: FIEL si las fichas no tienen el dato pedido, NO_FIEL si sí lo tienen.
 
-Se puede dejar a medias: cada etiqueta se guarda al momento en `evals/golden/rag-app-v1/labels/`. El orden
+Se puede dejar a medias: cada etiqueta se guarda al momento en `evals/golden/rag-app-v2/labels/`. El orden
 es aleatorio con semilla fija, así que retomar sigue donde lo dejaste. Las etiquetas son tuyas: ningún script
 escribe en esos ficheros y la kappa (F7) se calcula solo con lo que haya ahí.
 """
@@ -27,7 +27,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-GOLDEN = ROOT / "evals" / "golden" / "rag-app-v1"
+GOLDEN = ROOT / "evals" / "golden" / "rag-app-v2"
 LABELS = GOLDEN / "labels"
 KEYS = {"f": "FIEL", "n": "NO_FIEL"}
 

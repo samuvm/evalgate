@@ -1,0 +1,74 @@
+{
+  "contract_version": 1,
+  "run_id": "rag-app-v2-50266928e626119a",
+  "project": "evalgate",
+  "suite": "rag-app-v2",
+  "created_at": "2026-10-10T15:06:58+00:00",
+  "environment": {
+    "hardware": "arm64 · macOS-27.0.1-arm64-arm-64bit",
+    "python": "3.12.12",
+    "deterministic": false,
+    "models": {
+      "generator": "qwen3.5:9b-mlx",
+      "judge": "gemma4:12b-mlx"
+    },
+    "seed": 7
+  },
+  "dataset": {
+    "name": "rag-app-v2",
+    "version": 1,
+    "n_cases": 200,
+    "n_negative_cases": 40,
+    "sha256": "sha256:6fe9786b719ccccee77daf4397d0f2eabc015d3aaa6385adb73af1952c805b1f"
+  },
+  "prompts": [
+    {
+      "id": "judge_faithfulness",
+      "version": 1,
+      "sha256": "sha256:9a9a7a91a597b3790d42b4f7a699dce281beb7e6f4f818a65c8b853cf69e15f8",
+      "role": "judge"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "answer_correct",
+      "value": 0.635,
+      "n": 200,
+      "unit": "ratio",
+      "raw_path": "rag-app-v2-contexto-50/answer_correct.json"
+    },
+    {
+      "id": "context_recall",
+      "value": 1.0,
+      "n": 160,
+      "unit": "ratio",
+      "raw_path": "rag-app-v2-contexto-50/context_recall.json"
+    },
+    {
+      "id": "abstencion_incorrecta",
+      "value": 0.38125,
+      "n": 160,
+      "unit": "ratio",
+      "raw_path": "rag-app-v2-contexto-50/abstencion_incorrecta.json"
+    },
+    {
+      "id": "faithfulness",
+      "value": 0.645,
+      "n": 200,
+      "unit": "ratio",
+      "raw_path": "rag-app-v2-contexto-50/faithfulness.json"
+    },
+    {
+      "id": "juez_ilegible",
+      "value": 0.0,
+      "n": 200,
+      "unit": "ratio",
+      "raw_path": "rag-app-v2-contexto-50/juez_ilegible.json"
+    }
+  ],
+  "cache": {
+    "judge_hits": 0,
+    "judge_misses": 200,
+    "savings_ratio": 0.0
+  }
+}
