@@ -18,6 +18,7 @@ Like `eval run`, a recorded run never calls a model: a verdict that is not in th
 
 import hashlib
 import json
+from dataclasses import replace
 from fractions import Fraction
 from pathlib import Path
 from typing import Any
@@ -162,6 +163,13 @@ class _Measured:
         self.config = gate_config(
             yaml.safe_load(goals_path.read_text("utf-8"))["comparacion"],
             yaml.safe_load(gate_path.read_text("utf-8"))["metrics"],
+        )
+        # A matrix recorded without the judge has no judge metrics. A rule that only informs is then left
+        # out; a BLOCKING rule without its metric still fails in `compare`: nothing unmeasured ever passes.
+        measured = {metric for run in runs.values() for metric in run}
+        self.config = replace(
+            self.config,
+            rules=tuple(rule for rule in self.config.rules if rule.blocking or rule.metric in measured),
         )
         self.baseline = str(self.metadata["baseline"])
         self.h0: dict[str, Any] = {}

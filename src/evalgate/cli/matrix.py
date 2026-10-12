@@ -51,6 +51,9 @@ _PLAN_KEYS = {
     "mde_percentile",
     "power_min_size_over_mde",
 }
+_OPTIONAL_PLAN_KEYS = {"judge"}
+ALL_CASES = "all"  # `cases: all`: the whole golden set instead of a chosen subsuite
+JUDGE_METRICS = ("faithfulness", "juez_ilegible")  # what a plan with `judge: off` does not measure
 
 Matrix = dict[str, dict[str, dict[str, float]]]  # run → metric → case → value
 
@@ -77,6 +80,9 @@ class Plan:
     mde_percentile: Fraction
     power_min_size_over_mde: Fraction
     sha256: str
+    # False (`judge: off`): the judge is not called and its metrics are not in the matrix. For a suite whose
+    # judge metric is retired from the gate, calling it thousands of times measures nothing the gate uses.
+    judge: bool = True
 
     def specs(self) -> list[RunSpec]:
         return [
@@ -96,8 +102,13 @@ def _digest(path: Path) -> str:
 
 def load_plan(path: Path) -> Plan:
     node = yaml.safe_load(path.read_text("utf-8"))
-    if not isinstance(node, dict) or node.keys() != _PLAN_KEYS:
-        raise MatrixError(f"{path}: debe declarar exactamente {', '.join(sorted(_PLAN_KEYS))}")
+    if not isinstance(node, dict) or not _PLAN_KEYS <= node.keys() <= _PLAN_KEYS | _OPTIONAL_PLAN_KEYS:
+        raise MatrixError(
+            f"{path}: debe declarar {', '.join(sorted(_PLAN_KEYS))} y, si acaso, "
+            f"{', '.join(sorted(_OPTIONAL_PLAN_KEYS))}"
+        )
+    if node.get("judge", "live") not in {"live", "off"}:
+        raise MatrixError(f"{path}: `judge` es live u off, no {node['judge']!r}")
     runs = {str(variant): int(count) for variant, count in node["runs"].items()}
     plan = Plan(
         suite=str(node["suite"]),
@@ -110,6 +121,7 @@ def load_plan(path: Path) -> Plan:
         mde_percentile=Fraction(str(node["mde_percentile"])),
         power_min_size_over_mde=Fraction(str(node["power_min_size_over_mde"])),
         sha256=_digest(path),
+        judge=node.get("judge", "live") == "live",
     )
     if not plan.noise:
         raise MatrixError(f"{path}: sin fuente de ruido todas las ejecuciones serían la misma")
@@ -136,13 +148,15 @@ def load_experiment(plan_path: Path, root: Path) -> Experiment:
     for variant in plan.runs:
         suite.outputs_of(variant)  # raises on a variant the suite does not declare
     golden_path = root / suite.golden_dir / "questions.jsonl"
-    calibration = json.loads((root / plan.cases_path).read_text("utf-8"))
-    if calibration["golden_sha256"] != _digest(golden_path):
-        raise MatrixError(f"{plan.cases_path} se eligió sobre otro golden set: no se mezclan")
-    chosen = set(calibration["cases"])
-    golden = [case for case in golden_cases(_jsonl(golden_path)) if case.id in chosen]
-    if len(golden) != len(chosen):
-        raise MatrixError(f"{plan.cases_path} nombra casos que no están en el golden set")
+    golden = golden_cases(_jsonl(golden_path))
+    if plan.cases_path != ALL_CASES:
+        calibration = json.loads((root / plan.cases_path).read_text("utf-8"))
+        if calibration["golden_sha256"] != _digest(golden_path):
+            raise MatrixError(f"{plan.cases_path} se eligió sobre otro golden set: no se mezclan")
+        chosen = set(calibration["cases"])
+        golden = [case for case in golden if case.id in chosen]
+        if len(golden) != len(chosen):
+            raise MatrixError(f"{plan.cases_path} nombra casos que no están en el golden set")
     fichas = {str(row["id"]): row for row in _jsonl(root / suite.golden_dir / "corpus.jsonl")}
     return Experiment(plan, suite, golden, fichas, _digest(golden_path))
 
@@ -156,8 +170,8 @@ def _complete(path: Path, experiment: Experiment) -> bool:
     if not path.exists():
         return False
     rows = _jsonl(path)
-    return [row["id"] for row in rows] == [case.id for case in experiment.golden] and all(
-        "verdict" in row for row in rows
+    return [row["id"] for row in rows] == [case.id for case in experiment.golden] and (
+        not experiment.plan.judge or all("verdict" in row for row in rows)
     )
 
 
@@ -197,10 +211,13 @@ def record(plan_path: Path, root: Path, raw_dir: Path, base_url: str, progress: 
         printed = sut_stdout(variant_suite, _knobs(experiment, spec), data_dir, root, base_url)
         rows = [json.loads(line) for line in printed.splitlines() if line.strip()]
         outputs = sut_outputs(rows)
-        for row, case in zip(rows, experiment.golden, strict=True):
-            text = judge_text(prompt.body, case, outputs[case.id], experiment.fichas)
-            # Live, every time: no cache is read or written in this experiment (G-GATE-FP).
-            row["verdict"] = _verdict(base_url, prompt.model, text, suite.judge_sampling)
+        if [row["id"] for row in rows] != [case.id for case in experiment.golden]:
+            raise MatrixError(f"{spec.run_id}: el sistema no respondió a los casos pedidos, en su orden")
+        if experiment.plan.judge:
+            for row, case in zip(rows, experiment.golden, strict=True):
+                text = judge_text(prompt.body, case, outputs[case.id], experiment.fichas)
+                # Live, every time: no cache is read or written in this experiment (G-GATE-FP).
+                row["verdict"] = _verdict(base_url, prompt.model, text, suite.judge_sampling)
         partial = path.with_suffix(".partial")
         partial.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows), "utf-8")
         partial.replace(path)
@@ -224,12 +241,15 @@ def build(plan_path: Path, root: Path, raw_dir: Path, out: Path) -> dict[str, An
     columns: dict[str, list[Any]] = {"run_id": [], "case_id": [], "metrica": [], "valor": []}
     for spec in specs:
         rows = _jsonl(raw_dir / f"{spec.run_id}.jsonl")
-        verdicts = {str(row["id"]): str(row["verdict"]) for row in rows}
+        verdicts = {str(row["id"]): str(row.get("verdict", "")) for row in rows}
 
         def recorded(case: GoldenCase, _output: SutOutput, verdicts: dict[str, str] = verdicts) -> str:
             return verdicts[case.id]
 
         scores = evaluate(experiment.golden, sut_outputs(rows), recorded)
+        if not plan.judge:
+            for metric in JUDGE_METRICS:
+                del scores[metric]
         for metric in sorted(scores):
             for case_id, value in sorted(scores[metric].items()):
                 columns["run_id"].append(spec.run_id)
@@ -247,7 +267,11 @@ def build(plan_path: Path, root: Path, raw_dir: Path, out: Path) -> dict[str, An
         "noise_source": (
             f"sistema bajo prueba con {', '.join(f'{k}={v}' for k, v in sorted(plan.noise.items()))} y "
             f"semilla distinta por ejecución (RAG_SEED = {plan.seed_from} + nº de ejecución); "
-            "juez llamado en vivo en cada caso, sin caché"
+            + (
+                "juez llamado en vivo en cada caso, sin caché"
+                if plan.judge
+                else "sin juez: sus métricas no se miden"
+            )
         ),
         "mde_percentile": str(plan.mde_percentile),
         "power_min_size_over_mde": str(plan.power_min_size_over_mde),
@@ -258,7 +282,9 @@ def build(plan_path: Path, root: Path, raw_dir: Path, out: Path) -> dict[str, An
             "prompt_sha256": "sha256:" + prompt.sha256,
             "model": prompt.model,
             "sampling": dict(suite.judge_sampling),
-        },
+        }
+        if plan.judge
+        else None,
         "runs": {
             spec.run_id: {
                 "variant": spec.variant,

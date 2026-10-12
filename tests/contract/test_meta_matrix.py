@@ -186,3 +186,40 @@ def test_the_published_numbers_are_what_the_published_matrix_gives(tmp_path: Pat
     ):
         assert again[block] == published[block], block
     assert published["n_decisiones"] >= 49, "G-GATE-FP asks for at least 49 decisions"
+
+
+def test_a_plan_without_judge_over_the_whole_golden_set(root: Path) -> None:
+    """`cases: all` and `judge: off`: 200 cases, no verdicts asked or needed, no judge metric in the matrix,
+    and the gate measured is still the suite's own with its blocking metrics."""
+    plan = PLAN.replace("cases: evals/golden/rag-app-v2/calibracion.json", 'cases: all\njudge: "off"')
+    (root / "plan.yaml").write_text(plan, "utf-8")
+    for spec in matrix.load_plan(root / "plan.yaml").specs():
+        rows = _rows(root / SUITE / "sut" / f"{spec.variant}.jsonl")
+        (root / "raw" / f"{spec.run_id}.jsonl").write_text(
+            "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows), "utf-8"
+        )
+
+    metadata, runs = matrix.read_matrix(built(root))
+    document = meta.sensitivity(
+        root / "fp-matrix.parquet", root, root / "docs" / "GOALS.yaml", root / "m.json"
+    )
+
+    assert metadata["n_cases"] == 200
+    assert metadata["judge"] is None
+    assert "sin juez" in metadata["noise_source"]
+    assert sorted(runs["base-00"]) == ["abstencion_incorrecta", "answer_correct", "context_recall"]
+    assert document["power"]["blocking_metrics"] == [
+        "answer_correct",
+        "context_recall",
+        "abstencion_incorrecta",
+    ]
+    assert document["power"]["per_degradation"]["contexto-50"]["power"] == 1.0
+
+
+def test_a_plan_with_a_key_nobody_declared_is_refused(root: Path) -> None:
+    (root / "plan.yaml").write_text(PLAN + "temperatura: 0.9\n", "utf-8")
+    with pytest.raises(matrix.MatrixError, match="debe declarar"):
+        built(root)
+    (root / "plan.yaml").write_text(PLAN + "judge: a veces\n", "utf-8")
+    with pytest.raises(matrix.MatrixError, match="live u off"):
+        built(root)

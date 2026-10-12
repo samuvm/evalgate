@@ -1,0 +1,27 @@
+# SEGUNDA medida de la meta-evaluación, fijada el 2026-10-13 ANTES de ejecutarla.
+#
+# La primera (matrix.yaml, 60 casos) dio un efecto mínimo detectable de 15 pp, por encima de los 8 de
+# G-GATE-MDE. La nota de esa meta dice cuál es el remedio: "subir n de la subsuite de calibración, no tocar
+# este umbral". Esto es exactamente eso y nada más. Respecto de matrix.yaml cambian DOS cosas:
+#   1. `cases: all`: los 200 casos del golden set en vez de los 60 de calibración.
+#   2. `judge: off`: `faithfulness` está retirada de la puerta (kappa 0,47), así que no se llama
+#      al juez; la matriz no lleva sus dos métricas.
+# No cambian el ruido, las semillas, el número de ejecuciones, la línea base, el percentil ni el múltiplo.
+#
+# Declarado antes de ver ningún número de esta medida (2026-10-13): si se ejecuta entera, ESTA pasa
+# a ser la medida de las tres metas (falsos positivos, MDE y potencia) a la vez, salga mejor o peor en cada
+# una, y la de 60 casos se queda publicada a su lado como primera medida. No se elige meta a meta.
+suite: rag-app-v2
+cases: all
+judge: "off"  # entre comillas: en YAML un off suelto es el booleano false
+noise: { RAG_TEMPERATURE: "0.7" }
+seed_from: 1000
+runs:
+  base: 50
+  contexto-50: 50
+  modelo-pequeno: 50
+  docs-aleatorios-20: 50
+  temperatura-1.2: 50
+baseline: base-00
+mde_percentile: 95
+power_min_size_over_mde: 1.5
