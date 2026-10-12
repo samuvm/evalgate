@@ -12,9 +12,12 @@ from hypothesis import settings
 
 from tests._meter import METER, Meter
 
-settings.register_profile("dev", max_examples=25)
-settings.register_profile("gate", max_examples=100)
-settings.register_profile("nightly", max_examples=1000)
+# No per-example deadline: Hypothesis's default 200 ms is a wall-clock assertion, and on a shared machine it
+# fails correct code (2026-10-12: three properties that take 2 ms took 250-420 ms with the load at 15-19).
+# Speed is guarded where it belongs, by the budget of `make test-fast`, not example by example.
+settings.register_profile("dev", max_examples=25, deadline=None)
+settings.register_profile("gate", max_examples=100, deadline=None)
+settings.register_profile("nightly", max_examples=1000, deadline=None)
 settings.load_profile(os.environ.get("HYPOTHESIS_PROFILE", "dev"))
 
 
