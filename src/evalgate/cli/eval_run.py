@@ -7,6 +7,8 @@ Two modes, and the difference is the whole point:
   can run in the gate.
 - **refresh** (`--refresh`, `make eval-refresh`): runs the system under test against the model and calls the
   judge for whatever is not cached. Never in the gate.
+- **rejudge** (`--rejudge`): the judge changed and the system did not. Keeps the recorded outputs and calls
+  the judge for whatever is not cached. Never in the gate either.
 
 Everything that decides lives elsewhere: `evals.runner` scores, `evals.report` builds the document,
 `evals.suite` refuses a judge that is the generator (R12).
@@ -72,12 +74,23 @@ def record_sut(suite: Suite, variant: str, root: Path, base_url: str) -> None:
 
 
 def run(  # noqa: PLR0913 - the knobs of a run, all named at the call
-    suite_dir: Path, root: Path, out_dir: Path, *, refresh: bool, base_url: str, variant: str = BASE
+    suite_dir: Path,
+    root: Path,
+    out_dir: Path,
+    *,
+    refresh: bool,
+    base_url: str,
+    variant: str = BASE,
+    rejudge: bool = False,
 ) -> tuple[dict[str, Any], CacheStats]:
     """Run one variant of the suite, write its report with its per-case files, return report and stats.
 
     The base variant is `<out_dir>/<suite>.json`; any other, `<out_dir>/<suite>-<variant>.json`. Same suite,
     same golden set, same judge: only the system changes, so the gate can compare the two reports.
+
+    `rejudge` is for a change of JUDGE (a new prompt version, another sampling): the recorded outputs of the
+    system stay exactly as they are -human labels were given on them- and only the verdicts that the new
+    judge has not recorded are asked for.
     """
     declared = parse_suite(
         yaml.safe_load((suite_dir / "suite.yaml").read_text("utf-8")), load_prompt(root / JUDGE_PROMPT)
@@ -107,7 +120,9 @@ def run(  # noqa: PLR0913 - the knobs of a run, all named at the call
             prompt.sha256,
             text_digest(text),
         )
-        live = (lambda: client.chat(base_url, prompt.model, text, suite.judge_sampling)) if refresh else None
+        live = None
+        if refresh or rejudge:
+            live = lambda: client.chat(base_url, prompt.model, text, suite.judge_sampling)  # noqa: E731
         return cached_answer(cache, call, live)
 
     scores = evaluate(golden, outputs, judge)
@@ -123,7 +138,7 @@ def run(  # noqa: PLR0913 - the knobs of a run, all named at the call
             "n_negative_cases": sum(not case.positive for case in golden),
             "hardware": f"{platform.machine()} · {platform.platform()}",
             "python": platform.python_version(),
-            "deterministic": not refresh,
+            "deterministic": not (refresh or rejudge),
             "created_at": datetime.now(UTC).isoformat(timespec="seconds"),
             "raw_dir": name,
         },

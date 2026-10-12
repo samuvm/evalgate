@@ -1,0 +1,11 @@
+# Qué tandas miden la kappa del juez (G-JUDGE-KAPPA).
+#
+# El juez del repo es el v1, que no se construyó mirando ninguna tanda: las tres son medida limpia para él,
+# y dejar fuera la tanda 1 (donde le va peor) sería elegir el resultado. Por eso cuentan las 150.
+#
+# Historia (2026-10-12): la tanda 1 se usó primero como conjunto de desarrollo de un
+# juez v2 candidato, medido sobre las tandas 2 y 3 con `measurement: [2, 3]` fijado ANTES de medir. Salió
+# kappa 0,47 (evals/reports/meta-eval-juez-v2-candidato.json) y no se adoptó.
+suite: rag-app-v2
+development: []
+measurement: [1, 2, 3]

@@ -1,0 +1,50 @@
+{
+  "cohens_kappa": {
+    "batches": [
+      1,
+      2,
+      3
+    ],
+    "ci95_bootstrap": [
+      0.2708333333333333,
+      0.6527777777777778
+    ],
+    "development": null,
+    "human_prevalence": {
+      "FIEL": 0.86,
+      "NO_FIEL": 0.14
+    },
+    "judge": {
+      "model": "gemma4:12b-mlx",
+      "prompt_id": "judge_faithfulness",
+      "prompt_sha256": "sha256:9a9a7a91a597b3790d42b4f7a699dce281beb7e6f4f818a65c8b853cf69e15f8",
+      "prompt_version": 1,
+      "sampling": {
+        "max_tokens": 8,
+        "reasoning_effort": "none",
+        "seed": 7,
+        "temperature": 0.0
+      }
+    },
+    "labelled_by": "samuel",
+    "level": 0.95,
+    "n": 150,
+    "point": 0.47129909365558914,
+    "raw_agreement": 0.86,
+    "replicates": 10000,
+    "seed": 42,
+    "suite": "rag-app-v2",
+    "table_human_judge": {
+      "FIEL": {
+        "FIEL": 116,
+        "NO_FIEL": 13
+      },
+      "NO_FIEL": {
+        "FIEL": 8,
+        "NO_FIEL": 13
+      }
+    },
+    "undefined_replicates": 0
+  },
+  "n_etiquetados": 150
+}

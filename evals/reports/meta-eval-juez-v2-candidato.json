@@ -1,0 +1,81 @@
+{
+  "cohens_kappa": {
+    "batches": [
+      2,
+      3
+    ],
+    "ci95_bootstrap": [
+      0.21768707482993196,
+      0.6926229508196722
+    ],
+    "development": {
+      "batches": [
+        1
+      ],
+      "ci95_bootstrap": [
+        -0.013513513513513514,
+        0.8780487804878049
+      ],
+      "human_prevalence": {
+        "FIEL": 0.92,
+        "NO_FIEL": 0.08
+      },
+      "level": 0.95,
+      "n": 50,
+      "point": 0.5215311004784688,
+      "raw_agreement": 0.92,
+      "replicates": 10000,
+      "seed": 42,
+      "table_human_judge": {
+        "FIEL": {
+          "FIEL": 44,
+          "ILEGIBLE": 1,
+          "NO_FIEL": 1
+        },
+        "NO_FIEL": {
+          "FIEL": 1,
+          "ILEGIBLE": 1,
+          "NO_FIEL": 2
+        }
+      },
+      "undefined_replicates": 18
+    },
+    "human_prevalence": {
+      "FIEL": 0.83,
+      "NO_FIEL": 0.17
+    },
+    "judge": {
+      "model": "gemma4:12b-mlx",
+      "prompt_id": "judge_faithfulness",
+      "prompt_sha256": "sha256:b9c103491fc5818e98a297f56ce629389fba2a49401d031bc9385d3f5cbe7d7a",
+      "prompt_version": 2,
+      "sampling": {
+        "max_tokens": 1500,
+        "reasoning_effort": "low",
+        "seed": 7,
+        "temperature": 0.0
+      }
+    },
+    "labelled_by": "samuel",
+    "level": 0.95,
+    "n": 100,
+    "point": 0.46949602122015915,
+    "raw_agreement": 0.88,
+    "replicates": 10000,
+    "seed": 42,
+    "suite": "rag-app-v2",
+    "table_human_judge": {
+      "FIEL": {
+        "FIEL": 82,
+        "ILEGIBLE": 1
+      },
+      "NO_FIEL": {
+        "FIEL": 10,
+        "ILEGIBLE": 1,
+        "NO_FIEL": 6
+      }
+    },
+    "undefined_replicates": 0
+  },
+  "n_etiquetados": 100
+}

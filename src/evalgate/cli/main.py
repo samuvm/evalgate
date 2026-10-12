@@ -16,7 +16,7 @@ import uvicorn
 from opentelemetry import metrics
 
 from evalgate.cli import compare as compare_cli
-from evalgate.cli import eval_run, pricing_repro
+from evalgate.cli import eval_run, meta, pricing_repro
 from evalgate.gate.decision import BLOCK
 from evalgate.pricing.loader import load_tables
 from evalgate.proxy.app import DEFAULT_PROVIDER, DEFAULT_UPSTREAM, ProxySettings, create_app
@@ -154,7 +154,7 @@ def eval_compare(
 
 
 @eval_app.command("run")
-def eval_run_command(
+def eval_run_command(  # noqa: PLR0913, PLR0917 - in typer each flag IS a parameter
     suite: Annotated[str, typer.Option(help="Suite name, as in evals/suites/.")] = "rag-app",
     refresh: Annotated[
         bool, typer.Option(help="Call the models for what is not recorded. Never in the gate.")
@@ -169,11 +169,23 @@ def eval_run_command(
     variant: Annotated[
         str, typer.Option(help="Variant of the system under test, as the suite declares it.")
     ] = "base",
+    rejudge: Annotated[
+        bool,
+        typer.Option(
+            help="Keep the recorded outputs of the system; call the judge for what is not recorded."
+        ),
+    ] = False,
 ) -> None:
     """Run an eval suite from the recorded cache (default) or against the models (--refresh)."""
     try:
         report, stats = eval_run.run(
-            Path("evals/suites") / suite, Path(), out_dir, refresh=refresh, base_url=base_url, variant=variant
+            Path("evals/suites") / suite,
+            Path(),
+            out_dir,
+            refresh=refresh,
+            base_url=base_url,
+            variant=variant,
+            rejudge=rejudge,
         )
     except (ValueError, LookupError, OSError) as refused:
         typer.echo(f"evalgate eval run: {refused}", err=True)
@@ -211,4 +223,43 @@ def cache_stats_command(
         typer.echo(
             f"G-CACHE-HIT marginal_cost_ratio={second['marginal_cost_ratio']:g} "
             f"hit_rate={second['hit_rate']:g} hits={second['hits']} misses={second['misses']}"
+        )
+
+
+meta_app = typer.Typer(no_args_is_help=True, help="Meta-evaluation: the evaluator, evaluated (level 4).")
+app.add_typer(meta_app, name="meta")
+
+
+@meta_app.command("kappa")
+def meta_kappa_command(  # noqa: PLR0913, PLR0917 - in typer each flag IS a parameter
+    labels: Annotated[Path, typer.Option(help="Directory of the human labels, with its kappa.yaml.")] = Path(
+        "evals/golden/rag-app-v2/labels"
+    ),
+    out: Annotated[Path, typer.Option(help="Meta-eval document to update.")] = Path(
+        "evals/reports/meta-eval.json"
+    ),
+    goals: Annotated[Path, typer.Option(help="Where `comparacion` lives.")] = Path("docs/GOALS.yaml"),
+    refresh: Annotated[
+        bool, typer.Option(help="Call the judge for verdicts that are not recorded. Never in the gate.")
+    ] = False,
+    base_url: Annotated[
+        str, typer.Option(envvar="EVALGATE_EVAL_BASE_URL", help="Endpoint of the judge, only with --refresh.")
+    ] = DEFAULT_UPSTREAM,
+    fmt: Annotated[str, typer.Option("--format", help="json or text.")] = "text",
+) -> None:
+    """G-JUDGE-KAPPA: Cohen's kappa of the suite's judge against the human labels, with its interval."""
+    try:
+        document = meta.run(labels, Path(), goals, out, refresh=refresh, base_url=base_url)
+    except (ValueError, LookupError, OSError) as refused:
+        typer.echo(f"evalgate meta kappa: {refused}", err=True)
+        raise typer.Exit(code=2) from None
+    kappa = document["cohens_kappa"]
+    if fmt == "json":
+        typer.echo(json.dumps(kappa, ensure_ascii=False))
+    else:
+        low, high = kappa["ci95_bootstrap"]
+        typer.echo(
+            f"G-JUDGE-KAPPA kappa={kappa['point']:.4f} ic95=[{low:.4f}, {high:.4f}] n={kappa['n']} "
+            f"acuerdo={kappa['raw_agreement']:.4f} tandas={kappa['batches']} "
+            f"juez={kappa['judge']['prompt_id']} v{kappa['judge']['prompt_version']}"
         )
