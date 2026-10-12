@@ -12,7 +12,8 @@ Dos reglas de diseño, las dos para que la kappa signifique algo:
 - **Lo que identifica el caso va aparte.** `tanda-N.items.jsonl` (lo que se enseña) no dice de qué variante
   ni de qué caso del golden sale cada respuesta; eso queda en `tanda-N.key.jsonl`, que el etiquetador no lee.
 
-Cada tanda excluye los casos de las anteriores. Determinista (semilla fija). No llama a ningún modelo.
+Cada tanda excluye los casos de las anteriores (la 3 existe porque la 1 se usó para desarrollar un juez
+candidato). Determinista (semilla fija). No llama a ningún modelo.
 
 Uso: python scripts/prepare_labels.py --tanda 1
 """
