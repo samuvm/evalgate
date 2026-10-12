@@ -67,32 +67,32 @@ def ficha(line: str) -> tuple[dict[str, str], bool]:
     return fields, not line.rstrip().endswith("}")
 
 
-def show(item: dict[str, object], position: int, total: int) -> None:
-    if COLOR:
-        print("\033[2J\033[H", end="")  # pantalla limpia: un caso, una pantalla
-    print(paint(f"\n  CASO {position} DE {total}", "1"))
-    print(paint("  " + "─" * 96, "2"))
-
+def show(item: dict[str, object], number: int) -> None:
+    print(paint(f"\n  ━━ CASO {number} " + "━" * 86, "1;36"))
     fichas = [ficha(line) for line in str(item["contexto"]).splitlines() if line.strip()]
     keys = [key for key in dict.fromkeys(key for fields, _ in fichas for key in fields) if key != "id"]
     rows = [["", *(fields.get("id", "ficha") + (" ✂" if cut else "") for fields, cut in fichas)]]
     rows += [[NAMES.get(key, key), *(fields.get(key, CUT) for fields, _ in fichas)] for key in keys]
     widths = [max(len(row[column]) for row in rows) for column in range(len(rows[0]))]
-    print(
-        paint("\n  FICHAS que vio el sistema", "1")
-        + paint("  (✂ = le llegó cortada; lo cortado no cuenta)", "2")
-    )
-    for number, row in enumerate(rows):
+    for row in rows:
         cells = [cell.ljust(width) for cell, width in zip(row, widths, strict=True)]
         cells = [paint(cell, "33") if cell.strip() == CUT else cell for cell in cells]
         label, values = paint(cells[0], "2"), "   ".join(cells[1:])
-        emphasis = "1;36" if number == 0 else "1" if row[0] == "nombre" else ""
+        emphasis = "2" if not row[0] else "1" if row[0] == "nombre" else ""
         print(f"    {label}   {paint(values, emphasis) if emphasis else values}")
-        if number == 0:
-            print(paint("    " + "─" * (sum(widths) + 3 * len(widths)), "2"))
+    print(paint("    PREGUNTA   ", "1") + str(item["pregunta"]))
+    print(paint("    RESPUESTA  ", "1") + paint(str(item["respuesta"]), "1;32"))
 
-    print(paint("\n  PREGUNTA   ", "1") + str(item["pregunta"]))
-    print(paint("  RESPUESTA  ", "1") + paint(str(item["respuesta"]), "1;32"))
+
+def show_page(page: list[dict[str, object]], labelled: int, total: int) -> None:
+    if COLOR:
+        print("\033[2J\033[3J\033[H", end="")  # pantalla limpia: un grupo de casos, una pantalla
+    print(
+        paint(f"\n  Llevas {labelled} de {total}", "1")
+        + paint("  ·  FICHAS que vio el sistema (✂ = le llegó cortada; lo cortado no cuenta)", "2")
+    )
+    for number, item in enumerate(page, 1):
+        show(item, number)
     print(paint("\n  " + "─" * 96, "2"))
     print(paint("  " + LEGEND, "2"))
 
@@ -101,6 +101,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Etiquetado humano para la kappa del juez.")
     parser.add_argument("--tanda", type=int, required=True, choices=[1, 2])
     parser.add_argument("--estado", action="store_true", help="Solo dice cuántas llevas.")
+    parser.add_argument("--por-pantalla", type=int, default=4, help="Casos por pantalla (defecto 4).")
     args = parser.parse_args()
 
     items_path = LABELS / f"tanda-{args.tanda}.items.jsonl"
@@ -122,45 +123,52 @@ def main() -> int:
     by_id = {str(item["item_id"]): item for item in items}
     history: list[str] = []
     queue = list(pending)
-    while queue:
-        item = queue[0]
-        show(item, len(items) - len(queue) + 1, len(items))
-        try:
-            key = input("  Tu veredicto [f/n/s/d/q] y Enter: ").strip().lower()
-        except (EOFError, KeyboardInterrupt):
-            key = "q"
-        if key == "q":
-            break
-        if key == "d":
-            if not history:
-                print("   No hay nada que deshacer en esta sesión.")
+    leaving = False
+    while queue and not leaving:
+        page = queue[: args.por_pantalla]
+        show_page(page, len(items) - len(queue), len(items))
+        number = 1
+        while number <= len(page):
+            item = page[number - 1]
+            try:
+                key = input(f"  Caso {number} [f/n/s/d/q] y Enter: ").strip().lower()
+            except (EOFError, KeyboardInterrupt):
+                key = "q"
+            if key == "q":
+                leaving = True
+                break
+            if key == "d":
+                if not history:
+                    print("   No hay nada que deshacer en esta sesión.")
+                    continue
+                undone = history.pop()
+                kept = [row for row in jsonl(labels_path) if str(row["item_id"]) != undone]
+                labels_path.write_text(
+                    "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in kept), "utf-8"
+                )
+                queue.insert(0, by_id[undone])
+                break  # se vuelve a pintar la pantalla, con el caso deshecho el primero
+            if key == "s":
+                queue.remove(item)
+                queue.append(item)  # al final de la cola: volverá a salir
+                number += 1
                 continue
-            undone = history.pop()
-            kept = [row for row in jsonl(labels_path) if str(row["item_id"]) != undone]
-            labels_path.write_text(
-                "".join(json.dumps(row, ensure_ascii=False) + "\n" for row in kept), "utf-8"
-            )
-            queue.insert(0, by_id[undone])
-            print("   Deshecha la última etiqueta: te la vuelvo a enseñar.")
-            continue
-        if key == "s":
-            queue.append(queue.pop(0))  # al final de la cola: volverá a salir
-            continue
-        if key not in KEYS:
-            print("   Tecla no reconocida: f, n, s, d o q.")
-            continue
-        row = {
-            "item_id": item["item_id"],
-            "label": KEYS[key],
-            "item_sha256": item["item_sha256"],
-            "labelled_at": datetime.now(UTC).isoformat(timespec="seconds"),
-            "labelled_by": "samuel",
-        }
-        LABELS.mkdir(parents=True, exist_ok=True)
-        with labels_path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
-        history.append(str(item["item_id"]))
-        queue.pop(0)
+            if key not in KEYS:
+                print("   Tecla no reconocida: f, n, s, d o q.")
+                continue
+            row = {
+                "item_id": item["item_id"],
+                "label": KEYS[key],
+                "item_sha256": item["item_sha256"],
+                "labelled_at": datetime.now(UTC).isoformat(timespec="seconds"),
+                "labelled_by": "samuel",
+            }
+            LABELS.mkdir(parents=True, exist_ok=True)
+            with labels_path.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+            history.append(str(item["item_id"]))
+            queue.remove(item)
+            number += 1
 
     total_done = len(jsonl(labels_path))
     print(f"\nGuardado. Llevas {total_done} de {len(items)} en la tanda {args.tanda}.")
