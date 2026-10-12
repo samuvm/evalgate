@@ -22,6 +22,8 @@ escribe en esos ficheros y la kappa (F7) se calcula solo con lo que haya ahí.
 
 import argparse
 import json
+import os
+import re
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -38,16 +40,61 @@ def jsonl(path: Path) -> list[dict[str, object]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
+COLOR = sys.stdout.isatty() and "NO_COLOR" not in os.environ
+FIELD = re.compile(r'"(\w+)":\s*(?:"([^"]*)"|(-?\d+(?:\.\d+)?))(?=\s*[,}])')
+NAMES = {
+    "nombre": "nombre",
+    "categoria": "categoría",
+    "precio_eur": "precio (€)",
+    "peso_g": "peso (g)",
+    "autonomia_h": "autonomía (h)",
+    "anio": "año",
+    "pais": "país",
+    "garantia_meses": "garantía (meses)",
+}
+CUT = "✂ cortado"
+LEGEND = "f = FIEL    n = NO_FIEL    s = saltar    d = deshacer    q = guardar y salir"
+
+
+def paint(text: str, code: str) -> str:
+    return f"\033[{code}m{text}\033[0m" if COLOR else text
+
+
+def ficha(line: str) -> tuple[dict[str, str], bool]:
+    """Los campos que se leen enteros de una ficha y si llegó cortada. No añade ni quita nada a lo que
+    recibió el modelo: un campo a medias se enseña como cortado, que es como lo vio."""
+    fields = {key: text or number for key, text, number in FIELD.findall(line)}
+    return fields, not line.rstrip().endswith("}")
+
+
 def show(item: dict[str, object], position: int, total: int) -> None:
-    print("\n" + "=" * 100)
-    print(f"  Caso {position} de {total}")
-    print("  f = FIEL · n = NO_FIEL · s = saltar · d = deshacer · q = salir")
-    print("=" * 100)
-    print("FICHAS que vio el sistema (puede venir cortada: es lo que recibió el modelo):")
-    for line in str(item["contexto"]).splitlines():
-        print("   " + line)
-    print(f"\nPREGUNTA:  {item['pregunta']}")
-    print(f"RESPUESTA: {item['respuesta']}")
+    if COLOR:
+        print("\033[2J\033[H", end="")  # pantalla limpia: un caso, una pantalla
+    print(paint(f"\n  CASO {position} DE {total}", "1"))
+    print(paint("  " + "─" * 96, "2"))
+
+    fichas = [ficha(line) for line in str(item["contexto"]).splitlines() if line.strip()]
+    keys = [key for key in dict.fromkeys(key for fields, _ in fichas for key in fields) if key != "id"]
+    rows = [["", *(fields.get("id", "ficha") + (" ✂" if cut else "") for fields, cut in fichas)]]
+    rows += [[NAMES.get(key, key), *(fields.get(key, CUT) for fields, _ in fichas)] for key in keys]
+    widths = [max(len(row[column]) for row in rows) for column in range(len(rows[0]))]
+    print(
+        paint("\n  FICHAS que vio el sistema", "1")
+        + paint("  (✂ = le llegó cortada; lo cortado no cuenta)", "2")
+    )
+    for number, row in enumerate(rows):
+        cells = [cell.ljust(width) for cell, width in zip(row, widths, strict=True)]
+        cells = [paint(cell, "33") if cell.strip() == CUT else cell for cell in cells]
+        label, values = paint(cells[0], "2"), "   ".join(cells[1:])
+        emphasis = "1;36" if number == 0 else "1" if row[0] == "nombre" else ""
+        print(f"    {label}   {paint(values, emphasis) if emphasis else values}")
+        if number == 0:
+            print(paint("    " + "─" * (sum(widths) + 3 * len(widths)), "2"))
+
+    print(paint("\n  PREGUNTA   ", "1") + str(item["pregunta"]))
+    print(paint("  RESPUESTA  ", "1") + paint(str(item["respuesta"]), "1;32"))
+    print(paint("\n  " + "─" * 96, "2"))
+    print(paint("  " + LEGEND, "2"))
 
 
 def main() -> int:
@@ -79,7 +126,7 @@ def main() -> int:
         item = queue[0]
         show(item, len(items) - len(queue) + 1, len(items))
         try:
-            key = input("Tu veredicto [f/n/s/d/q]: ").strip().lower()
+            key = input("  Tu veredicto [f/n/s/d/q] y Enter: ").strip().lower()
         except (EOFError, KeyboardInterrupt):
             key = "q"
         if key == "q":
