@@ -1,9 +1,14 @@
-# Reglas de la puerta para la suite rag-app-v2. Cuatro métricas bloqueantes (más de tres: Holm es obligatorio)
-# y una que solo informa. Sin umbrales absolutos todavía: se fijan con la línea base medida y con la kappa
-# del juez (F7), no a ojo.
+# Reglas de la puerta para la suite rag-app-v2. Tres métricas bloqueantes, ninguna depende de un juez, y dos
+# que solo informan. Con tres bloqueantes no hay corrección múltiple (la exige el contrato a partir de cuatro).
+#
+# `faithfulness` está RETIRADA de la decisión desde el 2026-10-12: su juez concuerda con la etiqueta humana
+# con kappa 0,47 sobre 150 casos, por debajo del 0,60 de G-JUDGE-KAPPA, y la consecuencia que fija esa meta
+# es retirar la métrica, no bajar el umbral (`evalgate meta kappa` lo reproduce).
+# Sigue calculándose y se publica como dato con su kappa al lado; no bloquea ni desbloquea nada.
+# Sin umbrales absolutos: no se fijan a ojo.
 metrics:
   - { id: answer_correct, blocking: true }
   - { id: context_recall, blocking: true }
-  - { id: faithfulness, blocking: true }
+  - { id: faithfulness, blocking: false }
   - { id: abstencion_incorrecta, blocking: true, higher_is_better: false }
   - { id: juez_ilegible, blocking: false, higher_is_better: false }
