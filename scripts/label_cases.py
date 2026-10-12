@@ -99,7 +99,7 @@ def show_page(page: list[dict[str, object]], labelled: int, total: int) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Etiquetado humano para la kappa del juez.")
-    parser.add_argument("--tanda", type=int, required=True, choices=[1, 2])
+    parser.add_argument("--tanda", type=int, required=True, choices=[1, 2, 3])
     parser.add_argument("--estado", action="store_true", help="Solo dice cuántas llevas.")
     parser.add_argument("--por-pantalla", type=int, default=4, help="Casos por pantalla (defecto 4).")
     args = parser.parse_args()

@@ -12,7 +12,7 @@ Dos reglas de diseño, las dos para que la kappa signifique algo:
 - **Lo que identifica el caso va aparte.** `tanda-N.items.jsonl` (lo que se enseña) no dice de qué variante
   ni de qué caso del golden sale cada respuesta; eso queda en `tanda-N.key.jsonl`, que el etiquetador no lee.
 
-La tanda 2 excluye los casos de la tanda 1. Determinista (semilla fija). No llama a ningún modelo.
+Cada tanda excluye los casos de las anteriores. Determinista (semilla fija). No llama a ningún modelo.
 
 Uso: python scripts/prepare_labels.py --tanda 1
 """
@@ -40,7 +40,7 @@ def jsonl(path: Path) -> list[dict[str, object]]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tanda", type=int, required=True, choices=[1, 2])
+    parser.add_argument("--tanda", type=int, required=True, choices=[1, 2, 3])
     args = parser.parse_args()
     items_path = LABELS / f"tanda-{args.tanda}.items.jsonl"
     if items_path.exists():
