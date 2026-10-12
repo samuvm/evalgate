@@ -219,3 +219,87 @@ def sensitivity(matrix_path: Path, root: Path, goals_path: Path, out: Path) -> d
         min_size_over_mde=Fraction(measured.metadata["power_min_size_over_mde"]),
     )
     return _merged(out, {"power": {**block, **measured.provenance}})
+
+
+_GOAL_VALUES = {
+    "G-JUDGE-KAPPA": ("cohens_kappa", "point"),
+    "G-GATE-FP": ("fp_rate_baseline_fixed", "point"),
+    "G-GATE-MDE": ("mde_pp", "point"),
+    "G-GATE-POWER": ("power", "min_over_degradations"),
+}
+_HOLDS = {
+    ">=": lambda value, bound: value >= bound,
+    "<=": lambda value, bound: value <= bound,
+    "==": lambda value, bound: value == bound,
+}
+
+
+def _es(value: float, digits: int = 2) -> str:
+    return f"{value:.{digits}f}".replace(".", ",")
+
+
+def report_table(document: dict[str, Any], goals: dict[str, Any]) -> str:
+    """The meta-evaluation as the README shows it: every goal with what was measured, its threshold from
+    GOALS.yaml and whether it holds. Nothing is rounded into passing: the verdict is on the full value."""
+    if missing := sorted(block for block, _ in _GOAL_VALUES.values() if block not in document):
+        raise LabelsError(f"al documento de meta-evaluación le faltan bloques: {', '.join(missing)}")
+    thresholds = {meta["id"]: meta["umbral"] for meta in goals["metas"] if meta["id"] in _GOAL_VALUES}
+    kappa, rate, effect, power = (
+        document["cohens_kappa"],
+        document["fp_rate_baseline_fixed"],
+        document["mde_pp"],
+        document["power"],
+    )
+    detail = {
+        "G-JUDGE-KAPPA": (
+            f"IC95 [{_es(kappa['ci95_bootstrap'][0])}, {_es(kappa['ci95_bootstrap'][1])}] · "
+            f"{kappa['n']} etiquetas humanas · acuerdo bruto {_es(kappa['raw_agreement'])}"
+        ),
+        "G-GATE-FP": (
+            f"Wilson 95 % [{_es(rate['wilson_95'][0], 3)}, {_es(rate['wilson_95'][1], 3)}] · "
+            f"{rate['blocked']} bloqueos en {rate['n']} decisiones contra `{rate['baseline']}`"
+        ),
+        "G-GATE-MDE": (
+            f"puntos porcentuales, en `{effect['limiting_metric']}` · {document['n_casos_subsuite']} casos · "
+            f"{effect['n_pairs']} pares de {effect['n_runs']} ejecuciones"
+        ),
+        "G-GATE-POWER": (
+            f"mínimo sobre las degradaciones de tamaño ≥ {_es(power['required_size_pp'])} pp · "
+            f"mínimo sobre las {len(power['per_degradation'])}: {_es(power['min_over_all'])}"
+        ),
+    }
+    lines = ["| Meta | Medido | Umbral | ¿Cumple? | Detalle |", "|---|---|---|---|---|"]
+    for goal, (block, field) in _GOAL_VALUES.items():
+        value, threshold = document[block][field], thresholds[goal]
+        holds = value is not None and _HOLDS[threshold["operador"]](value, threshold["valor"])
+        shown = "sin medir" if value is None else _es(value, 3 if goal == "G-GATE-FP" else 2)
+        lines.append(
+            f"| `{goal}` | {shown} | {threshold['operador']} {_es(threshold['valor'])} | "
+            f"{'sí' if holds else '**no**'} | {detail[goal]} |"
+        )
+    lines += [
+        "",
+        f"Métricas que bloquean: {', '.join(f'`{metric}`' for metric in rate['blocking_metrics'])}. "
+        f"Ruido: {document['fuente_de_ruido']}.",
+        "",
+        "| Degradación | Potencia | Bloqueos | Tamaño medido | ¿Se le exige? |",
+        "|---|---|---|---|---|",
+    ]
+    for name, each in power["per_degradation"].items():
+        lines.append(
+            f"| `{name}` | {_es(each['power'])} | {each['blocked']}/{each['n']} | "
+            f"{_es(each['size_pp'], 1)} pp en `{each['size_metric']}` | "
+            f"{'sí' if each['big_enough'] else 'no: por debajo del tamaño exigido'} |"
+        )
+    return "\n".join(lines)
+
+
+def recomputed(
+    labels_dir: Path, matrix_path: Path, root: Path, goals_path: Path, scratch: Path
+) -> dict[str, Any]:
+    """The whole meta-eval document measured again from its sources (labels, recorded verdicts, matrix) into
+    `scratch`. No model is called. `meta report --check` compares it with the published one."""
+    run(labels_dir, root, goals_path, scratch, refresh=False, base_url="")
+    fp(matrix_path, root, goals_path, scratch)
+    mde(matrix_path, root, goals_path, scratch)
+    return sensitivity(matrix_path, root, goals_path, scratch)

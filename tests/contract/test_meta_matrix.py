@@ -161,3 +161,28 @@ def test_the_numbers_are_the_same_every_time(root: Path) -> None:
 def test_a_file_that_is_not_a_matrix_is_refused(root: Path) -> None:
     with pytest.raises(matrix.MatrixError, match="no existe"):
         meta.fp(root / "nada.parquet", root, root / "docs" / "GOALS.yaml", root / "meta-eval.json")
+
+
+def test_the_published_numbers_are_what_the_published_matrix_gives(tmp_path: Path) -> None:
+    """Nobody typed them: the matrix in the repository gives the three blocks again, to the last digit."""
+    published = json.loads((ROOT / "evals" / "reports" / "meta-eval.json").read_text("utf-8"))
+    path, goals, out = (
+        ROOT / "evals/reports/fp-matrix.parquet",
+        ROOT / "docs" / "GOALS.yaml",
+        tmp_path / "m.json",
+    )
+
+    meta.fp(path.relative_to(ROOT), ROOT, goals, out)
+    meta.mde(path.relative_to(ROOT), ROOT, goals, out)
+    again = meta.sensitivity(path.relative_to(ROOT), ROOT, goals, out)
+
+    for block in (
+        "fp_rate_baseline_fixed",
+        "mde_pp",
+        "power",
+        "n_decisiones",
+        "n_casos_subsuite",
+        "fuente_de_ruido",
+    ):
+        assert again[block] == published[block], block
+    assert published["n_decisiones"] >= 49, "G-GATE-FP asks for at least 49 decisions"

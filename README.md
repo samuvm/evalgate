@@ -169,6 +169,31 @@ Hardware de referencia: MacBook Pro M4 Max, 36 GB de memoria unificada.
 
 Qué significa cada meta, su umbral y el comando que la mide: `docs/GOALS.yaml`.
 
+### La puerta, medida (meta-evaluación)
+
+Un evaluador no evaluado es un adorno, así que estos son los números de la propia puerta, salgan como
+salgan. Generados por `make report` desde `evals/reports/meta-eval.json`; `evalgate meta report --check` los
+vuelve a calcular desde las 150 etiquetas humanas y desde la matriz de 250 ejecuciones, sin llamar a ningún
+modelo.
+
+<!-- evalgate:meta:start -->
+| Meta | Medido | Umbral | ¿Cumple? | Detalle |
+|---|---|---|---|---|
+| `G-JUDGE-KAPPA` | 0,47 | >= 0,60 | **no** | IC95 [0,27, 0,65] · 150 etiquetas humanas · acuerdo bruto 0,86 |
+| `G-GATE-FP` | 0,122 | <= 0,05 | **no** | Wilson 95 % [0,057, 0,242] · 6 bloqueos en 49 decisiones contra `base-00` |
+| `G-GATE-MDE` | 15,00 | <= 8,00 | **no** | puntos porcentuales, en `answer_correct` · 60 casos · 2450 pares de 50 ejecuciones |
+| `G-GATE-POWER` | 1,00 | >= 0,90 | sí | mínimo sobre las degradaciones de tamaño ≥ 22,50 pp · mínimo sobre las 4: 0,00 |
+
+Métricas que bloquean: `answer_correct`, `context_recall`, `abstencion_incorrecta`. Ruido: sistema bajo prueba con RAG_TEMPERATURE=0.7 y semilla distinta por ejecución (RAG_SEED = 1000 + nº de ejecución); juez llamado en vivo en cada caso, sin caché.
+
+| Degradación | Potencia | Bloqueos | Tamaño medido | ¿Se le exige? |
+|---|---|---|---|---|
+| `contexto-50` | 1,00 | 50/50 | 31,4 pp en `abstencion_incorrecta` | sí |
+| `docs-aleatorios-20` | 1,00 | 50/50 | 24,9 pp en `abstencion_incorrecta` | sí |
+| `modelo-pequeno` | 0,00 | 0/50 | 3,7 pp en `answer_correct` | no: por debajo del tamaño exigido |
+| `temperatura-1.2` | 0,20 | 10/50 | 4,0 pp en `answer_correct` | no: por debajo del tamaño exigido |
+<!-- evalgate:meta:end -->
+
 ## Mapa del repositorio
 
 | Ruta | Qué hay |

@@ -5,6 +5,7 @@ plain `on_call` sink and never an exporter (R1, `scripts/rules/no_blocking_expor
 """
 
 import json
+import tempfile
 from collections.abc import Callable
 from importlib.metadata import version
 from pathlib import Path
@@ -13,6 +14,7 @@ from typing import Annotated, Any
 import clickhouse_connect
 import typer
 import uvicorn
+import yaml
 from opentelemetry import metrics
 
 from evalgate.cli import compare as compare_cli
@@ -380,3 +382,39 @@ def meta_sensitivity_command(
             f"tamaño={each['size_pp']:.1f} pp en {each['size_metric']}"
             f"{'' if each['big_enough'] else '  [por debajo del tamaño exigido]'}"
         )
+
+
+@meta_app.command("report")
+def meta_report_command(
+    check: Annotated[
+        bool, typer.Option(help="Measure everything again from its sources; fail if the document differs.")
+    ] = False,
+    document: _META_OUT = _DEFAULT_META,
+    matrix_path: _MATRIX = _DEFAULT_MATRIX,
+    labels: Annotated[Path, typer.Option(help="Directory of the human labels.")] = Path(
+        "evals/golden/rag-app-v2/labels"
+    ),
+    goals: _GOALS = _DEFAULT_GOALS,
+) -> None:
+    """The four numbers of the meta-evaluation against their thresholds. With --check, also proves that the
+    published document is what the labels and the matrix give today. Exit 1 if it is not."""
+    try:
+        published = json.loads(document.read_text("utf-8"))
+        table = meta.report_table(published, yaml.safe_load(goals.read_text("utf-8")))
+        if check:
+            with tempfile.TemporaryDirectory() as scratch:
+                again = meta.recomputed(labels, matrix_path, Path(), goals, Path(scratch) / "meta-eval.json")
+            if again != published:
+                differing = sorted(
+                    key for key in again.keys() | published.keys() if again.get(key) != published.get(key)
+                )
+                typer.echo(
+                    f"evalgate meta report: el documento no se reproduce en: {', '.join(differing)}", err=True
+                )
+                raise typer.Exit(code=1)
+    except (ValueError, LookupError, OSError) as refused:
+        typer.echo(f"evalgate meta report: {refused}", err=True)
+        raise typer.Exit(code=2) from None
+    typer.echo(table)
+    if check:
+        typer.echo("\nreproducido desde las etiquetas y la matriz: sin diferencias")

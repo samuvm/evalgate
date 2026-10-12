@@ -1,4 +1,5 @@
-"""`make report` (R17): regenerate the numbers table of README.md from evals/reports/gate-F*.json.
+"""`make report` (R17): regenerate the numbers table of README.md from evals/reports/gate-F*.json,
+and the meta-evaluation table from evals/reports/meta-eval.json.
 
 The table lives between two markers and is never edited by hand. `--check` fails if README.md differs from
 what would be generated (scripts/rules/readme_numbers.py calls it in the gate).
@@ -12,10 +13,14 @@ import re
 import sys
 from typing import Any
 
+import yaml
+
+from evalgate.cli.meta import report_table
 from gatelib import ROOT
 
 README = ROOT / "README.md"
 START, END = "<!-- evalgate:numbers:start -->", "<!-- evalgate:numbers:end -->"
+META_START, META_END = "<!-- evalgate:meta:start -->", "<!-- evalgate:meta:end -->"
 
 
 def fmt(value: Any) -> str:
@@ -41,11 +46,25 @@ def table() -> str:
     return "\n".join(rows)
 
 
-def render(readme: str) -> str:
-    pattern = re.compile(re.escape(START) + r".*?" + re.escape(END), re.S)
+def meta_table() -> str:
+    """The meta-evaluation (F7): the four numbers against their thresholds, from evals/reports/meta-eval.json.
+    Rendered by the same function `evalgate meta report` prints, so the two cannot tell different stories."""
+    path = ROOT / "evals" / "reports" / "meta-eval.json"
+    if not path.exists():
+        return "_Meta-evaluación sin medir todavía._"
+    goals = yaml.safe_load((ROOT / "docs" / "GOALS.yaml").read_text(encoding="utf-8"))
+    return report_table(json.loads(path.read_text(encoding="utf-8")), goals)
+
+
+def _between(readme: str, start: str, end: str, body: str) -> str:
+    pattern = re.compile(re.escape(start) + r".*?" + re.escape(end), re.S)
     if not pattern.search(readme):
-        raise SystemExit(f"README.md sin marcadores {START} … {END}")
-    return pattern.sub(f"{START}\n{table()}\n{END}", readme)
+        raise SystemExit(f"README.md sin marcadores {start} … {end}")
+    return pattern.sub(lambda _: f"{start}\n{body}\n{end}", readme)
+
+
+def render(readme: str) -> str:
+    return _between(_between(readme, START, END, table()), META_START, META_END, meta_table())
 
 
 def main() -> int:
