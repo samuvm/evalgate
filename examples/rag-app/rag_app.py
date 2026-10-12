@@ -78,7 +78,8 @@ def ask(base_url: str, model: str, question: str, fichas: str) -> str:
             {"role": "user", "content": f"Fichas:\n{fichas}\n\nPregunta: {question}"},
         ],
         "temperature": float(os.environ.get("RAG_TEMPERATURE", "0")),
-        "seed": 7,
+        # RAG_SEED only matters above temperature 0: it is what makes two runs of the same system differ.
+        "seed": int(os.environ.get("RAG_SEED", "7")),
         "max_tokens": 64,
         # qwen3.5 reasons by default and spends max_tokens on it (measured 2026-09-10).
         "reasoning_effort": "none",

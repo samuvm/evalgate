@@ -8,7 +8,7 @@ import json
 from collections.abc import Callable
 from importlib.metadata import version
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
 import clickhouse_connect
 import typer
@@ -16,7 +16,7 @@ import uvicorn
 from opentelemetry import metrics
 
 from evalgate.cli import compare as compare_cli
-from evalgate.cli import eval_run, meta, pricing_repro
+from evalgate.cli import eval_run, matrix, meta, pricing_repro
 from evalgate.gate.decision import BLOCK
 from evalgate.pricing.loader import load_tables
 from evalgate.proxy.app import DEFAULT_PROVIDER, DEFAULT_UPSTREAM, ProxySettings, create_app
@@ -262,4 +262,121 @@ def meta_kappa_command(  # noqa: PLR0913, PLR0917 - in typer each flag IS a para
             f"G-JUDGE-KAPPA kappa={kappa['point']:.4f} ic95=[{low:.4f}, {high:.4f}] n={kappa['n']} "
             f"acuerdo={kappa['raw_agreement']:.4f} tandas={kappa['batches']} "
             f"juez={kappa['judge']['prompt_id']} v{kappa['judge']['prompt_version']}"
+        )
+
+
+@meta_app.command("run-matrix")
+def meta_run_matrix_command(
+    plan: Annotated[Path, typer.Option(help="What to execute: the suite's matrix.yaml.")] = Path(
+        "evals/suites/rag-app-v2/matrix.yaml"
+    ),
+    raw: Annotated[Path, typer.Option(help="One file per run: answers and verdicts.")] = Path(
+        "evals/reports/fp-matrix"
+    ),
+    out: Annotated[Path, typer.Option(help="The matrix: (run_id, case_id, metrica, valor).")] = Path(
+        "evals/reports/fp-matrix.parquet"
+    ),
+    base_url: Annotated[
+        str, typer.Option(envvar="EVALGATE_EVAL_BASE_URL", help="OpenAI-compatible endpoint of the models.")
+    ] = DEFAULT_UPSTREAM,
+    build_only: Annotated[
+        bool, typer.Option(help="Call no model: rebuild the matrix from the runs already recorded.")
+    ] = False,
+) -> None:
+    """RULES §5: run the calibration subsuite many times, with noise, and persist the matrix. Hours of
+    models; resumable (a recorded run is never executed again). Never in the gate."""
+    try:
+        if not build_only:
+            executed = matrix.record(plan, Path(), raw, base_url, typer.echo)
+            typer.echo(f"{executed} ejecuciones grabadas ahora en {raw}")
+        metadata = matrix.build(plan, Path(), raw, out)
+    except (ValueError, LookupError, OSError, RuntimeError) as refused:
+        typer.echo(f"evalgate meta run-matrix: {refused}", err=True)
+        raise typer.Exit(code=2) from None
+    typer.echo(f"{out}: {len(metadata['runs'])} ejecuciones de {metadata['n_cases']} casos")
+
+
+_MATRIX = Annotated[Path, typer.Option("--matrix", help="The matrix written by `meta run-matrix`.")]
+_META_OUT = Annotated[Path, typer.Option(help="Meta-eval document to update.")]
+_GOALS = Annotated[Path, typer.Option(help="Where `comparacion` lives.")]
+_FORMAT = Annotated[str, typer.Option("--format", help="json or text.")]
+_DEFAULT_MATRIX = Path("evals/reports/fp-matrix.parquet")
+_DEFAULT_META = Path("evals/reports/meta-eval.json")
+_DEFAULT_GOALS = Path("docs/GOALS.yaml")
+
+
+def _from_matrix(
+    name: str, measure: Callable[[Path, Path, Path, Path], dict[str, object]], paths: tuple[Path, Path, Path]
+) -> dict[str, object]:
+    matrix_path, goals, out = paths
+    try:
+        return measure(matrix_path, Path(), goals, out)
+    except (ValueError, LookupError, OSError) as refused:
+        typer.echo(f"evalgate meta {name}: {refused}", err=True)
+        raise typer.Exit(code=2) from None
+
+
+@meta_app.command("fp")
+def meta_fp_command(
+    matrix_path: _MATRIX = _DEFAULT_MATRIX,
+    out: _META_OUT = _DEFAULT_META,
+    goals: _GOALS = _DEFAULT_GOALS,
+    fmt: _FORMAT = "text",
+) -> None:
+    """G-GATE-FP: how often the gate blocks the system against itself. Offline, from the matrix."""
+    document = _from_matrix("fp", meta.fp, (matrix_path, goals, out))
+    block: dict[str, Any] = document["fp_rate_baseline_fixed"]  # type: ignore[assignment]
+    if fmt == "json":
+        typer.echo(json.dumps(block, ensure_ascii=False))
+    else:
+        low, high = block["wilson_95"]
+        typer.echo(
+            f"G-GATE-FP fp={block['point']:.4f} wilson95=[{low:.4f}, {high:.4f}] "
+            f"bloqueos={block['blocked']}/{block['n']} por_métrica={block['blocked_by_metric']} "
+            f"bloqueantes={block['blocking_metrics']}"
+        )
+
+
+@meta_app.command("mde")
+def meta_mde_command(
+    matrix_path: _MATRIX = _DEFAULT_MATRIX,
+    out: _META_OUT = _DEFAULT_META,
+    goals: _GOALS = _DEFAULT_GOALS,
+    fmt: _FORMAT = "text",
+) -> None:
+    """G-GATE-MDE: the drop that noise alone rarely reaches, in points. Offline, from the matrix."""
+    document = _from_matrix("mde", meta.mde, (matrix_path, goals, out))
+    block: dict[str, Any] = document["mde_pp"]  # type: ignore[assignment]
+    if fmt == "json":
+        typer.echo(json.dumps(block, ensure_ascii=False))
+    else:
+        each = " ".join(f"{metric}={values['point']:.2f}" for metric, values in block["per_metric"].items())
+        typer.echo(
+            f"G-GATE-MDE mde_pp={block['point']:.2f} ({block['limiting_metric']}) · {each} · "
+            f"{block['n_pairs']} pares de {block['n_runs']} ejecuciones"
+        )
+
+
+@meta_app.command("sensitivity")
+def meta_sensitivity_command(
+    matrix_path: _MATRIX = _DEFAULT_MATRIX,
+    out: _META_OUT = _DEFAULT_META,
+    goals: _GOALS = _DEFAULT_GOALS,
+    fmt: _FORMAT = "text",
+) -> None:
+    """G-GATE-POWER: how often the gate blocks each canonical degradation. Offline, from the matrix."""
+    document = _from_matrix("sensitivity", meta.sensitivity, (matrix_path, goals, out))
+    block: dict[str, Any] = document["power"]  # type: ignore[assignment]
+    if fmt == "json":
+        typer.echo(json.dumps(block, ensure_ascii=False))
+        return
+    typer.echo(
+        f"G-GATE-POWER min={block['min_over_degradations']} (exigida a tamaño >= "
+        f"{block['required_size_pp']:.2f} pp) · mínimo sobre todas={block['min_over_all']:.2f}"
+    )
+    for name, each in block["per_degradation"].items():
+        typer.echo(
+            f"  {name:20} potencia={each['power']:.2f} ({each['blocked']}/{each['n']}) "
+            f"tamaño={each['size_pp']:.1f} pp en {each['size_metric']}"
+            f"{'' if each['big_enough'] else '  [por debajo del tamaño exigido]'}"
         )

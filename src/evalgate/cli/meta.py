@@ -1,4 +1,7 @@
-"""`evalgate meta kappa`: the judge against the human labels (G-JUDGE-KAPPA). I/O and wiring only (RULES §2).
+"""`evalgate meta kappa | fp | mde | sensitivity`: the evaluator, evaluated. I/O and wiring only (RULES §2).
+
+`fp`, `mde` and `sensitivity` are recomputed from the matrix of runs (`cli.matrix`, RULES §5) and are at the
+end of this file. The rest is `kappa`: the judge against the human labels (G-JUDGE-KAPPA).
 
 What is measured is the judge OF THE SUITE: the same prompt, sampling and recorded cache that produce the
 suite's `faithfulness`, asked about the very text each labelled item was built from. So the kappa published
@@ -15,19 +18,22 @@ Like `eval run`, a recorded run never calls a model: a verdict that is not in th
 
 import hashlib
 import json
+from fractions import Fraction
 from pathlib import Path
 from typing import Any
 
 import yaml
 
+from evalgate.cli.matrix import read_matrix
 from evalgate.evals.cache.cached import cached_answer
 from evalgate.evals.cache.key import ModelCall, text_digest
 from evalgate.evals.cache.store import ModelCache
 from evalgate.evals.judges import client
 from evalgate.evals.metrics.agreement import agreement_block, judge_label
+from evalgate.evals.metrics.matrix import false_positive_block, mde_block, power_block
 from evalgate.evals.prompts import load_prompt
 from evalgate.evals.runner import golden_cases, judge_text, sut_outputs
-from evalgate.evals.suite import parse_suite
+from evalgate.evals.suite import BASE, parse_suite
 from evalgate.gate.config import gate_config
 
 JUDGE_PROMPT = Path("prompts/judge_faithfulness.md")
@@ -135,3 +141,81 @@ def run(  # noqa: PLR0913 - wiring: every name is a file or a knob of the run
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(document, indent=2, ensure_ascii=False, sort_keys=True) + "\n", "utf-8")
     return document
+
+
+def _merged(out: Path, blocks: dict[str, Any]) -> dict[str, Any]:
+    """Write `blocks` into the meta-eval document at `out`, keeping every other block, and return it."""
+    document: dict[str, Any] = json.loads(out.read_text("utf-8")) if out.exists() else {}
+    document.update(blocks)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(document, indent=2, ensure_ascii=False, sort_keys=True) + "\n", "utf-8")
+    return document
+
+
+class _Measured:
+    """The matrix file, split the way the three goals read it, and the gate that is being measured: the
+    suite's own rules under GOALS.yaml `comparacion`, exactly what `eval compare` would use."""
+
+    def __init__(self, matrix_path: Path, root: Path, goals_path: Path) -> None:
+        self.metadata, runs = read_matrix(matrix_path)
+        gate_path = root / "evals" / "suites" / str(self.metadata["suite"]) / "gate.yaml"
+        self.config = gate_config(
+            yaml.safe_load(goals_path.read_text("utf-8"))["comparacion"],
+            yaml.safe_load(gate_path.read_text("utf-8"))["metrics"],
+        )
+        self.baseline = str(self.metadata["baseline"])
+        self.h0: dict[str, Any] = {}
+        self.degradations: dict[str, dict[str, Any]] = {}
+        for run_id, described in self.metadata["runs"].items():
+            if run_id not in runs:
+                raise LabelsError(f"{matrix_path}: falta la ejecución {run_id} que su cabecera declara")
+            variant = str(described["variant"])
+            (self.h0 if variant == BASE else self.degradations.setdefault(variant, {}))[run_id] = runs[run_id]
+        self.provenance = {
+            "matrix": str(matrix_path),
+            "matrix_sha256": "sha256:" + hashlib.sha256(matrix_path.read_bytes()).hexdigest(),
+            "suite": self.metadata["suite"],
+            "blocking_metrics": [rule.metric for rule in self.config.rules if rule.blocking],
+            "replicates": self.config.replicates,
+            "seed": self.config.seed,
+        }
+
+
+def fp(matrix_path: Path, root: Path, goals_path: Path, out: Path) -> dict[str, Any]:
+    """G-GATE-FP, recomputed from the matrix. No model is called."""
+    measured = _Measured(matrix_path, root, goals_path)
+    block = false_positive_block(measured.h0, measured.baseline, measured.config)
+    return _merged(
+        out,
+        {
+            "fp_rate_baseline_fixed": {**block, **measured.provenance},
+            "n_decisiones": block["n"],
+            "fuente_de_ruido": measured.metadata["noise_source"],
+        },
+    )
+
+
+def mde(matrix_path: Path, root: Path, goals_path: Path, out: Path) -> dict[str, Any]:
+    """G-GATE-MDE, recomputed from the matrix. No model is called."""
+    measured = _Measured(matrix_path, root, goals_path)
+    block = mde_block(measured.h0, measured.config.rules, Fraction(measured.metadata["mde_percentile"]))
+    return _merged(
+        out,
+        {"mde_pp": {**block, **measured.provenance}, "n_casos_subsuite": measured.metadata["n_cases"]},
+    )
+
+
+def sensitivity(matrix_path: Path, root: Path, goals_path: Path, out: Path) -> dict[str, Any]:
+    """G-GATE-POWER, recomputed from the matrix. The minimum detectable effect it is relative to is the one
+    the same matrix gives, computed here and not read from a document somebody could have edited."""
+    measured = _Measured(matrix_path, root, goals_path)
+    effect = mde_block(measured.h0, measured.config.rules, Fraction(measured.metadata["mde_percentile"]))
+    block = power_block(
+        measured.h0,
+        measured.baseline,
+        measured.degradations,
+        measured.config,
+        mde_pp=effect["point"],
+        min_size_over_mde=Fraction(measured.metadata["power_min_size_over_mde"]),
+    )
+    return _merged(out, {"power": {**block, **measured.provenance}})

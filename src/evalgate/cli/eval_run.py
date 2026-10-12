@@ -20,6 +20,7 @@ import os
 import platform
 import subprocess  # nosec B404 - launches this repository's own example client, see record_sut
 import sys
+from collections.abc import Mapping
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -48,18 +49,16 @@ def _digest(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def record_sut(suite: Suite, variant: str, root: Path, base_url: str) -> None:
-    """Run one variant of the system under test over the golden set and record what it printed. It is a
+def sut_stdout(suite: Suite, knobs: Mapping[str, str], data_dir: Path, root: Path, base_url: str) -> str:
+    """Run the system under test once over the questions in `data_dir` and return what it printed. It is a
     CLIENT: launched as a separate process with environment variables, never imported (R13)."""
-    out = root / suite.outputs_of(variant)
-    out.parent.mkdir(parents=True, exist_ok=True)
     env = {
-        # No RAG_* leaks in from the shell: a variant is exactly the knobs the suite declares for it.
+        # No RAG_* leaks in from the shell: a run is exactly the knobs it is given.
         **{key: value for key, value in os.environ.items() if not key.startswith("RAG_")},
-        "RAG_DATA": str(root / suite.golden_dir),
+        "RAG_DATA": str(data_dir),
         "OPENAI_BASE_URL": base_url,
         "RAG_MODEL": suite.generator_model,
-        **suite.variants[variant],
+        **knobs,
     }
     done = subprocess.run(  # noqa: S603  # nosec B603 - fixed script of this repository, no user input
         [sys.executable, str(root / "examples" / "rag-app" / "rag_app.py")],
@@ -70,7 +69,15 @@ def record_sut(suite: Suite, variant: str, root: Path, base_url: str) -> None:
     )
     if done.returncode != 0:
         raise RuntimeError(f"el sistema bajo prueba falló (exit {done.returncode}):\n{done.stderr[-2000:]}")
-    out.write_text(done.stdout, encoding="utf-8")
+    return done.stdout
+
+
+def record_sut(suite: Suite, variant: str, root: Path, base_url: str) -> None:
+    """Run one variant of the system under test over the golden set and record what it printed."""
+    out = root / suite.outputs_of(variant)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    printed = sut_stdout(suite, suite.variants[variant], root / suite.golden_dir, root, base_url)
+    out.write_text(printed, encoding="utf-8")
 
 
 def run(  # noqa: PLR0913 - the knobs of a run, all named at the call
