@@ -1,21 +1,21 @@
-# La matriz de la meta-evaluación (RULES §5): qué se ejecuta para medir la propia puerta. Fijado ANTES de
-# ejecutar nada (2026-10-12) y versionado: cambiarlo después de ver los números sería elegir el resultado.
+# SEGUNDA medida de la meta-evaluación, fijada el 2026-10-13 ANTES de ejecutarla.
+#
+# La primera (matrix.yaml, 60 casos) dio un efecto mínimo detectable de 15 pp, por encima de los 8 de
+# G-GATE-MDE. La nota de esa meta dice cuál es el remedio: "subir n de la subsuite de calibración, no tocar
+# este umbral". Esto es exactamente eso y nada más. Respecto de matrix.yaml cambian DOS cosas:
+#   1. `cases: all`: los 200 casos del golden set en vez de los 60 de calibración.
+#   2. `judge: off`: `faithfulness` está retirada de la puerta (kappa 0,47), así que no se llama
+#      al juez; la matriz no lleva sus dos métricas.
+# No cambian el ruido, las semillas, el número de ejecuciones, la línea base, el percentil ni el múltiplo.
+#
+# Declarado antes de ver ningún número de esta medida (2026-10-13): si se ejecuta entera, ESTA pasa
+# a ser la medida de las tres metas (falsos positivos, MDE y potencia) a la vez, salga mejor o peor en cada
+# una, y la de 60 casos se queda publicada a su lado como primera medida. No se elige meta a meta.
 suite: rag-app-v2
-# La subsuite de calibración: 60 de los 200 casos, con la misma proporción de negativos, elegidos con semilla
-# al generar el golden set (scripts/gen_golden_v2.py).
-cases: evals/golden/rag-app-v2/calibracion.json
-
-# De dónde sale el ruido (G-GATE-FP lo exige declarado): el sistema bajo prueba a temperatura 0,7 y con una
-# semilla distinta en cada ejecución (`seed_from` + número de ejecución). El juez se llama siempre en vivo,
-# sin leer ni escribir su caché. Una variante que fija su propia temperatura (temperatura-1.2) conserva la
-# suya: esa ES la degradación.
+cases: all
+judge: "off"  # entre comillas: en YAML un off suelto es el booleano false
 noise: { RAG_TEMPERATURE: "0.7" }
 seed_from: 1000
-
-# Ejecuciones por variante. `base` es H0: el mismo sistema contra sí mismo, 50 × 60 = 3.000 generaciones y
-# 3.000 juicios; una es la línea base fija y las otras 49 son las decisiones de G-GATE-FP. Las cuatro
-# degradaciones canónicas se EJECUTAN de verdad con el mismo ruido, 50 veces cada una, en lugar de simularse
-# sobre H0: la potencia es entonces una frecuencia observada (bloqueos / 50) y no un modelo.
 runs:
   base: 50
   contexto-50: 50
@@ -23,9 +23,5 @@ runs:
   docs-aleatorios-20: 50
   temperatura-1.2: 50
 baseline: base-00
-
-# G-GATE-MDE: percentil de los deltas pareados bajo H0. G-GATE-POWER: la potencia se exige a las
-# degradaciones cuyo tamaño medido es al menos este múltiplo del MDE. Los dos números son los de GOALS.yaml
-# (notas de esas metas); viven aquí porque `comparacion` no los declara.
 mde_percentile: 95
 power_min_size_over_mde: 1.5

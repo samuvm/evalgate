@@ -1,60 +1,200 @@
-{"id": "g2-0006", "retrieved": ["ficha-0060", "ficha-0091", "ficha-0061"], "answer": "Kafosa 375", "verdict": "FIEL"}
-{"id": "g2-0008", "retrieved": ["ficha-0017", "ficha-0028", "ficha-0016"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0014", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0030", "retrieved": ["ficha-0007", "ficha-0004", "ficha-0005"], "answer": "2026", "verdict": "FIEL"}
-{"id": "g2-0036", "retrieved": ["ficha-0100", "ficha-0070", "ficha-0108"], "answer": "314", "verdict": "FIEL"}
-{"id": "g2-0037", "retrieved": ["ficha-0035", "ficha-0073", "ficha-0007"], "answer": "Rafoba 116", "verdict": "FIEL"}
-{"id": "g2-0040", "retrieved": ["ficha-0133", "ficha-0132", "ficha-0070"], "answer": "164", "verdict": "FIEL"}
-{"id": "g2-0042", "retrieved": ["ficha-0024", "ficha-0116", "ficha-0025"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0043", "retrieved": ["ficha-0055", "ficha-0030", "ficha-0053"], "answer": "36", "verdict": "FIEL"}
-{"id": "g2-0058", "retrieved": ["ficha-0135", "ficha-0010", "ficha-0132"], "answer": "Uruguay", "verdict": "FIEL"}
-{"id": "g2-0061", "retrieved": ["ficha-0049", "ficha-0023", "ficha-0048"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0063", "retrieved": ["ficha-0148", "ficha-0142", "ficha-0018"], "answer": "Mimisa 144", "verdict": "FIEL"}
-{"id": "g2-0064", "retrieved": ["ficha-0066", "ficha-0139", "ficha-0065"], "answer": "Marruecos", "verdict": "FIEL"}
-{"id": "g2-0067", "retrieved": ["ficha-0121", "ficha-0113", "ficha-0118"], "answer": "189", "verdict": "FIEL"}
-{"id": "g2-0068", "retrieved": ["ficha-0084", "ficha-0109", "ficha-0128"], "answer": "Vivino 606", "verdict": "FIEL"}
-{"id": "g2-0069", "retrieved": ["ficha-0105", "ficha-0023", "ficha-0104"], "answer": "443", "verdict": "FIEL"}
-{"id": "g2-0071", "retrieved": ["ficha-0002", "ficha-0024", "ficha-0025"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0074", "retrieved": ["ficha-0068", "ficha-0021", "ficha-0022"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0077", "retrieved": ["ficha-0032", "ficha-0077", "ficha-0016"], "answer": "Rafoba 982", "verdict": "FIEL"}
-{"id": "g2-0078", "retrieved": ["ficha-0016", "ficha-0024", "ficha-0025"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0084", "retrieved": ["ficha-0043", "ficha-0108", "ficha-0051"], "answer": "Dedequ 982", "verdict": "FIEL"}
-{"id": "g2-0089", "retrieved": ["ficha-0122", "ficha-0145", "ficha-0080"], "answer": "Nozuno 471", "verdict": "FIEL"}
-{"id": "g2-0090", "retrieved": ["ficha-0048", "ficha-0152", "ficha-0006"], "answer": "Demiba 291", "verdict": "FIEL"}
-{"id": "g2-0095", "retrieved": ["ficha-0089", "ficha-0005", "ficha-0006"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0096", "retrieved": ["ficha-0141", "ficha-0112", "ficha-0156"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0097", "retrieved": ["ficha-0081", "ficha-0021", "ficha-0080"], "answer": "181", "verdict": "FIEL"}
-{"id": "g2-0098", "retrieved": ["ficha-0048", "ficha-0155", "ficha-0043"], "answer": "El Demiba 821 pesa más (6657 g), mientras que el Viraxe 607 pesa 389 g.", "verdict": "FIEL"}
-{"id": "g2-0101", "retrieved": ["ficha-0148", "ficha-0041", "ficha-0149"], "answer": "Vietnam", "verdict": "FIEL"}
-{"id": "g2-0109", "retrieved": ["ficha-0035", "ficha-0000", "ficha-0038"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0110", "retrieved": ["ficha-0157", "ficha-0093", "ficha-0094"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0111", "retrieved": ["ficha-0094", "ficha-0145", "ficha-0004"], "answer": "NO_CONSTA", "verdict": "NO_FIEL"}
-{"id": "g2-0115", "retrieved": ["ficha-0098", "ficha-0035", "ficha-0051"], "answer": "619", "verdict": "FIEL"}
-{"id": "g2-0116", "retrieved": ["ficha-0075", "ficha-0072", "ficha-0073"], "answer": "Marruecos", "verdict": "FIEL"}
-{"id": "g2-0117", "retrieved": ["ficha-0010", "ficha-0014", "ficha-0008"], "answer": "Xequsa 784", "verdict": "FIEL"}
-{"id": "g2-0124", "retrieved": ["ficha-0096", "ficha-0080", "ficha-0036"], "answer": "24", "verdict": "FIEL"}
-{"id": "g2-0126", "retrieved": ["ficha-0067", "ficha-0078", "ficha-0150"], "answer": "Loxezu 910", "verdict": "FIEL"}
-{"id": "g2-0128", "retrieved": ["ficha-0037", "ficha-0097", "ficha-0004"], "answer": "Sakari 425", "verdict": "FIEL"}
-{"id": "g2-0129", "retrieved": ["ficha-0055", "ficha-0000", "ficha-0018"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0130", "retrieved": ["ficha-0144", "ficha-0016", "ficha-0145"], "answer": "8879", "verdict": "FIEL"}
-{"id": "g2-0132", "retrieved": ["ficha-0005", "ficha-0071", "ficha-0004"], "answer": "El Raxeba 402 tiene más horas de autonomía.", "verdict": "FIEL"}
-{"id": "g2-0138", "retrieved": ["ficha-0023", "ficha-0156", "ficha-0157"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0140", "retrieved": ["ficha-0140", "ficha-0055", "ficha-0141"], "answer": "2023", "verdict": "FIEL"}
-{"id": "g2-0141", "retrieved": ["ficha-0134", "ficha-0151", "ficha-0045"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0146", "retrieved": ["ficha-0056", "ficha-0135", "ficha-0058"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0147", "retrieved": ["ficha-0011", "ficha-0121", "ficha-0009"], "answer": "2", "verdict": "FIEL"}
-{"id": "g2-0148", "retrieved": ["ficha-0035", "ficha-0077", "ficha-0012"], "answer": "El Loxezu 930", "verdict": "FIEL"}
-{"id": "g2-0157", "retrieved": ["ficha-0015", "ficha-0047", "ficha-0000"], "answer": "NO_CONSTA", "verdict": "NO_FIEL"}
-{"id": "g2-0158", "retrieved": ["ficha-0085", "ficha-0069", "ficha-0108"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0159", "retrieved": ["ficha-0021", "ficha-0020", "ficha-0022"], "answer": "3574", "verdict": "FIEL"}
-{"id": "g2-0165", "retrieved": ["ficha-0068", "ficha-0049", "ficha-0123"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0170", "retrieved": ["ficha-0078", "ficha-0076", "ficha-0077"], "answer": "279", "verdict": "FIEL"}
-{"id": "g2-0174", "retrieved": ["ficha-0094", "ficha-0092", "ficha-0093"], "answer": "671", "verdict": "FIEL"}
-{"id": "g2-0177", "retrieved": ["ficha-0124", "ficha-0039", "ficha-0001"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0181", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0184", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0188", "retrieved": ["ficha-0011", "ficha-0033", "ficha-0000"], "answer": "Rafoba 876", "verdict": "FIEL"}
-{"id": "g2-0190", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0195", "retrieved": ["ficha-0091", "ficha-0112", "ficha-0113"], "answer": "NO_CONSTA", "verdict": "FIEL"}
-{"id": "g2-0196", "retrieved": ["ficha-0038", "ficha-0121", "ficha-0000"], "answer": "El Xedelo 251 pesa más.", "verdict": "NO_FIEL"}
-{"id": "g2-0199", "retrieved": ["ficha-0028", "ficha-0049", "ficha-0008"], "answer": "Viraxe 314", "verdict": "FIEL"}
+{"id": "g2-0000", "retrieved": ["ficha-0100", "ficha-0135", "ficha-0006"], "answer": "NO_CONSTA"}
+{"id": "g2-0001", "retrieved": ["ficha-0095", "ficha-0072", "ficha-0073"], "answer": "NO_CONSTA"}
+{"id": "g2-0002", "retrieved": ["ficha-0042", "ficha-0136", "ficha-0041"], "answer": "Noruega"}
+{"id": "g2-0003", "retrieved": ["ficha-0032", "ficha-0077", "ficha-0016"], "answer": "Loxezu 930"}
+{"id": "g2-0004", "retrieved": ["ficha-0052", "ficha-0158", "ficha-0084"], "answer": "Fomiqu 341"}
+{"id": "g2-0005", "retrieved": ["ficha-0037", "ficha-0097", "ficha-0004"], "answer": "Midesa 401"}
+{"id": "g2-0006", "retrieved": ["ficha-0060", "ficha-0091", "ficha-0061"], "answer": "Kafosa 375"}
+{"id": "g2-0007", "retrieved": ["ficha-0088", "ficha-0158", "ficha-0089"], "answer": "Kafosa 361"}
+{"id": "g2-0008", "retrieved": ["ficha-0017", "ficha-0028", "ficha-0016"], "answer": "NO_CONSTA"}
+{"id": "g2-0009", "retrieved": ["ficha-0130", "ficha-0028", "ficha-0128"], "answer": "398"}
+{"id": "g2-0010", "retrieved": ["ficha-0009", "ficha-0008", "ficha-0010"], "answer": "4986"}
+{"id": "g2-0011", "retrieved": ["ficha-0137", "ficha-0085", "ficha-0086"], "answer": "NO_CONSTA"}
+{"id": "g2-0012", "retrieved": ["ficha-0112", "ficha-0028", "ficha-0030"], "answer": "NO_CONSTA"}
+{"id": "g2-0013", "retrieved": ["ficha-0011", "ficha-0033", "ficha-0000"], "answer": "Kadefo 256"}
+{"id": "g2-0014", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0015", "retrieved": ["ficha-0110", "ficha-0149", "ficha-0043"], "answer": "El Dedequ 196 tiene más horas de autonomía (122) que el Denoqu 634 (95)."}
+{"id": "g2-0016", "retrieved": ["ficha-0093", "ficha-0127", "ficha-0138"], "answer": "NO_CONSTA"}
+{"id": "g2-0017", "retrieved": ["ficha-0133", "ficha-0091", "ficha-0011"], "answer": "Kafosa 375"}
+{"id": "g2-0018", "retrieved": ["ficha-0058", "ficha-0025", "ficha-0069"], "answer": "Kanora 195"}
+{"id": "g2-0019", "retrieved": ["ficha-0104", "ficha-0132", "ficha-0058"], "answer": "NO_CONSTA"}
+{"id": "g2-0020", "retrieved": ["ficha-0118", "ficha-0146", "ficha-0050"], "answer": "Rikavi 371"}
+{"id": "g2-0021", "retrieved": ["ficha-0001", "ficha-0136", "ficha-0000"], "answer": "7504"}
+{"id": "g2-0022", "retrieved": ["ficha-0053", "ficha-0086", "ficha-0126"], "answer": "Vivino 790"}
+{"id": "g2-0023", "retrieved": ["ficha-0063", "ficha-0060", "ficha-0061"], "answer": "8892"}
+{"id": "g2-0024", "retrieved": ["ficha-0152", "ficha-0156", "ficha-0087"], "answer": "Demiba 291"}
+{"id": "g2-0025", "retrieved": ["ficha-0091", "ficha-0111", "ficha-0068"], "answer": "NO_CONSTA"}
+{"id": "g2-0026", "retrieved": ["ficha-0150", "ficha-0159", "ficha-0012"], "answer": "Denoqu 168"}
+{"id": "g2-0027", "retrieved": ["ficha-0091", "ficha-0004", "ficha-0088"], "answer": "NO_CONSTA"}
+{"id": "g2-0028", "retrieved": ["ficha-0016", "ficha-0017", "ficha-0018"], "answer": "NO_CONSTA"}
+{"id": "g2-0029", "retrieved": ["ficha-0053", "ficha-0086", "ficha-0119"], "answer": "Vivino 790"}
+{"id": "g2-0030", "retrieved": ["ficha-0007", "ficha-0004", "ficha-0005"], "answer": "2026"}
+{"id": "g2-0031", "retrieved": ["ficha-0064", "ficha-0127", "ficha-0000"], "answer": "Mifosa 281"}
+{"id": "g2-0032", "retrieved": ["ficha-0133", "ficha-0046", "ficha-0046"], "answer": "NO_CONSTA"}
+{"id": "g2-0033", "retrieved": ["ficha-0074", "ficha-0136", "ficha-0018"], "answer": "Miqusa 477"}
+{"id": "g2-0034", "retrieved": ["ficha-0022", "ficha-0120", "ficha-0136"], "answer": "NO_CONSTA"}
+{"id": "g2-0035", "retrieved": ["ficha-0155", "ficha-0118", "ficha-0153"], "answer": "Marruecos"}
+{"id": "g2-0036", "retrieved": ["ficha-0100", "ficha-0070", "ficha-0108"], "answer": "314"}
+{"id": "g2-0037", "retrieved": ["ficha-0035", "ficha-0073", "ficha-0007"], "answer": "Rafoba 116"}
+{"id": "g2-0038", "retrieved": ["ficha-0092", "ficha-0065", "ficha-0066"], "answer": "NO_CONSTA"}
+{"id": "g2-0039", "retrieved": ["ficha-0003", "ficha-0073", "ficha-0000"], "answer": "El Miqusa 458 pesa más."}
+{"id": "g2-0040", "retrieved": ["ficha-0133", "ficha-0132", "ficha-0070"], "answer": "164"}
+{"id": "g2-0041", "retrieved": ["ficha-0134", "ficha-0132", "ficha-0133"], "answer": "6094"}
+{"id": "g2-0042", "retrieved": ["ficha-0024", "ficha-0116", "ficha-0025"], "answer": "NO_CONSTA"}
+{"id": "g2-0043", "retrieved": ["ficha-0055", "ficha-0030", "ficha-0053"], "answer": "36"}
+{"id": "g2-0044", "retrieved": ["ficha-0060", "ficha-0061", "ficha-0156"], "answer": "101"}
+{"id": "g2-0045", "retrieved": ["ficha-0147", "ficha-0058", "ficha-0144"], "answer": "779"}
+{"id": "g2-0046", "retrieved": ["ficha-0068", "ficha-0128", "ficha-0065"], "answer": "Baxexe 255"}
+{"id": "g2-0047", "retrieved": ["ficha-0048", "ficha-0152", "ficha-0158"], "answer": "Viraxe 607"}
+{"id": "g2-0048", "retrieved": ["ficha-0018", "ficha-0016", "ficha-0017"], "answer": "2029"}
+{"id": "g2-0049", "retrieved": ["ficha-0134", "ficha-0137", "ficha-0006"], "answer": "NO_CONSTA"}
+{"id": "g2-0050", "retrieved": ["ficha-0001", "ficha-0030", "ficha-0020"], "answer": "Razude 143"}
+{"id": "g2-0051", "retrieved": ["ficha-0020", "ficha-0094", "ficha-0001"], "answer": "Foqusa 904"}
+{"id": "g2-0052", "retrieved": ["ficha-0082", "ficha-0089", "ficha-0000"], "answer": "El Kafosa 423 pesa más."}
+{"id": "g2-0053", "retrieved": ["ficha-0076", "ficha-0024", "ficha-0011"], "answer": "Loxezu 980"}
+{"id": "g2-0054", "retrieved": ["ficha-0085", "ficha-0121", "ficha-0007"], "answer": "Xedelo 251"}
+{"id": "g2-0055", "retrieved": ["ficha-0020", "ficha-0141", "ficha-0153"], "answer": "Mivira 120"}
+{"id": "g2-0056", "retrieved": ["ficha-0009", "ficha-0008", "ficha-0010"], "answer": "2022"}
+{"id": "g2-0057", "retrieved": ["ficha-0013", "ficha-0097", "ficha-0012"], "answer": "El Xequsa 215 es más caro."}
+{"id": "g2-0058", "retrieved": ["ficha-0135", "ficha-0010", "ficha-0132"], "answer": "Uruguay"}
+{"id": "g2-0059", "retrieved": ["ficha-0103", "ficha-0157", "ficha-0019"], "answer": "El Misami 834 pesa más (4436 g > 1614 g)."}
+{"id": "g2-0060", "retrieved": ["ficha-0069", "ficha-0068", "ficha-0070"], "answer": "18"}
+{"id": "g2-0061", "retrieved": ["ficha-0049", "ficha-0023", "ficha-0048"], "answer": "NO_CONSTA"}
+{"id": "g2-0062", "retrieved": ["ficha-0040", "ficha-0041", "ficha-0042"], "answer": "NO_CONSTA"}
+{"id": "g2-0063", "retrieved": ["ficha-0148", "ficha-0142", "ficha-0018"], "answer": "Mimisa 144"}
+{"id": "g2-0064", "retrieved": ["ficha-0066", "ficha-0139", "ficha-0065"], "answer": "Marruecos"}
+{"id": "g2-0065", "retrieved": ["ficha-0013", "ficha-0012", "ficha-0014"], "answer": "24"}
+{"id": "g2-0066", "retrieved": ["ficha-0134", "ficha-0048", "ficha-0049"], "answer": "NO_CONSTA"}
+{"id": "g2-0067", "retrieved": ["ficha-0121", "ficha-0113", "ficha-0118"], "answer": "189"}
+{"id": "g2-0068", "retrieved": ["ficha-0084", "ficha-0109", "ficha-0128"], "answer": "Vivino 606"}
+{"id": "g2-0069", "retrieved": ["ficha-0105", "ficha-0023", "ficha-0104"], "answer": "443"}
+{"id": "g2-0070", "retrieved": ["ficha-0043", "ficha-0065", "ficha-0007"], "answer": "El Mifosa 824 pesa más."}
+{"id": "g2-0071", "retrieved": ["ficha-0002", "ficha-0024", "ficha-0025"], "answer": "NO_CONSTA"}
+{"id": "g2-0072", "retrieved": ["ficha-0061", "ficha-0088", "ficha-0039"], "answer": "NO_CONSTA"}
+{"id": "g2-0073", "retrieved": ["ficha-0029", "ficha-0035", "ficha-0088"], "answer": "NO_CONSTA"}
+{"id": "g2-0074", "retrieved": ["ficha-0068", "ficha-0021", "ficha-0022"], "answer": "NO_CONSTA"}
+{"id": "g2-0075", "retrieved": ["ficha-0126", "ficha-0009", "ficha-0124"], "answer": "138"}
+{"id": "g2-0076", "retrieved": ["ficha-0029", "ficha-0028", "ficha-0030"], "answer": "236"}
+{"id": "g2-0077", "retrieved": ["ficha-0032", "ficha-0077", "ficha-0016"], "answer": "Rafoba 982"}
+{"id": "g2-0078", "retrieved": ["ficha-0016", "ficha-0024", "ficha-0025"], "answer": "NO_CONSTA"}
+{"id": "g2-0079", "retrieved": ["ficha-0082", "ficha-0045", "ficha-0080"], "answer": "NO_CONSTA"}
+{"id": "g2-0080", "retrieved": ["ficha-0128", "ficha-0129", "ficha-0156"], "answer": "NO_CONSTA"}
+{"id": "g2-0081", "retrieved": ["ficha-0132", "ficha-0133", "ficha-0153"], "answer": "24"}
+{"id": "g2-0082", "retrieved": ["ficha-0125", "ficha-0148", "ficha-0069"], "answer": "NO_CONSTA"}
+{"id": "g2-0083", "retrieved": ["ficha-0134", "ficha-0121", "ficha-0006"], "answer": "Debate 878"}
+{"id": "g2-0084", "retrieved": ["ficha-0043", "ficha-0108", "ficha-0051"], "answer": "Dedequ 982"}
+{"id": "g2-0085", "retrieved": ["ficha-0153", "ficha-0152", "ficha-0034"], "answer": "Noruega"}
+{"id": "g2-0086", "retrieved": ["ficha-0084", "ficha-0109", "ficha-0128"], "answer": "Zuravi 824"}
+{"id": "g2-0087", "retrieved": ["ficha-0100", "ficha-0102", "ficha-0006"], "answer": "Misami 419"}
+{"id": "g2-0088", "retrieved": ["ficha-0066", "ficha-0137", "ficha-0009"], "answer": "El Mifosa 648 pesa más."}
+{"id": "g2-0089", "retrieved": ["ficha-0122", "ficha-0145", "ficha-0080"], "answer": "Nozuno 471"}
+{"id": "g2-0090", "retrieved": ["ficha-0048", "ficha-0152", "ficha-0006"], "answer": "Demiba 291"}
+{"id": "g2-0091", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0153"], "answer": "NO_CONSTA"}
+{"id": "g2-0092", "retrieved": ["ficha-0143", "ficha-0152", "ficha-0087"], "answer": "Mimisa 474"}
+{"id": "g2-0093", "retrieved": ["ficha-0106", "ficha-0072", "ficha-0074"], "answer": "NO_CONSTA"}
+{"id": "g2-0094", "retrieved": ["ficha-0072", "ficha-0067", "ficha-0074"], "answer": "NO_CONSTA"}
+{"id": "g2-0095", "retrieved": ["ficha-0089", "ficha-0005", "ficha-0006"], "answer": "NO_CONSTA"}
+{"id": "g2-0096", "retrieved": ["ficha-0141", "ficha-0112", "ficha-0156"], "answer": "NO_CONSTA"}
+{"id": "g2-0097", "retrieved": ["ficha-0081", "ficha-0021", "ficha-0080"], "answer": "181"}
+{"id": "g2-0098", "retrieved": ["ficha-0048", "ficha-0155", "ficha-0043"], "answer": "El Demiba 821 pesa más (6657 g contra 389 g)."}
+{"id": "g2-0099", "retrieved": ["ficha-0039", "ficha-0112", "ficha-0036"], "answer": "711"}
+{"id": "g2-0100", "retrieved": ["ficha-0003", "ficha-0153", "ficha-0000"], "answer": "El Razude 951 pesa más."}
+{"id": "g2-0101", "retrieved": ["ficha-0148", "ficha-0041", "ficha-0149"], "answer": "Vietnam"}
+{"id": "g2-0102", "retrieved": ["ficha-0013", "ficha-0039", "ficha-0151"], "answer": "El Sakari 566 pesa más."}
+{"id": "g2-0103", "retrieved": ["ficha-0089", "ficha-0142", "ficha-0008"], "answer": "Kafosa 423"}
+{"id": "g2-0104", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0105", "retrieved": ["ficha-0130", "ficha-0028", "ficha-0128"], "answer": "36"}
+{"id": "g2-0106", "retrieved": ["ficha-0141", "ficha-0152", "ficha-0153"], "answer": "NO_CONSTA"}
+{"id": "g2-0107", "retrieved": ["ficha-0101", "ficha-0019", "ficha-0100"], "answer": "NO_CONSTA"}
+{"id": "g2-0108", "retrieved": ["ficha-0043", "ficha-0108", "ficha-0125"], "answer": "Dexeno 793"}
+{"id": "g2-0109", "retrieved": ["ficha-0035", "ficha-0000", "ficha-0038"], "answer": "NO_CONSTA"}
+{"id": "g2-0110", "retrieved": ["ficha-0157", "ficha-0093", "ficha-0094"], "answer": "NO_CONSTA"}
+{"id": "g2-0111", "retrieved": ["ficha-0094", "ficha-0145", "ficha-0004"], "answer": "NO_CONSTA"}
+{"id": "g2-0112", "retrieved": ["ficha-0132", "ficha-0138", "ficha-0099"], "answer": "Miqura 302"}
+{"id": "g2-0113", "retrieved": ["ficha-0036", "ficha-0121", "ficha-0038"], "answer": "NO_CONSTA"}
+{"id": "g2-0114", "retrieved": ["ficha-0001", "ficha-0088", "ficha-0020"], "answer": "Razude 143"}
+{"id": "g2-0115", "retrieved": ["ficha-0098", "ficha-0035", "ficha-0051"], "answer": "619"}
+{"id": "g2-0116", "retrieved": ["ficha-0075", "ficha-0072", "ficha-0073"], "answer": "Marruecos"}
+{"id": "g2-0117", "retrieved": ["ficha-0010", "ficha-0014", "ficha-0008"], "answer": "Xequsa 784"}
+{"id": "g2-0118", "retrieved": ["ficha-0032", "ficha-0084", "ficha-0085"], "answer": "NO_CONSTA"}
+{"id": "g2-0119", "retrieved": ["ficha-0052", "ficha-0081", "ficha-0082"], "answer": "NO_CONSTA"}
+{"id": "g2-0120", "retrieved": ["ficha-0049", "ficha-0004", "ficha-0048"], "answer": "NO_CONSTA"}
+{"id": "g2-0121", "retrieved": ["ficha-0158", "ficha-0156", "ficha-0157"], "answer": "2024"}
+{"id": "g2-0122", "retrieved": ["ficha-0118", "ficha-0146", "ficha-0050"], "answer": "Rikavi 371"}
+{"id": "g2-0123", "retrieved": ["ficha-0135", "ficha-0010", "ficha-0000"], "answer": "399"}
+{"id": "g2-0124", "retrieved": ["ficha-0096", "ficha-0080", "ficha-0036"], "answer": "24"}
+{"id": "g2-0125", "retrieved": ["ficha-0008", "ficha-0091", "ficha-0010"], "answer": "NO_CONSTA"}
+{"id": "g2-0126", "retrieved": ["ficha-0067", "ficha-0078", "ficha-0150"], "answer": "Loxezu 910"}
+{"id": "g2-0127", "retrieved": ["ficha-0008", "ficha-0145", "ficha-0076"], "answer": "NO_CONSTA"}
+{"id": "g2-0128", "retrieved": ["ficha-0037", "ficha-0097", "ficha-0004"], "answer": "Sakari 425"}
+{"id": "g2-0129", "retrieved": ["ficha-0055", "ficha-0000", "ficha-0018"], "answer": "NO_CONSTA"}
+{"id": "g2-0130", "retrieved": ["ficha-0144", "ficha-0016", "ficha-0145"], "answer": "8879"}
+{"id": "g2-0131", "retrieved": ["ficha-0043", "ficha-0105", "ficha-0007"], "answer": "El Qukalo 654 es más caro."}
+{"id": "g2-0132", "retrieved": ["ficha-0005", "ficha-0071", "ficha-0004"], "answer": "El Raxeba 402 tiene más horas de autonomía."}
+{"id": "g2-0133", "retrieved": ["ficha-0025", "ficha-0145", "ficha-0024"], "answer": "Raxevi 109"}
+{"id": "g2-0134", "retrieved": ["ficha-0064", "ficha-0065", "ficha-0037"], "answer": "NO_CONSTA"}
+{"id": "g2-0135", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0136", "retrieved": ["ficha-0156", "ficha-0157", "ficha-0074"], "answer": "2022"}
+{"id": "g2-0137", "retrieved": ["ficha-0073", "ficha-0072", "ficha-0074"], "answer": "139"}
+{"id": "g2-0138", "retrieved": ["ficha-0023", "ficha-0156", "ficha-0157"], "answer": "NO_CONSTA"}
+{"id": "g2-0139", "retrieved": ["ficha-0076", "ficha-0077", "ficha-0078"], "answer": "NO_CONSTA"}
+{"id": "g2-0140", "retrieved": ["ficha-0140", "ficha-0055", "ficha-0141"], "answer": "2023"}
+{"id": "g2-0141", "retrieved": ["ficha-0134", "ficha-0151", "ficha-0045"], "answer": "NO_CONSTA"}
+{"id": "g2-0142", "retrieved": ["ficha-0002", "ficha-0043", "ficha-0054"], "answer": "NO_CONSTA"}
+{"id": "g2-0143", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0144", "retrieved": ["ficha-0002", "ficha-0067", "ficha-0054"], "answer": "Razude 851"}
+{"id": "g2-0145", "retrieved": ["ficha-0020", "ficha-0091", "ficha-0012"], "answer": "NO_CONSTA"}
+{"id": "g2-0146", "retrieved": ["ficha-0056", "ficha-0135", "ficha-0058"], "answer": "NO_CONSTA"}
+{"id": "g2-0147", "retrieved": ["ficha-0011", "ficha-0121", "ficha-0009"], "answer": "2"}
+{"id": "g2-0148", "retrieved": ["ficha-0035", "ficha-0077", "ficha-0012"], "answer": "El Loxezu 930"}
+{"id": "g2-0149", "retrieved": ["ficha-0042", "ficha-0124", "ficha-0006"], "answer": "NO_CONSTA"}
+{"id": "g2-0150", "retrieved": ["ficha-0028", "ficha-0007", "ficha-0008"], "answer": "Ravite 253"}
+{"id": "g2-0151", "retrieved": ["ficha-0042", "ficha-0068", "ficha-0110"], "answer": "El Quvika 163 pesa más."}
+{"id": "g2-0152", "retrieved": ["ficha-0075", "ficha-0086", "ficha-0111"], "answer": "El Miqusa 327 pesa 8276 g y el Vivino 790 pesa 5594 g. Por lo tanto, el Miqusa 327 pesa más."}
+{"id": "g2-0153", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0154", "retrieved": ["ficha-0132", "ficha-0138", "ficha-0099"], "answer": "Miqura 302"}
+{"id": "g2-0155", "retrieved": ["ficha-0104", "ficha-0105", "ficha-0106"], "answer": "NO_CONSTA"}
+{"id": "g2-0156", "retrieved": ["ficha-0052", "ficha-0110", "ficha-0004"], "answer": "Fomiqu 341"}
+{"id": "g2-0157", "retrieved": ["ficha-0015", "ficha-0047", "ficha-0000"], "answer": "NO_CONSTA"}
+{"id": "g2-0158", "retrieved": ["ficha-0085", "ficha-0069", "ficha-0108"], "answer": "NO_CONSTA"}
+{"id": "g2-0159", "retrieved": ["ficha-0021", "ficha-0020", "ficha-0022"], "answer": "3574"}
+{"id": "g2-0160", "retrieved": ["ficha-0149", "ficha-0148", "ficha-0150"], "answer": "675"}
+{"id": "g2-0161", "retrieved": ["ficha-0014", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0162", "retrieved": ["ficha-0003", "ficha-0000", "ficha-0128"], "answer": "18"}
+{"id": "g2-0163", "retrieved": ["ficha-0019", "ficha-0002", "ficha-0016"], "answer": "NO_CONSTA"}
+{"id": "g2-0164", "retrieved": ["ficha-0124", "ficha-0125", "ficha-0126"], "answer": "NO_CONSTA"}
+{"id": "g2-0165", "retrieved": ["ficha-0068", "ficha-0049", "ficha-0123"], "answer": "NO_CONSTA"}
+{"id": "g2-0166", "retrieved": ["ficha-0011", "ficha-0061", "ficha-0148"], "answer": "NO_CONSTA"}
+{"id": "g2-0167", "retrieved": ["ficha-0067", "ficha-0113", "ficha-0001"], "answer": "Mifosa 927"}
+{"id": "g2-0168", "retrieved": ["ficha-0008", "ficha-0012", "ficha-0013"], "answer": "NO_CONSTA"}
+{"id": "g2-0169", "retrieved": ["ficha-0088", "ficha-0145", "ficha-0089"], "answer": "El Nozuno 471 pesa más."}
+{"id": "g2-0170", "retrieved": ["ficha-0078", "ficha-0076", "ficha-0077"], "answer": "279"}
+{"id": "g2-0171", "retrieved": ["ficha-0134", "ficha-0132", "ficha-0087"], "answer": "218"}
+{"id": "g2-0172", "retrieved": ["ficha-0095", "ficha-0146", "ficha-0012"], "answer": "NO_CONSTA"}
+{"id": "g2-0173", "retrieved": ["ficha-0095", "ficha-0101", "ficha-0052"], "answer": "668"}
+{"id": "g2-0174", "retrieved": ["ficha-0094", "ficha-0092", "ficha-0093"], "answer": "671"}
+{"id": "g2-0175", "retrieved": ["ficha-0087", "ficha-0106", "ficha-0045"], "answer": "Vivino 125"}
+{"id": "g2-0176", "retrieved": ["ficha-0022", "ficha-0103", "ficha-0019"], "answer": "Mivira 344"}
+{"id": "g2-0177", "retrieved": ["ficha-0124", "ficha-0039", "ficha-0001"], "answer": "NO_CONSTA"}
+{"id": "g2-0178", "retrieved": ["ficha-0156", "ficha-0157", "ficha-0158"], "answer": "864"}
+{"id": "g2-0179", "retrieved": ["ficha-0007", "ficha-0062", "ficha-0004"], "answer": "NO_CONSTA"}
+{"id": "g2-0180", "retrieved": ["ficha-0000", "ficha-0014", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0181", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0182", "retrieved": ["ficha-0080", "ficha-0130", "ficha-0028"], "answer": "El Mitevi 995 pesa más."}
+{"id": "g2-0183", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0184", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0185", "retrieved": ["ficha-0000", "ficha-0077", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0186", "retrieved": ["ficha-0019", "ficha-0012", "ficha-0063"], "answer": "NO_CONSTA"}
+{"id": "g2-0187", "retrieved": ["ficha-0097", "ficha-0096", "ficha-0006"], "answer": "2019"}
+{"id": "g2-0188", "retrieved": ["ficha-0011", "ficha-0033", "ficha-0000"], "answer": "Rafoba 876"}
+{"id": "g2-0189", "retrieved": ["ficha-0015", "ficha-0012", "ficha-0143"], "answer": "349"}
+{"id": "g2-0190", "retrieved": ["ficha-0000", "ficha-0001", "ficha-0002"], "answer": "NO_CONSTA"}
+{"id": "g2-0191", "retrieved": ["ficha-0101", "ficha-0147", "ficha-0000"], "answer": "Nozuno 888"}
+{"id": "g2-0192", "retrieved": ["ficha-0014", "ficha-0158", "ficha-0012"], "answer": "Xequsa 784"}
+{"id": "g2-0193", "retrieved": ["ficha-0146", "ficha-0159", "ficha-0012"], "answer": "Midefo 820"}
+{"id": "g2-0194", "retrieved": ["ficha-0107", "ficha-0104", "ficha-0018"], "answer": "NO_CONSTA"}
+{"id": "g2-0195", "retrieved": ["ficha-0091", "ficha-0112", "ficha-0113"], "answer": "NO_CONSTA"}
+{"id": "g2-0196", "retrieved": ["ficha-0038", "ficha-0121", "ficha-0000"], "answer": "El Xedelo 251 pesa más."}
+{"id": "g2-0197", "retrieved": ["ficha-0008", "ficha-0026", "ficha-0009"], "answer": "Raxevi 293"}
+{"id": "g2-0198", "retrieved": ["ficha-0032", "ficha-0033", "ficha-0067"], "answer": "NO_CONSTA"}
+{"id": "g2-0199", "retrieved": ["ficha-0028", "ficha-0049", "ficha-0008"], "answer": "Viraxe 314"}

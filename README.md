@@ -176,10 +176,32 @@ salgan. Generados por `make report` desde `evals/reports/meta-eval.json`; `evalg
 vuelve a calcular desde las 150 etiquetas humanas y desde la matriz de 250 ejecuciones, sin llamar a ningún
 modelo.
 
+La matriz se midió dos veces. La primera, con los 60 casos de calibración y el juez en vivo, dio un efecto
+mínimo de 15 puntos. La segunda repite el mismo plan sobre los 200 casos y sin juez (su métrica ya no
+bloquea: kappa bajo el umbral). Antes de ejecutarla quedó escrito que sus tres números sustituirían a los de
+la primera salieran como salieran; son los de la tabla. La primera queda debajo, sin tocar.
+
 <!-- evalgate:meta:start -->
 | Meta | Medido | Umbral | ¿Cumple? | Detalle |
 |---|---|---|---|---|
 | `G-JUDGE-KAPPA` | 0,47 | >= 0,60 | **no** | IC95 [0,27, 0,65] · 150 etiquetas humanas · acuerdo bruto 0,86 |
+| `G-GATE-FP` | 0,102 | <= 0,05 | **no** | Wilson 95 % [0,044, 0,218] · 5 bloqueos en 49 decisiones contra `base-00` |
+| `G-GATE-MDE` | 10,50 | <= 8,00 | **no** | puntos porcentuales, en `answer_correct` · 200 casos · 2450 pares de 50 ejecuciones |
+| `G-GATE-POWER` | 1,00 | >= 0,90 | sí | mínimo sobre las degradaciones de tamaño ≥ 15,75 pp · mínimo sobre las 4: 0,02 |
+
+Métricas que bloquean: `answer_correct`, `context_recall`, `abstencion_incorrecta`. Ruido: sistema bajo prueba con RAG_TEMPERATURE=0.7 y semilla distinta por ejecución (RAG_SEED = 1000 + nº de ejecución); sin juez: sus métricas no se miden.
+
+| Degradación | Potencia | Bloqueos | Tamaño medido | ¿Se le exige? |
+|---|---|---|---|---|
+| `contexto-50` | 1,00 | 50/50 | 36,3 pp en `abstencion_incorrecta` | sí |
+| `docs-aleatorios-20` | 1,00 | 50/50 | 23,6 pp en `abstencion_incorrecta` | sí |
+| `modelo-pequeno` | 0,02 | 1/50 | 0,8 pp en `answer_correct` | no: por debajo del tamaño exigido |
+| `temperatura-1.2` | 0,28 | 14/50 | 4,8 pp en `answer_correct` | no: por debajo del tamaño exigido |
+
+**Medida anterior, publicada tal cual** · 60 casos · `evals/reports/meta-eval-60.json`
+
+| Meta | Medido | Umbral | ¿Cumple? | Detalle |
+|---|---|---|---|---|
 | `G-GATE-FP` | 0,122 | <= 0,05 | **no** | Wilson 95 % [0,057, 0,242] · 6 bloqueos en 49 decisiones contra `base-00` |
 | `G-GATE-MDE` | 15,00 | <= 8,00 | **no** | puntos porcentuales, en `answer_correct` · 60 casos · 2450 pares de 50 ejecuciones |
 | `G-GATE-POWER` | 1,00 | >= 0,90 | sí | mínimo sobre las degradaciones de tamaño ≥ 22,50 pp · mínimo sobre las 4: 0,00 |

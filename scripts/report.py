@@ -53,7 +53,16 @@ def meta_table() -> str:
     if not path.exists():
         return "_Meta-evaluación sin medir todavía._"
     goals = yaml.safe_load((ROOT / "docs" / "GOALS.yaml").read_text(encoding="utf-8"))
-    return report_table(json.loads(path.read_text(encoding="utf-8")), goals)
+    shown = report_table(json.loads(path.read_text(encoding="utf-8")), goals)
+    for earlier in sorted(path.parent.glob("meta-eval-*.json")):
+        document = json.loads(earlier.read_text(encoding="utf-8"))
+        if "fp_rate_baseline_fixed" not in document:
+            continue  # another document of the judge, not a measurement of the matrix
+        shown += (
+            f"\n\n**Medida anterior, publicada tal cual** · {document['n_casos_subsuite']} casos · "
+            f"`{earlier.relative_to(ROOT)}`\n\n" + report_table(document, goals, matrix_only=True)
+        )
+    return shown
 
 
 def _between(readme: str, start: str, end: str, body: str) -> str:

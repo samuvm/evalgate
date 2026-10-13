@@ -246,23 +246,20 @@ def _es(value: float, digits: int = 2) -> str:
     return f"{value:.{digits}f}".replace(".", ",")
 
 
-def report_table(document: dict[str, Any], goals: dict[str, Any]) -> str:
+def report_table(document: dict[str, Any], goals: dict[str, Any], *, matrix_only: bool = False) -> str:
     """The meta-evaluation as the README shows it: every goal with what was measured, its threshold from
-    GOALS.yaml and whether it holds. Nothing is rounded into passing: the verdict is on the full value."""
-    if missing := sorted(block for block, _ in _GOAL_VALUES.values() if block not in document):
+    GOALS.yaml and whether it holds. Nothing is rounded into passing: the verdict is on the full value.
+    `matrix_only` leaves the judge's kappa out: an earlier measurement of the matrix has none of its own."""
+    shown_goals = {
+        goal: where
+        for goal, where in _GOAL_VALUES.items()
+        if not (matrix_only and where[0] == "cohens_kappa")
+    }
+    if missing := sorted(block for block, _ in shown_goals.values() if block not in document):
         raise LabelsError(f"al documento de meta-evaluación le faltan bloques: {', '.join(missing)}")
-    thresholds = {meta["id"]: meta["umbral"] for meta in goals["metas"] if meta["id"] in _GOAL_VALUES}
-    kappa, rate, effect, power = (
-        document["cohens_kappa"],
-        document["fp_rate_baseline_fixed"],
-        document["mde_pp"],
-        document["power"],
-    )
+    thresholds = {meta["id"]: meta["umbral"] for meta in goals["metas"] if meta["id"] in shown_goals}
+    rate, effect, power = document["fp_rate_baseline_fixed"], document["mde_pp"], document["power"]
     detail = {
-        "G-JUDGE-KAPPA": (
-            f"IC95 [{_es(kappa['ci95_bootstrap'][0])}, {_es(kappa['ci95_bootstrap'][1])}] · "
-            f"{kappa['n']} etiquetas humanas · acuerdo bruto {_es(kappa['raw_agreement'])}"
-        ),
         "G-GATE-FP": (
             f"Wilson 95 % [{_es(rate['wilson_95'][0], 3)}, {_es(rate['wilson_95'][1], 3)}] · "
             f"{rate['blocked']} bloqueos en {rate['n']} decisiones contra `{rate['baseline']}`"
@@ -276,8 +273,14 @@ def report_table(document: dict[str, Any], goals: dict[str, Any]) -> str:
             f"mínimo sobre las {len(power['per_degradation'])}: {_es(power['min_over_all'])}"
         ),
     }
+    if not matrix_only:
+        kappa = document["cohens_kappa"]
+        detail["G-JUDGE-KAPPA"] = (
+            f"IC95 [{_es(kappa['ci95_bootstrap'][0])}, {_es(kappa['ci95_bootstrap'][1])}] · "
+            f"{kappa['n']} etiquetas humanas · acuerdo bruto {_es(kappa['raw_agreement'])}"
+        )
     lines = ["| Meta | Medido | Umbral | ¿Cumple? | Detalle |", "|---|---|---|---|---|"]
-    for goal, (block, field) in _GOAL_VALUES.items():
+    for goal, (block, field) in shown_goals.items():
         value, threshold = document[block][field], thresholds[goal]
         holds = value is not None and _HOLDS[threshold["operador"]](value, threshold["valor"])
         shown = "sin medir" if value is None else _es(value, 3 if goal == "G-GATE-FP" else 2)

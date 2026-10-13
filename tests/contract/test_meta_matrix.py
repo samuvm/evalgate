@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import yaml
 
 from evalgate.cli import matrix, meta
 from evalgate.evals.judges import client
@@ -163,18 +164,21 @@ def test_a_file_that_is_not_a_matrix_is_refused(root: Path) -> None:
         meta.fp(root / "nada.parquet", root, root / "docs" / "GOALS.yaml", root / "meta-eval.json")
 
 
-def test_the_published_numbers_are_what_the_published_matrix_gives(tmp_path: Path) -> None:
-    """Nobody typed them: the matrix in the repository gives the three blocks again, to the last digit."""
-    published = json.loads((ROOT / "evals" / "reports" / "meta-eval.json").read_text("utf-8"))
-    path, goals, out = (
-        ROOT / "evals/reports/fp-matrix.parquet",
-        ROOT / "docs" / "GOALS.yaml",
-        tmp_path / "m.json",
-    )
+@pytest.mark.parametrize(
+    ("document", "source", "n_cases"),
+    [("meta-eval.json", "fp-matrix.parquet", 200), ("meta-eval-60.json", "fp-matrix-60.parquet", 60)],
+)
+def test_the_published_numbers_are_what_the_published_matrix_gives(
+    tmp_path: Path, document: str, source: str, n_cases: int
+) -> None:
+    """Nobody typed them: each matrix in the repository gives its three blocks again, to the last digit.
+    Both measurements are published: the one over the 200 cases and the earlier one over 60."""
+    published = json.loads((ROOT / "evals" / "reports" / document).read_text("utf-8"))
+    path, goals, out = Path("evals/reports") / source, ROOT / "docs" / "GOALS.yaml", tmp_path / "m.json"
 
-    meta.fp(path.relative_to(ROOT), ROOT, goals, out)
-    meta.mde(path.relative_to(ROOT), ROOT, goals, out)
-    again = meta.sensitivity(path.relative_to(ROOT), ROOT, goals, out)
+    meta.fp(path, ROOT, goals, out)
+    meta.mde(path, ROOT, goals, out)
+    again = meta.sensitivity(path, ROOT, goals, out)
 
     for block in (
         "fp_rate_baseline_fixed",
@@ -186,6 +190,22 @@ def test_the_published_numbers_are_what_the_published_matrix_gives(tmp_path: Pat
     ):
         assert again[block] == published[block], block
     assert published["n_decisiones"] >= 49, "G-GATE-FP asks for at least 49 decisions"
+    assert published["n_casos_subsuite"] == n_cases
+
+
+def test_an_earlier_measurement_is_shown_without_a_kappa_it_does_not_have(root: Path) -> None:
+    path, goals = built(root), root / "docs" / "GOALS.yaml"
+    document = meta.sensitivity(path, root, goals, root / "m.json")
+    meta.fp(path, root, goals, root / "m.json")
+    document = meta.mde(path, root, goals, root / "m.json")
+    thresholds = yaml.safe_load(goals.read_text("utf-8"))
+
+    table = meta.report_table(document, thresholds, matrix_only=True)
+
+    assert "G-JUDGE-KAPPA" not in table
+    assert all(goal in table for goal in ("G-GATE-FP", "G-GATE-MDE", "G-GATE-POWER"))
+    with pytest.raises(meta.LabelsError, match="cohens_kappa"):
+        meta.report_table(document, thresholds)
 
 
 def test_a_plan_without_judge_over_the_whole_golden_set(root: Path) -> None:
