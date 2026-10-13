@@ -1,0 +1,53 @@
+# La puerta de este repositorio en GitHub Actions. ESCRITA Y NO ACTIVADA.
+#
+# Solo se lanza a mano (`workflow_dispatch`). Para activarla en cada push y cada pull request, quitar el
+# comentario de las cuatro líneas marcadas con "ACTIVAR".
+#
+# Qué ejecuta: lo mismo que `make gate-fast` puede ejecutar en un clon limpio, y nada más.
+#   - NO llama a ningún modelo: los evals salen de las salidas y veredictos grabados en el repositorio.
+#   - NO ejecuta `make done` ni `make gate-full`: necesitan `.gate/` y `tests/holdout/`, que no se
+#     publican (son el estado local y la suite reservada), y `make test-int` necesita Docker con ClickHouse.
+#   - `make gate-fast` entero tampoco: tres de sus comprobaciones leen `.gate/`.
+# Comprobado el 2026-10-13 sobre un clon limpio del commit 8a23f12: todos los pasos de abajo pasan.
+name: gate
+
+on:
+  workflow_dispatch:
+  # ACTIVAR: push:
+  # ACTIVAR:   branches: [main]
+  # ACTIVAR: pull_request:
+  # ACTIVAR:   branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      # Acciones fijadas por commit, no por etiqueta (R18: nada sin fijar).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.9.27"
+      - name: Dependencias (las del lock, con hashes)
+        run: uv sync --locked
+      - name: Estilo y tipos
+        run: make lint typecheck
+      - name: Tests rápidos (unitarios, propiedad, contrato)
+        run: make test-fast
+      - name: La puerta sobre sí misma (R16) · exit 1 = este cambio queda BLOQUEADO
+        run: uv run --locked evalgate eval self-gate
+      - name: Determinismo de la puerta (G-DETERMINISM)
+        run: make eval-compare-twice
+      - name: El README dice lo que dicen los informes (R17)
+        run: uv run --locked python scripts/report.py --check
+      - name: La meta-evaluación publicada se reproduce desde la matriz
+        run: uv run --locked evalgate meta report --check
