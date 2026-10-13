@@ -18,7 +18,7 @@ import yaml
 from opentelemetry import metrics
 
 from evalgate.cli import compare as compare_cli
-from evalgate.cli import eval_run, matrix, meta, pricing_repro
+from evalgate.cli import eval_run, matrix, meta, pricing_repro, self_gate
 from evalgate.gate.decision import BLOCK
 from evalgate.pricing.loader import load_tables
 from evalgate.proxy.app import DEFAULT_PROVIDER, DEFAULT_UPSTREAM, ProxySettings, create_app
@@ -147,11 +147,32 @@ def eval_compare(
     """The gate: exit 0 if HEAD may merge, 1 if it is blocked, 2 if the reports cannot be compared."""
     try:
         comparison = compare_cli.run(base, head, gate, goals, out)
-    except ValueError as refused:
+    except (ValueError, LookupError, OSError) as refused:  # a missing file is "cannot compare", not "blocked"
         typer.echo(f"evalgate eval compare: {refused}", err=True)
         raise typer.Exit(code=2) from None
     typer.echo(compare_cli.table(comparison))
     if comparison.outcome == BLOCK:
+        raise typer.Exit(code=1)
+
+
+@eval_app.command("self-gate")
+def eval_self_gate(
+    suite: Annotated[
+        list[str] | None, typer.Option(help="Suites to hold behind the gate. Default: all with a baseline.")
+    ] = None,
+) -> None:
+    """R16: this repository behind its own gate. The published report of each suite is the baseline; what
+    today's code gives from the recorded outputs is HEAD. Exit 0, 1 if blocked, 2 if it cannot be compared."""
+    blocked = False
+    for name in suite or self_gate.SUITES:
+        try:
+            comparison = self_gate.check(Path(), name)
+        except (ValueError, LookupError, OSError) as refused:
+            typer.echo(f"evalgate eval self-gate: {name}: {refused}", err=True)
+            raise typer.Exit(code=2) from None
+        typer.echo(f"== {name}\n{compare_cli.table(comparison)}")
+        blocked = blocked or comparison.outcome == BLOCK
+    if blocked:
         raise typer.Exit(code=1)
 
 

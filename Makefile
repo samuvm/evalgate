@@ -9,7 +9,7 @@ SHELL := /bin/bash
 MILESTONE ?=
 PROFILE ?= proxy
 PROXY_PORT ?= 8080
-export EVALGATE_SELF_GATE ?= off
+export EVALGATE_SELF_GATE ?= on
 
 RUN := uv run --locked
 PYTEST := $(RUN) pytest -p no:cacheprovider
