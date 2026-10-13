@@ -48,27 +48,135 @@ Tres piezas que comparten almacén y se usan por separado: el proxy registra, el
 y la puerta decide. La puerta es la única con opinión, y por eso es la que tiene que demostrar cuánto se
 equivoca.
 
-## Probarlo
+## Qué mide
 
-Requisitos: Python 3.12, [`uv`](https://docs.astral.sh/uv/) y [Ollama](https://ollama.com) escuchando en
-el host (`localhost:11434`) con un modelo descargado (`RAG_MODEL`, por defecto `qwen3.5:9b-mlx`).
+**De tu aplicación**, por caso y sobre un conjunto de casos fijo (`src/evalgate/evals/metrics/`):
+
+| Métrica | Qué cuenta | ¿Bloquea? |
+|---|---|---|
+| `answer_correct` | La respuesta contiene la referencia, por palabras enteras, y ninguna de las respuestas excluidas | sí |
+| `context_recall` | Parte de los documentos relevantes que el sistema recuperó (recall@k) | sí |
+| `abstencion_incorrecta` | El sistema dijo "no consta" cuando la respuesta sí estaba | sí |
+| `faithfulness` | Un juez LLM, distinto del modelo que genera, dice que la respuesta se apoya en el contexto | no: retirada, su juez no concuerda lo bastante con la etiqueta humana |
+| `juez_ilegible` | El veredicto del juez no se pudo leer | no: solo informa |
+
+Ninguna métrica llama a un modelo: el juicio se obtiene aparte, se graba y se reutiliza.
+
+**De cada llamada**, en el proxy: tokens de entrada y de salida (también si el cliente corta el flujo),
+coste con una tabla de precios fechada, latencia y una traza OpenTelemetry.
+
+**De la propia puerta**, que es la tesis del proyecto: cuánto concuerda su juez con una persona, cuántas
+veces bloquea un sistema que no ha cambiado, qué caída mínima distingue del ruido y cuántas veces bloquea una
+caída real. Están en [La puerta, medida](#la-puerta-medida-meta-evaluación), con tres de las cuatro por
+debajo de su umbral.
+
+## Instalación
+
+Requisitos: Python 3.12 y [`uv`](https://docs.astral.sh/uv/). No está publicado en PyPI: se instala desde
+el repositorio.
 
 ```bash
-uv sync
-make up                                   # proxy en http://127.0.0.1:8080/v1, Ollama en el host
+git clone https://github.com/samuvm/evalgate.git
+cd evalgate
+uv sync --locked            # dependencias fijadas con hash
+uv run evalgate --help
+```
+
+Para el proxy hace falta además un servidor compatible con la API de OpenAI al que reenviar. Todo lo medido
+aquí es contra [Ollama](https://ollama.com) en local (`localhost:11434`); contra un proveedor de pago no
+está probado.
+
+## Usarlo en tu sistema
+
+Las tres piezas se usan por separado.
+
+### 1. El proxy delante de tu aplicación
+
+```bash
+uv run evalgate serve --port 8080 --upstream http://localhost:11434/v1
+```
+
+En tu aplicación solo cambia una variable de entorno; el código no se toca:
+
+```bash
+OPENAI_BASE_URL=http://127.0.0.1:8080/v1 python tu_app.py
+```
+
+El proxy sirve `POST /v1/chat/completions`, con y sin streaming, y cuenta cada llamada. Con
+`--clickhouse <DSN>` guarda además las trazas (`uv run evalgate migrate` crea el esquema); sin él, sigue
+funcionando. Si el almacén se cae, la petición no se entera.
+
+### 2. La puerta en tu CI
+
+La puerta compara dos informes de evaluación, el de tu rama principal y el de tu cambio, y devuelve un código
+de salida:
+
+```bash
+uv run evalgate eval compare base.json head.json --gate gate.yaml --goals comparacion.yaml --out resultado.json
+# 0 = puede entrar · 1 = bloqueado · 2 = los informes no se pueden comparar
+```
+
+Qué tienes que darle:
+
+- **Dos informes** con el formato de `docs/CONTRACTS/eval-report.schema.json`. Cada métrica apunta con
+  `raw_path` a un fichero con su valor por caso (`[{"case_id": "...", "value": 1.0}, ...]`). Los dos
+  informes tienen que traer los mismos casos: la comparación es pareada y, si no coinciden, se niega.
+- **`gate.yaml`**: qué métricas bloquean y en qué sentido.
+  ```yaml
+  metrics:
+    - { id: answer_correct, blocking: true }
+    - { id: tasa_de_error, blocking: true, higher_is_better: false }
+    - { id: longitud, blocking: false }
+  ```
+- **`--goals`**: un YAML con el bloque `comparacion` (réplicas, semilla, nivel de confianza, corrección). El
+  de este repositorio está en `docs/GOALS.yaml` y es el valor por defecto.
+
+Para verlo bloquear sin escribir nada, con los informes de ejemplo del repositorio:
+
+```bash
+uv run evalgate eval compare evals/suites/compare-fixture/base.json \
+  evals/suites/compare-fixture/head-regresion.json \
+  --gate evals/suites/compare-fixture/gate.yaml --out /tmp/resultado.json
+```
+
+**Lo que hay que saber antes de fiarse de ella:** medida a temperatura 0,7 y comparando una ejecución contra
+otra, esta puerta bloquea de más y no distingue caídas pequeñas. Los números exactos están en
+[La puerta, medida](#la-puerta-medida-meta-evaluación). Con salidas deterministas o grabadas ese ruido no
+existe.
+
+### 3. El motor de evaluación
+
+`evalgate eval run --suite <nombre>` puntúa una suite y escribe el informe que la puerta consume. Hoy las
+métricas son las de un sistema RAG y la suite tiene la forma de `evals/suites/rag-app/` (casos, salidas
+grabadas del sistema, veredictos grabados del juez). Para otro tipo de sistema, lo directo es generar tú
+los informes en el formato del contrato y usar solo la puerta.
+
+### Probar el ejemplo incluido
+
+```bash
+make up                                   # proxy en http://127.0.0.1:8080/v1; Ollama en el host
 python examples/rag-app/generate_corpus.py
 OPENAI_BASE_URL=http://127.0.0.1:8080/v1 python examples/rag-app/rag_app.py --limit 3
 make down
+make eval                                 # la suite de ejemplo desde lo grabado: no llama a ningún modelo
+uv run evalgate eval self-gate            # este repositorio pasando por su propia puerta
 ```
 
 `examples/rag-app` es un cliente de verdad: no importa nada de `src/evalgate/` y solo usa la biblioteca
 estándar. Que la adopción cueste una variable de entorno es una meta medida (`G-ADOPTION`: cero líneas de
 diferencia entre la salida con proxy y sin él), no una frase del README.
 
+## Frente a Langfuse y otras plataformas
+
+Evalgate no es una plataforma de observabilidad: no tiene interfaz, ni anotación, ni usuarios. Hace una cosa
+que esas plataformas no dan hecha: una puerta de CI que publica sus propias tasas de error, y la contabilidad
+de tokens y coste que la alimenta. Si ya usas una plataforma, la puerta se puede usar sola, con informes
+generados desde donde quieras. El razonamiento está en `docs/adr/004-evalgate-frente-a-langfuse.md`.
+
 ## Reglas de diseño
 
-Son reglas de `docs/RULES.md`. Las cuatro primeras ya tienen código y un comprobador en `scripts/rules/`
-que corre en el gate:
+Son reglas de `docs/RULES.md`, cada una con un comprobador en `scripts/rules/` o un test que corre en el
+gate:
 
 - **Ninguna traza puede tumbar ni ralentizar una petición.** El proxy no importa exportadores ni espera a
   un export: cola acotada que, al llenarse, descarta y lo cuenta (R1, `no_blocking_export.py`).
@@ -81,8 +189,7 @@ que corre en el gate:
   `docs/adr/005-modelo-otel-interno-con-traduccion.md`).
 - **El ejemplo es un cliente**: `examples/rag-app` no importa nada del paquete (R13, `example_is_client.py`).
 
-Las siguientes obligan a fases que todavía no están cerradas; están escritas antes que el código para que
-el código no pueda negociarlas:
+Las siguientes se escribieron antes que el código, para que el código no pudiera negociarlas:
 
 - **Ningún precio vive en el código** y una tabla de precios publicada es inmutable: corregir un precio es
   publicar una tabla nueva con fecha posterior (R3, R4).
@@ -225,9 +332,10 @@ Métricas que bloquean: `answer_correct`, `context_recall`, `abstencion_incorrec
 | Ruta | Qué hay |
 |---|---|
 | `src/evalgate/proxy/` | Proxy: `streaming.py` (contabilidad del flujo, determinista dado un transcript), `translate.py`, `app.py` (montaje) |
-| `src/evalgate/pricing/` | Modelo y búsqueda de tablas de precios fechadas (las tablas llegan en F4) |
+| `src/evalgate/pricing/` | Modelo y búsqueda de tablas de precios fechadas |
 | `src/evalgate/telemetry/` | Modelo interno de la llamada, traducción a OTel, cola acotada, filas y migraciones de ClickHouse; `semconv/` es generado |
-| `src/evalgate/cli/` | CLI `evalgate` (`serve`, `migrate`) |
+| `src/evalgate/cli/` | CLI `evalgate` (`serve`, `migrate`, `eval`, `cache`, `meta`) |
+| `src/evalgate/evals/`, `gate/`, `stats/` | Métricas, jueces con caché, la decisión de la puerta y la estadística (bootstrap pareado, Holm, Wilson) |
 | `examples/rag-app/` | Aplicación RAG mínima que hace de cliente, demo y e2e |
 | `tests/` | `unit`, `property` (Hypothesis), `contract`, `integration` (ClickHouse con testcontainers), `e2e`, y `fixtures/` con el corpus SSE y respuestas grabadas |
 | `evals/reports/` | Informes de los que sale cada número de este README |
