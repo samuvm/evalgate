@@ -28,7 +28,7 @@ STATE_DIR = ROOT / ".gate"
 STATUS = STATE_DIR / "gate-status.json"
 INVENTORY = STATE_DIR / "test-inventory.json"
 STATE = STATE_DIR / "STATE.md"
-SUITE_DIRS = "tests/unit tests/property tests/contract tests/integration tests/adversarial"
+SUITE_DIRS = "tests/unit tests/property tests/contract tests/integration tests/adversarial tests/reproduction"
 HANDLED_GOALS = {"G-FUNC-COV", "G-LINE-COV", "G-MUTATION"}  # steps 4-6; step 7 evaluates the rest
 # Regenerable or third-party directories. The same regex generated .secrets.baseline.
 # test-inventory.json is excluded for the same reason as .secrets.baseline: the gate itself rewrites it
