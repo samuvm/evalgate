@@ -1,0 +1,42 @@
+{
+  "profile": "stream",
+  "ttft_overhead_ms": {
+    "p50": 0.908,
+    "p95": 1.82,
+    "p99": 3.046
+  },
+  "direct_ms": {
+    "p50": 51.729,
+    "p95": 52.49,
+    "p99": 53.841
+  },
+  "proxy_ms": {
+    "p50": 52.637,
+    "p95": 54.31,
+    "p99": 56.887
+  },
+  "paired_diff_ms": {
+    "p50": 0.973,
+    "p95": 2.493,
+    "p99": 4.624
+  },
+  "n": 500,
+  "n_warmup": 50,
+  "tracing": "clickhouse (evalgate serve --clickhouse), mismo digest que el nivel 2",
+  "hardware": {
+    "model": "Mac16,6",
+    "chip": "Apple M4 Max",
+    "memory_bytes": 38654705664,
+    "cores": 14,
+    "macos": "27.0.1",
+    "machine": "arm64"
+  },
+  "python": "3.12.12",
+  "concurrent_processes": {
+    "docker_ps": "quirky_wiles clickhouse/clickhouse-server\ntestcontainers-ryuk-b65f9fc6-3b3f-4217-880b-b19836ad2b72 testcontainers/ryuk:0.8.1\nneo4j-questions neo4j:5.15\ntorcal-postgres postgres:15\ntorcal-minio minio/minio:RELEASE.2023-11-20T22-40-07Z",
+    "ollama_ps": "NAME    ID    SIZE    PROCESSOR    CONTEXT    RUNNER    UNTIL"
+  },
+  "exclusive_window": false,
+  "protocol_sha256": "sha256:d857c9220907e5808e14380a8a58d365ff10226825f2b39a9ca4ff3c4bcde04b",
+  "measured_at": "2026-10-13T09:00:16+00:00"
+}
