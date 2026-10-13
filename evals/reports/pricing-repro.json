@@ -3,7 +3,7 @@
   "run_id": "pricing-repro-aa1ed6875b10fc53",
   "project": "evalgate",
   "suite": "pricing-repro",
-  "created_at": "2026-10-13T09:00:17+00:00",
+  "created_at": "2026-10-13T21:06:40+00:00",
   "environment": {
     "hardware": "arm64 · macOS-27.0.1-arm64-arm-64bit",
     "python": "3.12.12",

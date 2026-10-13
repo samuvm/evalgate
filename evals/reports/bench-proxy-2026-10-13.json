@@ -1,24 +1,24 @@
 {
   "profile": "proxy",
   "overhead_ms": {
-    "p50": 1.312,
-    "p95": 1.616,
-    "p99": 1.77
+    "p50": 1.364,
+    "p95": 4.481,
+    "p99": 5.191
   },
   "direct_ms": {
-    "p50": 51.774,
-    "p95": 51.993,
-    "p99": 52.085
+    "p50": 51.757,
+    "p95": 53.651,
+    "p99": 54.756
   },
   "proxy_ms": {
-    "p50": 53.086,
-    "p95": 53.609,
-    "p99": 53.855
+    "p50": 53.121,
+    "p95": 58.132,
+    "p99": 59.947
   },
   "paired_diff_ms": {
-    "p50": 1.385,
-    "p95": 2.474,
-    "p99": 2.732
+    "p50": 1.62,
+    "p95": 4.908,
+    "p99": 6.302
   },
   "n": 500,
   "n_warmup": 50,
@@ -33,10 +33,10 @@
   },
   "python": "3.12.12",
   "concurrent_processes": {
-    "docker_ps": "elegant_hoover clickhouse/clickhouse-server\ntestcontainers-ryuk-08df8b75-3f94-4469-8bd9-f74b1dae57f6 testcontainers/ryuk:0.8.1\nneo4j-questions neo4j:5.15\ntorcal-postgres postgres:15\ntorcal-minio minio/minio:RELEASE.2023-11-20T22-40-07Z",
+    "docker_ps": "trusting_tesla clickhouse/clickhouse-server\ntestcontainers-ryuk-3fb478da-8825-4190-a639-2635c9c1b706 testcontainers/ryuk:0.8.1\ntorcal-migraciones-prueba-238f8a50 postgres:15\nneo4j-questions neo4j:5.15\ntorcal-postgres postgres:15\ntorcal-minio minio/minio:RELEASE.2023-11-20T22-40-07Z",
     "ollama_ps": "NAME    ID    SIZE    PROCESSOR    CONTEXT    RUNNER    UNTIL"
   },
   "exclusive_window": false,
   "protocol_sha256": "sha256:d857c9220907e5808e14380a8a58d365ff10226825f2b39a9ca4ff3c4bcde04b",
-  "measured_at": "2026-10-13T08:46:28+00:00"
+  "measured_at": "2026-10-13T20:52:44+00:00"
 }
