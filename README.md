@@ -196,3 +196,7 @@ make report           # regenera las tablas de este README
 `make gate-fast` and `make done` are the gate each phase closes with. They read local state (`.gate/`) and a
 held-out test suite that is kept private so it cannot be tuned against, so they are not reproducible outside
 the development machine; the tests and the rule checkers are.
+
+## Licencia
+
+[Apache-2.0](LICENSE).

@@ -3,6 +3,8 @@ name = "evalgate"
 version = "0.0.0"
 description = "Quality gate for LLM applications: tracing proxy with cost accounting, eval engine and paired statistical comparison."
 requires-python = "==3.12.*"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 dependencies = [
     "clickhouse-connect==1.8.0",
     "fastapi==0.141.1",
