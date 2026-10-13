@@ -4,9 +4,12 @@
 > publica sus propias tasas de error: la concordancia de su juez con un humano, su tasa de falsos positivos y
 > el efecto mínimo que es capaz de detectar, los tres medidos.
 
-**Estado:** en construcción, F6 de 10 cerrada (proxy, telemetría, precios, evals y la puerta); F7, la meta-evaluación, pendiente
-. El núcleo (F0-F7 y F9) todavía no está completo, y este README solo afirma lo que ya está
-medido: lo que no tiene fila en la tabla de [Números medidos](#números-medidos) no se da por hecho.
+**Estado:** F0 a F6 cerradas con el gate en verde. **F7, la meta-evaluación, está medida y publicada con
+el gate en rojo:** de sus cuatro metas, tres no alcanzan su umbral (la concordancia del juez, la tasa de
+falsos positivos y el efecto mínimo detectable) y una sí (la potencia). Los números, sus umbrales y las dos
+medidas completas están en [La puerta, medida](#la-puerta-medida-meta-evaluación); no se ha bajado ningún
+umbral. F9 (e2e, autopuerta y publicación) está en curso sobre esa base. Este README solo
+afirma lo que está medido: lo que no tiene fila en [Números medidos](#números-medidos) no se da por hecho.
 
 ## Qué es y qué no es
 
@@ -14,7 +17,8 @@ medido: lo que no tiene fila en la tabla de [Números medidos](#números-medidos
   entorno (`OPENAI_BASE_URL`), sin tocar código. Habla con cualquier runtime compatible con OpenAI; hoy,
   Ollama en local (`docs/adr/002-litellm-nunca-como-proxy.md`).
 - **Un motor de evaluación y una puerta** que compara dos informes con bootstrap pareado y corrección de
-  Holm, y devuelve 0 o 1 para CI (en construcción: F5-F7).
+  Holm, y devuelve 0 o 1 para CI. El propio repositorio pasa por ella en cada cambio
+  (`evalgate eval self-gate`).
 - **No** es una plataforma de observabilidad con interfaz (`docs/adr/004-evalgate-frente-a-langfuse.md`) ni
   compite en latencia con pasarelas en Go (`docs/adr/003-evalgate-frente-a-bifrost.md`).
 
