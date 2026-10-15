@@ -5,6 +5,7 @@ CHANGELOG entry, so an edit that skips that step fails here.
 """
 
 import hashlib
+import re
 
 import pytest
 
@@ -30,17 +31,21 @@ PINNED = _pinned()
 
 
 @pytest.mark.parametrize("path", sorted(PINNED))
-def test_copy_matches_pinned_hash(path: str) -> None:
+def test_contract_matches_pinned_hash(path: str) -> None:
     assert _sha256((ROOT / path).read_bytes()) == PINNED[path]
 
 
 def test_every_contract_is_pinned() -> None:
     contracts = {str(p.relative_to(ROOT)) for p in (ROOT / "docs/CONTRACTS").iterdir() if p.is_file()}
 
-    assert (ROOT / path).read_bytes() == original.read_bytes()
+    assert contracts == set(PINNED)
 
 
-def test_every_contract_copy_is_pinned() -> None:
-    copies = {str(p.relative_to(ROOT)) for p in (ROOT / "docs/CONTRACTS").iterdir() if p.is_file()}
+def test_every_pin_is_a_sha256_of_an_existing_file() -> None:
+    malformed = [
+        f"{path} {digest}"
+        for path, digest in PINNED.items()
+        if not re.fullmatch(r"[0-9a-f]{64}", digest) or not (ROOT / path).is_file()
+    ]
 
-    assert copies == {p for p in PINNED if p.startswith("docs/CONTRACTS/")}
+    assert malformed == []

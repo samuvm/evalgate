@@ -9,7 +9,7 @@ never takes part in this measure.
 killed_pct = 100 * killed / (total - skipped). Survived, no_tests, timeout and suspicious count against it:
 a mutant no test notices is not killed.
 
-Usage: python scripts/mutation.py [--milestone N]   (default: fase_activa of STATE.md)
+Usage: python scripts/mutation.py [--milestone N]   (default: fase_activa of .gate/STATE.md)
 Writes evals/reports/mutation-F<N>.json and prints `G-MUTATION killed_pct=...`.
 """
 

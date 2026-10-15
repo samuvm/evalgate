@@ -55,7 +55,7 @@ typecheck: ## mypy --strict sobre [tool.gate].testable
 test-fast: ## nivel 1 + 1b(dev) + 3. Presupuesto < 20 s
 	HYPOTHESIS_PROFILE=dev $(PYTEST) $(FAST_DIRS) -q
 
-test: ## todo salvo evals y holdout
+test: ## todo salvo evals y la suite reservada
 	HYPOTHESIS_PROFILE=gate $(PYTEST) $(FAST_DIRS) tests/integration tests/adversarial tests/reproduction -q
 
 test-int: ## nivel 2, testcontainers ClickHouse. Necesita Docker vivo; nunca en gate-fast (RULES §3.10)

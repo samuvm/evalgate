@@ -5,14 +5,13 @@ un fixture no lo consume ningún test. La lista vive aquí, no en el manifiesto:
 solo dice qué fichero cubre cada caso, y el texto tiene que coincidir letra a letra. Así, renombrar un caso
 para que encaje con un fixture que hace otra cosa exige tocar también esta regla, y se ve en la revisión.
 
-Los 12 de PLAN son un SUELO. El corpus puede crecer con lo que hagan los proveedores de verdad: esos van
+Los 12 son un SUELO. El corpus puede crecer con lo que hagan los proveedores de verdad: esos van
 en `extra:` del manifiesto, con su motivo escrito, y se les exige lo mismo —que algún test los consuma—.
 
 `tests/holdout/` queda fuera del escaneo a propósito: es la suite reservada, privada, y un fixture que solo
 consumiera ella no sería cobertura de los tests públicos.
 """
 
-import re
 import sys
 from pathlib import Path
 
@@ -44,7 +43,7 @@ def consumers() -> str:
 
 
 manifest = yaml.safe_load(MANIFEST.read_text(encoding="utf-8"))
-cases = plan_cases()
+cases = REQUIRED
 declared: list[dict[str, str]] = manifest["casos"]
 extra: list[dict[str, str]] = manifest.get("extra") or []
 present = {path.name for path in CORPUS.glob("*.sse")}
