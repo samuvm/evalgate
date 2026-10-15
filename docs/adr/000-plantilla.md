@@ -43,7 +43,7 @@ opción de manual, porque Z"*. Esa frase es la que se lee en una entrevista.
 
 ---
 
-# ADR pendientes de escribir en este proyecto
+# ADR previstos al arrancar el proyecto
 
 Salidos de la investigación previa. Todos están escritos; la última columna dice dónde. Una decisión no obvia
 fuera de esta lista lleva igualmente su ADR.

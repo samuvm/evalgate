@@ -1,4 +1,4 @@
-"""Every metric with made-up inputs whose result is worked out by hand (PROJECT §4, nivel 1).
+"""Every metric with made-up inputs whose result is worked out by hand (nivel 1).
 
 All of them are per-case and return 0.0 or 1.0 (or a fraction, for recall): the gate resamples CASES, so a
 metric that only existed as an aggregate could not be compared at all.

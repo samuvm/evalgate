@@ -366,7 +366,7 @@ contador. La fase se volvió a cerrar con la meta ya redefinida, y este número 
   los contratos.
 
 ### Contratos
-- Sin cambios en `docs/CONTRACTS/`. Desvíos locales documentados en ADR-006 (pin OTel, Ollama 0.33.3).
+- Sin cambios en `docs/CONTRACTS/`. Desvíos documentados en ADR-006 (pin OTel).
 
 <!--
 Plantilla de una entrada de fase cerrada:

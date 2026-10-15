@@ -275,7 +275,7 @@ def reasoning_sent(raw: bytes, frames_taken: int) -> str:
 
 
 def test_13_a_reasoning_model_bills_what_never_reaches_content() -> None:
-    """Extra al corpus de PLAN §3, con transcripción REAL de Ollama (ver CASES.yaml).
+    """Extra a los 12 casos del corpus, con transcripción REAL de Ollama (ver CASES.yaml).
 
     `delta.reasoning` trae 16 palabras de razonamiento, `delta.content` va vacío, y el proveedor factura
     40 tokens de completion. El texto de la respuesta y lo que se paga no son lo mismo.

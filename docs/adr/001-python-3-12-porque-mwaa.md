@@ -24,7 +24,7 @@ código y contratos entre repositorios sin sorpresas. Se fija `requires-python =
 ## Decisión
 
 Se elige **A**. El motivo no es "lo pide la oferta": es que MWAA no ofrece más que 3.12, y un ecosistema de
-cinco repositorios con un solo intérprete es más barato de mantener que uno donde cada repo elige.
+varios repositorios con un solo intérprete es más barato de mantener que uno donde cada repo elige.
 El intérprete concreto es **CPython 3.12.12 gestionado por uv** (`.python-version`), no el 3.12.4 de Anaconda
 del sistema: es la build estándar y la que puede reproducir un desconocido que clone el repo.
 

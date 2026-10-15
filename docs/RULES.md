@@ -123,9 +123,8 @@ Salieron todos en la investigación previa. Están aquí para no repetirlos, no 
     logs están en beta y **metrics en alpha**. El coste se deriva de spans. `create_schema: false`: el esquema
     lo gestionamos nosotros con migraciones versionadas.
 14. **Que el juez sea el mismo modelo que genera.** Infla `faithfulness` sistemáticamente. R12.
-15. **Inventar un exportador Iceberg.** El mapa de conjunto declara un contrato "Iceberg/Parquet sobre S3"
-    que este proyecto no implementa en ninguna parte. Degradado a `evalgate export parquet` (Parquet plano,
-    F10, ampliación). No se mete un hito no presupuestado por leer el mapa.
+15. **Inventar un exportador Iceberg.** Sin S3 donde probarlo ni un lector real, sería un hito no
+    presupuestado. Degradado a `evalgate export parquet` (Parquet plano, F10, ampliación; ADR-020).
 
 ---
 
@@ -229,7 +228,7 @@ Es el ADR más valioso del proyecto y la razón de que la meta-evaluación quepa
 Lo que queda dentro y fuera, y por qué. Cada fila es una decisión cerrada; reabrirla es un cambio de alcance
 con su ADR.
 
-| Fuente | Qué decía | Qué aplica ahora, y por qué |
+| Decisión | Dentro / fuera | Por qué |
 |---|---|---|
 | **Servidor proxy propio** | El servidor es de evalgate. LiteLLM nunca como proxy; como librería, solo si llega un proveedor de salida no compatible con OpenAI (ADR-002) | Con el proxy de LiteLLM, streaming y contabilidad ante desconexión —el mérito del proyecto— serían ajenos, y su telemetría colisionaría con la nuestra |
 | **Bedrock de entrada, retirado** | Endpoint de entrada solo compatible con OpenAI. Bedrock, como mucho, de salida (ADR-019) | SigV4 + `application/vnd.amazon.eventstream` (framing binario): 20-40 h sin retorno frente al endpoint OpenAI |
@@ -249,7 +248,7 @@ con su ADR.
 Este proyecto consume **cinco** contratos fijados y además escribe los suyos. Confundirlos es editar un
 contrato fijado sin versionarlo, o tratar como inmutable algo que hay que escribir.
 
-| Ruta | Qué es | Quién escribe |
+| Ruta | Qué es | Cómo se cambia |
 |---|---|---|
 | `docs/CONTRACTS/` | Contratos **fijados por sha256** (`docs/spec/contracts.sha256`): `eval-report.schema.json`, `otel-genai.md`, `pricing-table.md`, `retrieval-metrics.md`, `goals.schema.json`, `README.md` | Como evento versionado: sube la versión del contrato, se regenera `docs/spec/contracts.sha256` y se anota en `CHANGELOG.md` (R20) |
 | `docs/spec/` | Contratos **propios** de este proyecto: `openai-openapi-<ver>.json` (snapshot **descargado** de la OpenAPI publicada) y `pricing-table.schema.json` (esquema de `pricing/<YYYY-MM-DD>.yaml`, derivado de `docs/CONTRACTS/pricing-table.md` §2) | Se escriben con normalidad |

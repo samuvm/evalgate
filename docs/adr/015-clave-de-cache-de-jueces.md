@@ -24,7 +24,7 @@ la segunda, **0**. `G-CACHE-INVAL` = 1,0 sobre 2.013 comprobaciones (perfil nigh
 | **Cómo se combinan** | sha256 del **JSON canónico** (claves ordenadas, cada valor en su campo) | Concatenar: `("ab","c")` y `("a","bc")` dan la misma cadena. Es el bug clásico y tiene su test |
 | **Qué es "el prompt"** | El sha256 del **fichero entero**, frontmatter incluido | Solo el cuerpo: la temperatura vive en el frontmatter, y dos jueces que solo difieren en ella son dos jueces |
 | **Parámetros de muestreo** | Todos los que se envían, sin importar el orden; `0` y `0.0` son el mismo | Una lista cerrada de parámetros "que importan": `reasoning_effort` no estaba en ninguna lista y cambia la respuesta entera (ver abajo) |
-| **Almacén** | Un JSONL en el repositorio, una entrada por línea, en orden de llamada | DuckDB o SQLite: binarios que no se revisan en un diff, y `uv add duckdb` no estaba autorizado en el turno. 200 entradas caben de sobra en texto |
+| **Almacén** | Un JSONL en el repositorio, una entrada por línea, en orden de llamada | DuckDB o SQLite: binarios que no se revisan en un diff, y una dependencia más. 200 entradas caben de sobra en texto |
 | **Un fallo de caché en `make eval`** | **Error** que dice `make eval-refresh` | Llamar al modelo: convertiría un gate determinista en uno que depende de si Ollama está encendido |
 | **Dos respuestas para una clave** | **Error**; una entrada no se pisa | Quedarse con la última: a temperatura 0 la misma llamada da la misma respuesta, y si no la da, eso es justo lo que hay que ver |
 

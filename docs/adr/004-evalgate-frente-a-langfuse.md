@@ -19,7 +19,7 @@ Langfuse".
 |---|---|---|---|
 | **A · Plataforma completa** (UI, anotación, usuarios) | Comparable función a función | Fuera de alcance; se pierde contra un producto con equipo | +200 h |
 | **B · Integrarse en Langfuse** (exportar y usar sus gates) | Menos código | Sus gates no publican su propia tasa de falsos positivos ni su efecto mínimo detectable: la tesis desaparece | 10-20 h |
-| **C · Una puerta que publica sus propias tasas de error, más la contabilidad que la alimenta** | Es el 20 % que ninguna plataforma da llave en mano | No hay UI; el panel (F8) es ampliación | Plan actual |
+| **C · Una puerta que publica sus propias tasas de error, más la contabilidad que la alimenta** | Es el 20 % que ninguna plataforma da llave en mano | No hay UI; el panel (F8) es ampliación | Alcance actual |
 
 ## Decisión
 

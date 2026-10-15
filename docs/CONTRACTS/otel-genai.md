@@ -1,6 +1,7 @@
 # Contrato · atributos OpenTelemetry GenAI
 
-> Afecta a **01**, **02**, **03** y **04**. Se copia a los cuatro. No se importa.
+> Lo emite el proxy y lo consume cualquier backend OTel. Quien emita trazas hacia evalgate lo
+> copia; no lo importa.
 >
 > Existe porque decir "OpenTelemetry" no fija ni una versión ni una lista de atributos. Si un
 > emisor inventa nombres, la integración no funciona y el argumento "estándar abierto, cualquier
@@ -25,14 +26,14 @@ Rupturas que **ya han ocurrido** y que hay que absorber:
 | `gen_ai.usage.completion_tokens` | `gen_ai.usage.output_tokens` | v1.27.0 |
 
 Toda consulta analítica sobre trazas históricas debe hacer `coalesce()` de ambas generaciones.
-No es opcional: si no, los paneles del 02 se vacían al cruzar una frontera de versión.
+No es opcional: si no, los paneles se vacían al cruzar una frontera de versión.
 
 ---
 
 ## 2. La decisión de gobierno: modelo interno propio, con traducción
 
-**Cada proyecto mantiene su propio modelo de datos interno, desacoplado del esquema externo, y
-una capa de traducción al emitir.**
+**El emisor mantiene su propio modelo de datos interno, desacoplado del esquema externo, y una
+capa de traducción al emitir.**
 
 Parece más trabajo y es lo contrario: es lo que permite que una ruptura de la spec sea un
 cambio en un fichero en vez de una migración de esquema en ClickHouse y una reescritura de
@@ -52,7 +53,7 @@ conoce, y tiene sus propios tests de contrato.
 
 ## 3. Versión pineada
 
-Se fija en `otel-semconv.lock`, en la raíz de cada proyecto que emita trazas:
+Se fija en `otel-semconv.lock`, en la raíz del repositorio que emita trazas:
 
 ```
 repo:    open-telemetry/semantic-conventions-genai
@@ -60,8 +61,8 @@ version: v1.42.0
 sha:     <sha del tag, verificado al fijar>
 ```
 
-**Subir esa versión es un cambio consciente**, con entrada en el CHANGELOG de cada repo
-afectado y revisión del traductor. Nunca es automático.
+**Subir esa versión es un cambio consciente**, con entrada en el CHANGELOG y revisión del
+traductor. Nunca es automático.
 
 ---
 
@@ -97,8 +98,8 @@ herramienta de terceros. Lo propio va en su propio espacio:
 | `app.prompt.id` | string | Id del prompt de `prompts/` |
 | `app.prompt.version` | int | Versión del prompt |
 | `app.prompt.sha256` | string | Hash del fichero |
-| `app.index.version` | string | `index_version` activa (01 y 04) |
-| `app.stream.client_disconnected` | bool | **Clave en el 02**: esos tokens ya se han pagado y deben contabilizarse igual |
+| `app.index.version` | string | `index_version` activa, en sistemas con índice de recuperación |
+| `app.stream.client_disconnected` | bool | **Clave en el proxy**: esos tokens ya se han pagado y deben contabilizarse igual |
 | `app.ttft_ms` | double | Latencia hasta el primer token |
 
 ### Métricas
@@ -109,8 +110,8 @@ herramienta de terceros. Lo propio va en su propio espacio:
 | `gen_ai.client.operation.duration` | histogram | `s` |
 | `app.spans.dropped` | counter | `{span}` |
 
-`app.spans.dropped` es de primera clase y va en el panel. El documento del 02 declara a la vez
-"pérdida de trazas 0 %" y "la cola se llena y descarta sin bloquear": son objetivos en tensión.
+`app.spans.dropped` es de primera clase y va en el panel. "Pérdida de trazas 0 %" y "la cola se
+llena y descarta sin bloquear" son objetivos en tensión.
 Se resuelven declarando el caudal sostenido bajo el cual se garantiza el 0 %, y exponiendo el
 contador. Un descarte silencioso es peor que un descarte medido.
 
@@ -121,7 +122,7 @@ contador. Un descarte silencioso es peor que un descarte medido.
 - **OpenLLMetry** (Traceloop) o SDK OTel puro. Salida OTel estándar, conectable a cualquier
   backend.
 - **No OpenInference** (Arize): usa convenciones propias, no `gen_ai.*`, y te saca del estándar
-  que el 02 dice defender. Elegirlo contradice la tesis del proyecto.
+  que este proyecto dice defender. Elegirlo contradice la tesis del proyecto.
 
 ## 6. La regla que no se negocia
 
@@ -131,11 +132,3 @@ observabilidad que puede tirar la aplicación es peor que no tenerla.
 
 Se prueba **tumbando el contenedor a mitad del test**, no razonándolo.
 
-## 7. Sobre el proyecto 04
-
-El mapa afirma que el 04 "emite trazas OTel directamente". **El documento del 04 no menciona
-OpenTelemetry ni una sola vez**; su capa de observabilidad es MLflow, métricas y alertas.
-
-Decisión: **el 04 emite OTel en su fase de observabilidad, que está marcada como ampliación.**
-Coste real 6-10 h. Mientras no lo haga, el mapa lo declara como trabajo futuro y no como hecho.
-No se finge una coherencia que no existe: eso se nota.

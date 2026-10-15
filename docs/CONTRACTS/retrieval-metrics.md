@@ -1,12 +1,11 @@
 # Contrato · métricas de retrieval y esquema del golden set
 
-> Afecta a **01 (citebound)**, **02 (evalgate)** y **04 (indexkeeper)**.
-> Se copia a los tres. No se importa.
+> Lo usan la puerta y cualquier sistema de recuperación que se evalúe con ella. Se copia; no se
+> importa.
 >
-> Existe porque hoy el 01 y el 04 miden "recall" con definiciones distintas, y sus README
-> no serían comparables. Y porque la métrica insignia del 01 —precisión de cita— no está
-> definida lo bastante para implementarla: dos implementaciones producirían dos números distintos,
-> ambos llamados 0,85.
+> Existe porque "recall" se mide con definiciones distintas según quién lo implemente, y dos
+> README así no son comparables. Y porque la precisión de cita no está definida lo bastante para
+> implementarla: dos implementaciones producirían dos números distintos, ambos llamados 0,85.
 >
 > **Versión del contrato: 1**
 
@@ -14,18 +13,18 @@
 
 ## 1. La regla que lo gobierna: nunca se evalúa contra `chunk_id`
 
-El documento del 01 mide `context recall @5` sobre chunks recuperados. **Eso invalida el
-golden set cada vez que cambia la estrategia de troceado**, que es exactamente lo que pasa en
-su fase de retrieval y en toda la comparativa de troceado del 04. El trabajo de anotar 150-200
-casos se destruiría solo, a mitad del proyecto.
+Medir `context recall @5` sobre chunks recuperados **invalida el golden set cada vez que
+cambia la estrategia de troceado**, que es justo lo que se cambia al ajustar el retrieval o al
+comparar estrategias de troceado. El trabajo de anotar 150-200 casos se destruiría solo, a mitad
+del proyecto.
 
 **Toda evaluación de retrieval y de cita se ancla en `legal_ref`** — el identificador legal
-estable definido en `chunks-ddl.sql` (`norma#artNN.apartado`). El recall se calcula mapeando
+estable del corpus (`norma#artNN.apartado`). El recall se calcula mapeando
 `chunk → legal_ref` y comparando conjuntos de referencias legales, no de chunks.
 
 Consecuencia práctica: puedes cambiar el chunker, el modelo de embeddings o el reranker, y el
-golden set sigue siendo válido. Es lo que permite que el 04 compare estrategias de troceado
-usando el golden set del 01.
+golden set sigue siendo válido. Es lo que permite comparar estrategias de troceado con el mismo
+golden set.
 
 ---
 
@@ -51,7 +50,7 @@ artículo. Es correcto y deliberado: lo que importa es si la referencia está, n
 
 ### Precisión de cita
 
-El documento dice "¿el artículo citado es el del golden set? Exacto, sí/no". Eso no resuelve
+La definición ingenua —"¿el artículo citado es el del golden set? Exacto, sí/no"— no resuelve
 cuatro casos que aparecen constantemente. Se cierra así:
 
 | Caso | Regla |
@@ -124,8 +123,8 @@ Un fichero JSONL. Una línea, un caso. Validado por Pydantic antes de cualquier 
 ### Tres reglas duras
 
 1. **Mínimo un 15 % de casos `negativo`.** Sin ellos no hay métrica de abstención incorrecta.
-2. **`provenance` se declara en el README.** Los documentos ya dicen que esconder que los datos
-   de alumnos son sintéticos "se nota y resta credibilidad". Aplica igual aquí.
+2. **`provenance` se declara en el README.** Esconder que unos datos son sintéticos se nota y
+   resta credibilidad.
 3. **Ningún caso entra en el golden set sin revisión humana.** Generación asistida por LLM sí;
    aprobación automática no. Es el único punto del proyecto donde el criterio de dominio humano
    es insustituible.
@@ -142,7 +141,7 @@ bootstrap **pareado** sobre proporciones de p≈0,85:
 | **150** | **±5,7 pp** |
 | 200 | ±4,9 pp |
 
-Con menos de 150 casos no puedes distinguir una regresión real de ruido, y la puerta del 02 no
+Con menos de 150 casos no puedes distinguir una regresión real de ruido, y la puerta no
 significa nada. **Se arranca en 150 y se crece.** El README publica el efecto mínimo detectable
 con el `n` real, no solo el número de casos.
 
@@ -153,9 +152,9 @@ generación asistida más revisión de 1,5-3 min por caso, baja a 8-14 h. **No b
 
 ## 4. Comparación estadística: bootstrap pareado
 
-El documento del 01 dice "bootstrap sobre los 200 casos" sin decir si es pareado. La elección
-cambia por completo la sensibilidad y la tasa de falsos positivos, y dos implementaciones construirían
-dos puertas incomparables.
+"Bootstrap sobre los 200 casos", sin decir si es pareado, no es una especificación. La elección
+cambia por completo la sensibilidad y la tasa de falsos positivos, y dos implementaciones
+construirían dos puertas incomparables.
 
 **Decisión: bootstrap pareado sobre los mismos casos.** Se remuestrean los casos, no las
 ejecuciones: para cada réplica se toma la diferencia `métrica_head - métrica_base` **sobre el
@@ -174,8 +173,8 @@ Holm-Bonferroni.**
 El motivo importa y conviene saber decirlo: Holm controla la **tasa de error por familia**
 —la probabilidad de bloquear al menos una vez sin causa— y eso es exactamente lo que arruina
 una puerta de calidad. Un falso bloqueo cuesta una tarde y, sobre todo, erosiona la confianza:
-la puerta que bloquea sin motivo se acaba desactivando, que es el riesgo número uno declarado
-del proyecto 02. Holm es además uniformemente más potente que Bonferroni y no exige supuestos
+la puerta que bloquea sin motivo se acaba desactivando, que es el riesgo número uno de una
+puerta de calidad. Holm es además uniformemente más potente que Bonferroni y no exige supuestos
 adicionales, así que no hay razón para preferir Bonferroni.
 
 Benjamini-Hochberg controla la **tasa de falsos descubrimientos** y es la elección correcta
@@ -188,12 +187,9 @@ o `null` si se vigilan tres métricas o menos.
 
 ---
 
-## 5. Conjunto de consultas para comparar troceado (04)
+## 5. Conjunto de consultas para comparar troceado
 
-El 04 compara estrategias de troceado y necesita medir recall. **Usa este mismo formato y esta
-misma definición de recall@k**, sobre el subconjunto `tipo="positivo"`. Esa es toda la razón de
-que este contrato exista: si el 04 inventa su propia definición, sus números y los del 01 no se
-pueden poner en la misma tabla, y la comparativa de estrategias pierde su sentido.
-
-El 04 **no anota su propio golden set**. Consume el del 01 cuando existe, y mientras no exista
-usa un conjunto reducido propio marcado explícitamente como provisional en su README.
+Quien compare estrategias de troceado **usa este mismo formato y esta misma definición de
+recall@k**, sobre el subconjunto `tipo="positivo"`. Si inventa su propia definición, sus números
+y los de la evaluación de respuestas no se pueden poner en la misma tabla, y la comparativa de
+estrategias pierde su sentido.

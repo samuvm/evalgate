@@ -27,7 +27,7 @@ significado. El tipo de datos tenía que ser el de la especificación, no el má
 | Opción | A favor | En contra | Coste estimado |
 |---|---|---|---|
 | **A · Pares explícitos: `Iterable[tuple[str, str]] -> list[tuple[str, str]]`** | Es el modelo del RFC; la función pura deja de depender del multidict de cada librería; el acoplamiento (`.items()` de starlette, `.multi_items()` de httpx) queda a la vista en `app.py` | Cambia la firma de dos funciones públicas y obliga a montar la respuesta con `raw_headers` | 2 h |
-| **B · Seguir con `Mapping` y tratar `Set-Cookie` como caso especial** | Cambio mínimo | Es la lista negra que qa avisó de no escribir: arregla los nombres de estos 12 casos y vuelve a fallar con el siguiente campo repetido | 0,5 h |
+| **B · Seguir con `Mapping` y tratar `Set-Cookie` como caso especial** | Cambio mínimo | Es una lista negra: arregla los nombres de estos 12 casos y vuelve a fallar con el siguiente campo repetido | 0,5 h |
 | **C · Pasar `httpx.Headers` de punta a punta** | Sin tipo propio | Mete la librería de salida en el núcleo determinista y en la firma; un cambio de cliente HTTP se propagaría a `translate.py` | 1 h |
 
 ## Decisión

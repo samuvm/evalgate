@@ -25,7 +25,7 @@ unos ±6,5 puntos: es el orden de magnitud del efecto mínimo detectable, que F7
 | **Cómo se decide "IC entero bajo cero"** | Sobre la **cuenta exacta** de réplicas en que el cambio no fue peor (`Fraction`), contra α = (1 − nivel)/2. Los extremos del intervalo son rangos elegidos para que sea la misma afirmación | Comparar flotantes del intervalo: informe y decisión podrían discrepar en el borde, y un p-valor justo en α caería de un lado u otro según la máquina |
 | **Corrección múltiple** | Holm sobre p-valores ajustados, y solo sobre la familia de métricas **bloqueantes** | Bonferroni: Holm rechaza todo lo que Bonferroni y más, sin supuestos. Benjamini-Hochberg: controla falsos descubrimientos, no el error por familia; vale para un panel. Incluir las métricas informativas en la familia: añadir un diagnóstico volvería sorda a la puerta |
 | **"Cae bajo su umbral absoluto"** | Bajo el umbral **y** peor que la base | Bloquear todo lo que esté bajo el umbral: `compare(a, a)` bloquearía (rompe R9), y también el cambio que arregla la métrica |
-| **Dependencias** | Solo librería estándar (`random`, `math.fsum`, `fractions`) | numpy + scipy (`scipy.stats.bootstrap`): dos dependencias que fijar y auditar para ahorrar 58 ms, y `uv add` no estaba autorizado en el turno. Si F7 necesita vectorizar la matriz de 3.000 × 50, se pide entonces |
+| **Dependencias** | Solo librería estándar (`random`, `math.fsum`, `fractions`) | numpy + scipy (`scipy.stats.bootstrap`): dos dependencias que fijar y auditar para ahorrar 58 ms. Si F7 necesita vectorizar la matriz de 3.000 × 50, se añaden entonces |
 
 ## Decisión
 

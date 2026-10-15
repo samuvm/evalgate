@@ -9,7 +9,7 @@
 ## Contexto
 
 Las trazas son carga **analítica**: agregados por modelo, por día o por prompt sobre millones de filas que
-no se actualizan nunca. Eso es trabajo para un almacén columnar, no para uno OLTP (PROJECT §1, STACK §3), y
+no se actualizan nunca. Eso es trabajo para un almacén columnar, no para uno OLTP, y
 ClickHouse es además el backend del que hay esquema público (`otel_traces` del `clickhouseexporter`).
 
 La decisión que no es obvia es **por dónde llegan las trazas**, y la forzó una medida del contrato: el
@@ -27,7 +27,7 @@ almacén, porque "un descarte silencioso es peor que un descarte medido". Dos he
 |---|---|---|---|
 | **A · SDK → OTLP → Collector (`clickhouseexporter`) → ClickHouse** | La receta habitual; cualquier backend | El proxy no ve la caída del almacén: el contador no mide. Un contenedor más, con su RAM | 0 h de código; métrica inservible |
 | **B · SDK con `BatchSpanProcessor` + exportador propio a ClickHouse** | Menos código propio | Punto 1: el procesador del SDK pierde los rechazos sin contarlos | 2 h |
-| **C · Cola acotada propia + exportador directo a ClickHouse (`clickhouse-connect`), mismo esquema `otel_traces`** | El contador cuenta los dos descartes (cola llena y almacén caído); la petición solo hace `put_nowait` | Código propio que mantener (~150 líneas, 100 % cubiertas); se aparta de STACK §6 | 6-8 h |
+| **C · Cola acotada propia + exportador directo a ClickHouse (`clickhouse-connect`), mismo esquema `otel_traces`** | El contador cuenta los dos descartes (cola llena y almacén caído); la petición solo hace `put_nowait` | Código propio que mantener (~150 líneas, 100 % cubiertas); se aparta de la receta habitual | 6-8 h |
 
 ## Decisión
 

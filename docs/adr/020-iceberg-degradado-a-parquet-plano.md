@@ -20,7 +20,7 @@ todavía no existe.
 |---|---|---|
 | **A · Parquet plano con esquema documentado** (`evalgate export parquet`) | Lo lee DuckDB, pandas, Athena y cualquier catálogo; se puede testear el esquema en local | No es una tabla: sin snapshots, sin evolución de esquema, sin catálogo |
 | **B · Escribir Iceberg** | Cumple el contrato tal como se nombró | Catálogo, metadatos y commits atómicos sobre S3 sin S3 donde probarlos; sería un exportador sin un solo lector real |
-| **C · No exportar** | Cero trabajo | El 03 se queda sin datos de este proyecto |
+| **C · No exportar** | Cero trabajo | Ningún consumidor externo puede leer las trazas sin hablar con ClickHouse |
 
 ## Decisión
 

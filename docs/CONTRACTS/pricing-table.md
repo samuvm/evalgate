@@ -1,10 +1,9 @@
 # Contrato · tabla de precios con fecha de vigencia
 
-> Afecta a **02 (evalgate)**, que la construye, y a **04 (indexkeeper)**, que la necesita para
-> su métrica insignia. Se copia a los dos. No se importa.
+> La construye evalgate y la necesita cualquier métrica de coste o de ahorro en euros. Se copia;
+> no se importa.
 >
-> Es una dependencia oculta: el mapa de conjunto no la declara, pero sin ella la métrica
-> "ahorro incremental ≥ 90 % medido en euros" del 04 no se puede calcular.
+> Sin ella, un ahorro "medido en euros" no se puede calcular de forma reproducible.
 >
 > **Versión del contrato: 1**
 
@@ -65,7 +64,7 @@ Casos que un test de tabla debe cubrir, con el resultado calculado a mano:
    vigencia usa cada tramo con su tabla.
 3. **Caché de prompt con descuento**: escritura y lectura tienen precios propios.
 4. **Cliente que se desconecta a mitad del stream**: esos tokens ya se han pagado y **se
-   contabilizan igual**. Es el caso que casi nadie implementa y medio mérito del proxy del 02.
+   contabilizan igual**. Es el caso que casi nadie implementa y medio mérito del proxy.
 5. Redondeo: se acumula en la unidad más pequeña y se redondea solo al presentar.
 
 Propiedades verificables con Hypothesis: el coste nunca es negativo; añadir tokens nunca reduce
@@ -75,8 +74,8 @@ el coste; el coste de un lote es la suma de sus partes.
 
 ## 4. Las dos métricas de coste que hay que separar
 
-El documento del 04 declara "ahorro incremental ≥ 90 % medido en euros". **Con Ollama local eso
-vale 0 €**, y la métrica insignia del proyecto no se puede medir con su stack por defecto.
+Una meta como "ahorro incremental ≥ 90 % medido en euros" **vale 0 € con Ollama local**, y no se
+puede medir con un stack local por defecto.
 
 Se resuelve publicando **dos columnas, siempre**:
 
@@ -97,8 +96,8 @@ ninguna tabla de precios.
 
 ## 5. La validación del 1 % contra factura real: reformulada
 
-El documento del 02 pide "error ≤ 1 % contra la factura real del proveedor" y lo pone como
-criterio de aceptación de una fase. **Es inviable dentro del timebox**: exige cuenta de pago,
+Pedir "error ≤ 1 % contra la factura real del proveedor" como criterio de aceptación de una fase
+**es inviable dentro del timebox**: exige cuenta de pago,
 treinta días naturales de tráfico y volumen suficiente para que el redondeo no domine — con
 menos de 20-50 € de gasto, el error de cuantización supera por sí solo el 1 %. Solo la espera
 de calendario ya excede la fase entera.

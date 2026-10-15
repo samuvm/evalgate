@@ -6,7 +6,7 @@
 #
 # Se puede cambiar CÓMO se llega al número. Nunca el número.
 #
-# FORMA: la fija `docs/CONTRACTS/goals.schema.json` (contrato transversal v1). Se valida con
+# FORMA: la fija `docs/CONTRACTS/goals.schema.json` (contrato v1). Se valida con
 #   uv run --with pyyaml --with jsonschema python -c "import yaml,json,jsonschema;\
 #   jsonschema.validate(yaml.safe_load(open('docs/GOALS.yaml')),\
 #   json.load(open('docs/CONTRACTS/goals.schema.json')))"
@@ -253,7 +253,7 @@ metas:
     artefacto: ".gate/gate-status.json"
     bloqueante_desde_fase: 6
     tipo: nucleo
-    nota: "Criterio de aceptación nº 3 hecho comando. Dos ejecuciones sobre los mismos informes -> misma decisión y mismo sha256 del informe, excluidos los campos de evals/report-hash-exclusions.yaml (created_at y los de temporización). CORRECCIÓN: la lista de campos no deterministas NO va dentro del informe; el esquema del contrato tiene additionalProperties:false en la raíz. Vive en configuración del proyecto."
+    nota: "Determinismo de la puerta hecho comando. Dos ejecuciones sobre los mismos informes -> misma decisión y mismo sha256 del informe, excluidos los campos de evals/report-hash-exclusions.yaml (created_at y los de temporización). CORRECCIÓN: la lista de campos no deterministas NO va dentro del informe; el esquema del contrato tiene additionalProperties:false en la raíz. Vive en configuración del proyecto."
 
   # ---------------------------------------------------------------- F7 · meta-evaluación
   - id: G-GATE-FP

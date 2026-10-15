@@ -1,34 +1,35 @@
 # Evalgate
 
-> **Un evaluador no evaluado es un adorno.**
+> **An evaluator that hasn't been evaluated is decoration.**
 
-Evalgate es una puerta de calidad para aplicaciones LLM: un proxy que cuenta tokens y coste, y una
-comparación estadística que decide en CI si un cambio empeora el sistema. A diferencia de otras puertas,
-publica sus propias tasas de error, medidas.
+Evalgate is a quality gate for LLM applications: a proxy that accounts for tokens and cost, and a
+statistical comparison that decides in CI whether a change makes the system worse. Unlike other gates, it
+publishes its own error rates, measured.
 
-![Flujo de Evalgate: la aplicación, el proxy y el proveedor; contabilidad, telemetría, evaluación y la puerta](docs/animacion/evalgate-flujo.gif)
+![Evalgate flow: the application, the proxy and the provider; accounting, telemetry, evaluation and the gate](docs/animacion/evalgate-flujo.gif)
 
-**Estado.** El proxy, la contabilidad, la telemetría, los precios, el motor de evaluación y la puerta están
-cerrados y verificados (fases F0 a F6). La meta-evaluación (F7) está medida y **publicada con tres de sus
-cuatro metas por debajo del umbral**; no se ha bajado ninguno. Ver [Resultados](#resultados).
+**Status.** The proxy, accounting, telemetry, pricing, evaluation engine and gate are done and verified
+(phases F0 to F6, see [`docs/ROADMAP.md`](docs/ROADMAP.md)). The meta-evaluation (F7) is measured and
+**published with three of its four goals below threshold**; no threshold was lowered. See
+[Results](#results).
 
-## Qué hace
+## What it does
 
-- **Proxy** compatible con `/v1/chat/completions` de OpenAI, con y sin streaming. Se adopta cambiando una
-  variable de entorno. Registra tokens, coste y una traza OpenTelemetry por llamada, también si el cliente
-  corta la conexión.
-- **Motor de evaluación** que puntúa un sistema caso a caso sobre un conjunto fijo, con los juicios de un
-  LLM grabados y reutilizados.
-- **Puerta** que compara dos informes con bootstrap pareado (y corrección de Holm cuando hay más de tres
-  métricas bloqueantes) y devuelve un código de salida para CI.
+- **Proxy** compatible with OpenAI's `/v1/chat/completions`, streaming and non-streaming. Adopting it means
+  changing one environment variable. It records tokens, cost and one OpenTelemetry trace per call, including
+  when the client drops the connection.
+- **Evaluation engine** that scores a system case by case over a fixed set, with LLM judgements recorded and
+  reused.
+- **Gate** that compares two reports with a paired bootstrap (and Holm correction when there are more than
+  three blocking metrics) and returns an exit code for CI.
 
-No es una plataforma de observabilidad: no tiene interfaz, anotación ni usuarios
-([ADR-004](docs/adr/004-evalgate-frente-a-langfuse.md)). La puerta se puede usar sola, con informes
-generados desde cualquier herramienta.
+It is not an observability platform: no UI, no annotation, no users
+([ADR-004](docs/adr/004-evalgate-frente-a-langfuse.md)). The gate can be used on its own, with reports
+produced by any tool.
 
-## Instalación
+## Installation
 
-Requiere Python 3.12 y [`uv`](https://docs.astral.sh/uv/). No está publicado en PyPI.
+Requires Python 3.12 and [`uv`](https://docs.astral.sh/uv/). Not published on PyPI.
 
 ```bash
 git clone https://github.com/samuvm/evalgate.git
@@ -37,154 +38,154 @@ uv sync --locked
 uv run evalgate --help
 ```
 
-## Uso
+## Usage
 
 ### Proxy
 
 ```bash
 uv run evalgate serve --port 8080 --upstream http://localhost:11434/v1
-OPENAI_BASE_URL=http://127.0.0.1:8080/v1 python tu_app.py
+OPENAI_BASE_URL=http://127.0.0.1:8080/v1 python your_app.py
 ```
 
-La aplicación no cambia. Con `--clickhouse <DSN>` las trazas se guardan en ClickHouse
-(`uv run evalgate migrate` crea el esquema); si el almacén se cae, las peticiones siguen sirviéndose.
+The application does not change. With `--clickhouse <DSN>` traces are stored in ClickHouse
+(`uv run evalgate migrate` creates the schema); if the store goes down, requests keep being served.
 
-### Puerta en CI
+### Gate in CI
 
 ```bash
-uv run evalgate eval compare base.json head.json --gate gate.yaml --out resultado.json
+uv run evalgate eval compare base.json head.json --gate gate.yaml --out result.json
 ```
 
-| Código | Significado |
+| Exit code | Meaning |
 |---|---|
-| 0 | El cambio puede entrar |
-| 1 | Bloqueado: alguna métrica bloqueante empeora de forma significativa |
-| 2 | Los informes no se pueden comparar |
+| 0 | The change can go in |
+| 1 | Blocked: some blocking metric got significantly worse |
+| 2 | The reports cannot be compared |
 
-Entradas:
+Inputs:
 
-- **Dos informes** con el formato de [`eval-report.schema.json`](docs/CONTRACTS/eval-report.schema.json).
-  Cada métrica apunta con `raw_path` a su valor por caso. Los dos informes deben traer los mismos casos.
-- **`gate.yaml`** con las métricas y su papel:
+- **Two reports** in the [`eval-report.schema.json`](docs/CONTRACTS/eval-report.schema.json) format. Each
+  metric points with `raw_path` to its per-case values. Both reports must contain the same cases.
+- **`gate.yaml`** with the metrics and their role:
   ```yaml
   metrics:
     - { id: answer_correct, blocking: true }
-    - { id: tasa_de_error, blocking: true, higher_is_better: false }
-    - { id: longitud, blocking: false }
+    - { id: error_rate, blocking: true, higher_is_better: false }
+    - { id: length, blocking: false }
   ```
-- **`--goals`** (opcional): un YAML con el bloque `comparacion` (réplicas, semilla, nivel de confianza). Por
-  defecto, [`docs/GOALS.yaml`](docs/GOALS.yaml).
+- **`--goals`** (optional): a YAML file with the `comparacion` block (resamples, seed, confidence level).
+  Defaults to [`docs/GOALS.yaml`](docs/GOALS.yaml).
 
-### Ejemplo incluido
+### Bundled example
 
 ```bash
-# La puerta bloqueando una regresión, con informes de ejemplo
+# The gate blocking a regression, with sample reports
 uv run evalgate eval compare evals/suites/compare-fixture/base.json \
   evals/suites/compare-fixture/head-regresion.json \
-  --gate evals/suites/compare-fixture/gate.yaml --out /tmp/resultado.json
+  --gate evals/suites/compare-fixture/gate.yaml --out /tmp/result.json
 
-# Este repositorio pasando por su propia puerta, sin llamar a ningún modelo
+# This repository going through its own gate, without calling any model
 uv run evalgate eval self-gate
 
-# La aplicación RAG de ejemplo detrás del proxy (necesita Ollama en localhost:11434)
+# The example RAG application behind the proxy (needs Ollama on localhost:11434)
 make up
 python examples/rag-app/generate_corpus.py
 OPENAI_BASE_URL=http://127.0.0.1:8080/v1 python examples/rag-app/rag_app.py --limit 3
 make down
 ```
 
-## Métricas
+## Metrics
 
-| Métrica | Qué cuenta | Bloquea |
+| Metric | What it counts | Blocks |
 |---|---|---|
-| `answer_correct` | La respuesta contiene la referencia y ninguna respuesta excluida | sí |
-| `context_recall` | Parte de los documentos relevantes que se recuperaron | sí |
-| `abstencion_incorrecta` | El sistema dijo "no consta" cuando la respuesta estaba | sí |
-| `faithfulness` | Un juez LLM dice que la respuesta se apoya en el contexto | no (retirada) |
-| `juez_ilegible` | El veredicto del juez no se pudo leer | no |
+| `answer_correct` | The answer contains the reference and none of the excluded answers | yes |
+| `context_recall` | Share of the relevant documents that were retrieved | yes |
+| `abstencion_incorrecta` | The system said "not in the documents" when the answer was there | yes |
+| `faithfulness` | An LLM judge says the answer is grounded in the context | no (retired) |
+| `juez_ilegible` | The judge's verdict could not be parsed | no |
 
-`faithfulness` se calcula y se publica, pero no decide: su juez no alcanza la concordancia exigida con la
-etiqueta humana. El motor trae hoy métricas de un sistema RAG; para otros sistemas, la puerta acepta
-cualquier informe con el formato del contrato.
+`faithfulness` is computed and published, but it does not decide: its judge does not reach the required
+agreement with human labels. The engine ships RAG metrics today; for other systems, the gate accepts any
+report in the contract format.
 
-## Resultados
+## Results
 
-Todos los números de esta sección los genera `make report` desde `evals/reports/`. El detalle completo
-está en [`docs/NUMEROS.md`](docs/NUMEROS.md).
+Every number in this section is generated by `make report` from `evals/reports/`. The full detail, in
+Spanish, is in [`docs/NUMEROS.md`](docs/NUMEROS.md).
 
-### La puerta, medida
+### The gate, measured
 
-Medida ejecutando el sistema muchas veces con ruido y comparando cada ejecución contra una línea base fija:
+Measured by running the system many times with noise and comparing each run against a fixed baseline:
 
 <!-- evalgate:meta:start -->
-| Meta | Medido | Umbral | ¿Cumple? | Detalle |
+| Goal | Measured | Threshold | Met? | Detail |
 |---|---|---|---|---|
-| `G-JUDGE-KAPPA` | 0,47 | >= 0,60 | **no** | IC95 [0,27, 0,65] · 150 etiquetas humanas · acuerdo bruto 0,86 |
-| `G-GATE-FP` | 0,102 | <= 0,05 | **no** | Wilson 95 % [0,044, 0,218] · 5 bloqueos en 49 decisiones contra `base-00` |
-| `G-GATE-MDE` | 10,50 | <= 8,00 | **no** | puntos porcentuales, en `answer_correct` · 200 casos · 2450 pares de 50 ejecuciones |
-| `G-GATE-POWER` | 1,00 | >= 0,90 | sí | mínimo sobre las degradaciones de tamaño ≥ 15,75 pp · mínimo sobre las 4: 0,02 |
+| `G-JUDGE-KAPPA` | 0.47 | >= 0.60 | **no** | 95% CI [0.27, 0.65] · 150 human labels · raw agreement 0.86 |
+| `G-GATE-FP` | 0.102 | <= 0.05 | **no** | Wilson 95% [0.044, 0.218] · 5 blocks in 49 decisions against `base-00` |
+| `G-GATE-MDE` | 10.50 | <= 8.00 | **no** | percentage points, on `answer_correct` · 200 cases · 2450 pairs from 50 runs |
+| `G-GATE-POWER` | 1.00 | >= 0.90 | yes | minimum over degradations of size ≥ 15.75 pp · minimum over all 4: 0.02 |
 <!-- evalgate:meta:end -->
 
-En la práctica: comparando una ejecución contra otra con ese ruido, la puerta bloquea de más y no distingue
-caídas pequeñas, pero bloquea siempre las dos degradaciones grandes. Con salidas deterministas o grabadas
-ese ruido no existe.
+In practice: comparing one run against another with that much noise, the gate blocks too often and cannot
+tell small drops apart, but it always blocks the two large degradations. With deterministic or recorded
+outputs that noise does not exist.
 
-### El resto del sistema
+### The rest of the system
 
 <!-- evalgate:numbers:start -->
-Último cierre en verde: F6, 2026-10-08 (`evals/reports/gate-F6.json`).
+Last phase closed in green: F6, 2026-10-08 (`evals/reports/gate-F6.json`).
 
-| Meta | Qué mide | Valor |
+| Goal | What it measures | Value |
 |---|---|---|
-| `G-ADOPTION` | Adopción por variable de entorno, sin tocar código | lineas_de_diff=0, n_lineas=8 |
-| `G-CACHE-HIT` | Coste marginal de re-ejecutar la suite | 0,00 |
-| `G-CACHE-INVAL` | La clave de caché de jueces invalida exactamente lo que debe | ratio=1, n=63 |
-| `G-DETERMINISM` | Determinismo de eval compare | ratio=1, n=3 |
-| `G-DISCONNECT` | Contabilidad ante desconexión del cliente | ratio=1, n=217 |
-| `G-FUNC-COV` | Un test unitario por función pública, con extensión de propiedad | 0 |
-| `G-LAT-PROXY` | Sobrecarga p95 del proxy, no-streaming | 6,97 |
-| `G-LAT-TTFT` | Sobrecarga p95 del time-to-first-token, streaming | 3,80 |
-| `G-LINE-COV` | Cobertura de línea en paquetes testable | 99,35 |
-| `G-MUTATION` | Mutantes muertos en paquetes con TDD obligatorio | 88,58 |
-| `G-OPENAI-CONTRACT` | Compatibilidad con el esquema publicado de OpenAI | ratio=1,00, n=7 |
-| `G-OTEL-CONTRACT` | Spans conformes al contrato OTel GenAI pineado | ratio=1, n=25 |
-| `G-PRICE-REPRO` | Reproducibilidad de informes de coste históricos | 0,00 |
-| `G-TOKENS-EXACT` | Contabilidad exacta de tokens en no-streaming | ratio=1, n=5 |
-| `G-TOKENS-STREAM` | Contabilidad de tokens en streaming | delta_con_usage=0 |
-| `G-TRACE-0` | Cero spans perdidos con almacén sano | perdidos=0, rps=50, servidas=6000 |
-| `G-TRACE-DEGRADE` | Degradación elegante con el almacén caído | 0,08 |
+| `G-ADOPTION` | Adoption through one environment variable, no code changes (diff lines) | lineas_de_diff=0, n_lineas=8 |
+| `G-CACHE-HIT` | Marginal cost of re-running the suite | 0.00 |
+| `G-CACHE-INVAL` | The judge cache key invalidates exactly what it should | ratio=1, n=63 |
+| `G-DETERMINISM` | Determinism of `eval compare` | ratio=1, n=3 |
+| `G-DISCONNECT` | Accounting when the client disconnects | ratio=1, n=217 |
+| `G-FUNC-COV` | Public functions without a unit test (plus property tests in pricing/ and stats/) | 0 |
+| `G-LAT-PROXY` | p95 proxy overhead, non-streaming (ms) | 6.97 |
+| `G-LAT-TTFT` | p95 time-to-first-token overhead, streaming (ms) | 3.80 |
+| `G-LINE-COV` | Line coverage of the testable packages (%) | 99.35 |
+| `G-MUTATION` | Killed mutants in the TDD packages (%) | 88.58 |
+| `G-OPENAI-CONTRACT` | Compatibility with OpenAI's published schema | ratio=1.00, n=7 |
+| `G-OTEL-CONTRACT` | Spans conforming to the pinned OTel GenAI contract | ratio=1, n=25 |
+| `G-PRICE-REPRO` | Reproducibility of historical cost reports (EUR difference) | 0.00 |
+| `G-TOKENS-EXACT` | Exact token accounting, non-streaming | ratio=1, n=5 |
+| `G-TOKENS-STREAM` | Token accounting, streaming | delta_con_usage=0 |
+| `G-TRACE-0` | Zero spans lost with a healthy store | perdidos=0, rps=50, servidas=6000 |
+| `G-TRACE-DEGRADE` | Graceful degradation with the store down (p95 delta, ms) | 0.08 |
 <!-- evalgate:numbers:end -->
 
-## Diseño
+## Design
 
-- **Una traza nunca tumba ni retrasa una petición.** Cola acotada que, al llenarse, descarta y lo cuenta.
-- **La contabilidad se cierra siempre.** Cliente cortado, tokens pagados, tokens contados.
-- **Ningún precio en el código.** Tablas fechadas e inmutables; corregir un precio es publicar otra.
-- **Ningún umbral en la puerta.** Todo parámetro de decisión llega de `docs/GOALS.yaml`.
-- **Comparación pareada o error.** Informes con casos distintos no se comparan.
-- **Ninguna métrica llama a un modelo**, y el juez nunca es el modelo que genera.
+- **A trace never brings down or slows down a request.** A bounded queue that drops, and counts, when full.
+- **Accounting always closes.** Client cut off, tokens paid, tokens counted.
+- **No price in the code.** Dated, immutable price tables; fixing a price means publishing a new one.
+- **No threshold in the gate.** Every decision parameter comes from `docs/GOALS.yaml`.
+- **Paired comparison or an error.** Reports with different cases are not compared.
+- **No metric calls a model**, and the judge is never the model that generates.
 
-Cada regla tiene un comprobador automático ([`docs/RULES.md`](docs/RULES.md)); las decisiones están en
-[`docs/adr/`](docs/adr/).
+Each rule has an automatic checker ([`docs/RULES.md`](docs/RULES.md)); design decisions are recorded in
+[`docs/adr/`](docs/adr/). Project documentation is in Spanish.
 
-## Limitaciones
+## Limitations
 
-- Probado solo contra Ollama en local. Ningún proveedor de pago ni Bedrock.
-- Sin conciliación contra una factura real: el coste es el declarado por una tabla de precios pública.
-- El corpus de evaluación es sintético por construcción: mide si la puerta detecta degradaciones, no la
-  calidad de un dominio real.
-- El flujo de CI (`.github/workflows/gate.yml`) está escrito y sin activar.
+- Tested only against Ollama locally. No paid provider, no Bedrock.
+- No reconciliation against a real invoice: cost is what a public price table declares.
+- The evaluation corpus is synthetic by construction: it measures whether the gate detects degradations,
+  not the quality of a real domain.
+- The CI workflow (`.github/workflows/gate.yml`) is written but not enabled.
 
-## Desarrollo
+## Development
 
 ```bash
-make lint typecheck   # ruff y mypy --strict
-make test-fast        # unitarios, propiedad y contrato
-make test-int         # integración contra ClickHouse (necesita Docker)
-make report           # regenera las tablas de este README
+make lint typecheck   # ruff and mypy --strict
+make test-fast        # unit, property and contract tests
+make test-int         # integration against ClickHouse (needs Docker)
+make report           # regenerates the tables in this README
 ```
 
-| Ruta | Contenido |
+| Path | Contents |
 |---|---|
 | `src/evalgate/proxy/` | Proxy and stream accounting |
 | `src/evalgate/pricing/`, `telemetry/` | Dated prices; OTel traces and ClickHouse |
@@ -197,6 +198,6 @@ make report           # regenera las tablas de este README
 held-out test suite that is kept private so it cannot be tuned against, so they are not reproducible outside
 the development machine; the tests and the rule checkers are.
 
-## Licencia
+## License
 
 [Apache-2.0](LICENSE).

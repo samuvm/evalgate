@@ -1,4 +1,4 @@
-"""G-ADOPTION (criterio de aceptación nº 1): an existing app is instrumented by changing one environment
+"""G-ADOPTION: an existing app is instrumented by changing one environment
 variable, without touching code. Measured as the number of differing output lines of examples/rag-app
 run straight against the upstream and through `evalgate serve`. Must be 0.
 

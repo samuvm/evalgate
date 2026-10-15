@@ -43,7 +43,7 @@ Dos cosas que se aprendieron al medir, y que ya están en el corpus:
    positivos es una decisión de F7 que hay que tomar a sabiendas, no un detalle.
 
 Lo que este corpus **no** permite afirmar: nada sobre la calidad de ningún RAG real. Cuando evalgate se
-aplique a citebound-01 (F11), el golden set será el de citebound, con revisión humana y bajo el contrato
+aplique a un RAG real (F11), el golden set será el de ese sistema, con revisión humana y bajo el contrato
 tal cual.
 
 ## Consecuencias

@@ -25,7 +25,7 @@
       "description": "Identificador único de la ejecución. Determinista si la ejecución lo es."
     },
     "project": {
-      "enum": ["citebound", "evalgate", "datawarden", "indexkeeper"]
+      "enum": ["evalgate"]
     },
     "suite": {
       "type": "string",
@@ -65,7 +65,7 @@
         },
         "index_version": {
           "type": "string",
-          "description": "Sólo 01 y 04. Índice activo durante la evaluación."
+          "description": "Sólo en sistemas con índice de recuperación. Índice activo durante la evaluación."
         },
         "seed": {
           "type": "integer",
@@ -93,7 +93,7 @@
     },
     "prompts": {
       "type": "array",
-      "description": "Todo prompt que participó, con su versión y hash. Es lo que permite correlacionar un cambio de métrica con un cambio de prompt concreto, que es medio argumento del proyecto 02.",
+      "description": "Todo prompt que participó, con su versión y hash. Es lo que permite correlacionar un cambio de métrica con un cambio de prompt concreto, que es medio argumento de la puerta.",
       "items": {
         "type": "object",
         "required": ["id", "version", "sha256"],
